@@ -1,0 +1,22 @@
+Docs/FAQs.US.pod
+Docs/HTML/create_doc.sh
+Docs/HTML/traverse.sh
+Docs/HTML/utils_Docs/queryUMLS.html
+Docs/INSTALL.pod
+Docs/README.Docs.pod
+Docs/README.pod
+Docs/Todo.US.pod
+FDL.txt
+GPL.txt
+INSTALL
+lib/UMLS/Similarity.pm
+lib/UMLS/Similarity/lch.pm
+lib/UMLS/Similarity/path.pm
+Makefile.PL
+MANIFEST
+README
+t/access.t
+t/test.t
+utils/configuration
+utils/queryUMLS.pl
+META.yml                                 Module meta-data (added by MakeMaker)

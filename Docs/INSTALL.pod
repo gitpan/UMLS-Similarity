@@ -1,0 +1,74 @@
+##################################################################
+#
+#    INSTALLATION Instructions for the UMLS-Similarity Package
+#    $Id: INSTALL.pod,v 1.1 2008/05/20 21:53:22 btmcinnes Exp $ 
+##################################################################
+
+=head1
+
+UMLS-Similarity
+
+=head1 TESTING PLATFORMS
+
+
+UMLS-Interface has been developed and tested on Linux and Solaris, 
+primarily using Perl and the C shell (csh).
+
+=head1 REQUIREMENTS
+
+UMLS-Interface REQUIRES that the following software be installed. 
+More details on how to obtain and install appear below. 
+
+--Programming Languages
+Perl (version 5.8.5 or better)
+
+--CPAN modules
+UMLS::Interface
+
+
+=head1 PROGGRAMMING LANGUAGES
+
+=head2 Perl (version 5.8.5 or better)
+
+Perl is freely available at http://www.perl.org. It is very likely that 
+you will already have Perl installed if you are using a Unix/Linux based 
+system. 
+
+=head1 CPAN MODULES
+
+=head2 UMLS-Interface
+
+Please see the UMLS-Interface documentation.
+
+=head1 INSTALLATION 
+
+If you have the super-user access, then you can install SenseClusters 
+into system directories via :
+	
+		perl Makefile.PL
+		make
+		make install
+	 	make clean
+
+The exact location of where UMLS-Similarity will be installed 
+dependson your system configuration. A message will be printed 
+out aftermake install telling your exactly where it was installed. 
+
+If you do not have authority to write into system directories, you can
+install SenseClusters in a local directory that you own and have permissions 
+to read and write into as follows:
+
+		perl Makefile.PL PREFIX = /YOUR/DIR
+		make
+		make install
+		make clean
+
+This will install the UMLS-Similarity programs into 
+
+		/YOUR/DIR/bin/
+
+and man pages into 
+
+		/YOUR/DIR/share/man/ (Linux)
+		/YOUR/DIR/man/       (Solaris)
+
