@@ -2,43 +2,32 @@
     UMLS::Similarity
 
   SYNOPSIS
-    This package consists of Perl modules along with supporting Perl
-    programs that implement the semantic relatedness measures described by
-    Leacock & Chodorow (1998) and a simple path based measure. In the near
-    future, we are planning to add Jiang & Conrath (1997), Resnik (1995) and
-    Lin (1998).
+      This package consists of Perl modules along with supporting Perl
+      programs that implement the semantic relatedness measures described 
+      by Leacock & Chodorow (1998) and a simple path based measure. In the 
+      near future, we are planning to add  Jiang & Conrath (1997), Resnik 
+      (1995) and Lin (1998).
 
-    This package is essentially a copy of Semantic::Similarity which is a
-    re-implementation of the WordNet::Similarity suite of modules.
-    WordNet::Similarity is tied to the WordNet lexical database. But,
-    suppose we wish to use these techniques in the domain of medical
-    informatics, for instance. This Semantic::Similarity allows one to
-    replace WordNet with another domain-specific taxonomy, and use this to
-    find semantic relatedness of concepts in that domain.
+      UMLS::Similarity requires the UMLS::Interface module to access 
+      the Unified Medical Language System (UMLS) in order to determine 
+      the similarity between two UMLS concepts.
 
-    Semantic::Similarity is not tied to a specific database but requires an
-    Interface module (such as SnoMed::Interface) communicate between it and
-    the database. Currently, we created UMLS::Interface to connect with the
-    UMLS to be used with this module. In the future, we plan that
-    UMLS-Interface will work seemlessly with all of the Semantic::Similarity
-    functionality not just what is available in UMLS::Similarity.
+      The Perl modules are designed as objects with methods that take as
+      input two concepts from the UMLS. The semantic relatedness of these 
+      concepts is returned by these methods. A quantitative measure of 
+      the degree to which the two concepts are related has wide ranging 
+      applications in numerous areas, such as word sense disambiguation, 
+      information retrieval, etc. For example, in order to determine which 
+      sense of a given word is being used in a particular context, the sense 
+      having the highest relatedness with its context word senses is most 
+      likely to be the sense being used. Similarly, in information retrieval, 
+      retrieving documents containing highly related concepts are more likely 
+      to have higher precision and recall values.
 
-    The Perl modules are designed as objects with methods that take as input
-    two word senses. The semantic relatedness of these word senses is
-    returned by these methods. A quantitative measure of the degree to which
-    two word senses are related has wide ranging applications in numerous
-    areas, such as word sense disambiguation, information retrieval, etc.
-    For example, in order to determine which sense of a given word is being
-    used in a particular context, the sense having the highest relatedness
-    with its context word senses is most likely to be the sense being used.
-    Similarly, in information retrieval, retrieving documents containing
-    highly related concepts are more likely to have higher precision and
-    recall values.
-
-    The following sections describe the organization of this software
-    package and how to use it. A few typical examples are given to help
-    clearly understand the usage of the modules and the supporting
-    utilities.
+      The following sections describe the organization of this software
+      package and how to use it. A few typical examples are given to help
+      clearly understand the usage of the modules and the supporting
+      utilities.
 
   SEMANTIC RELATEDNESS
         We observe that humans find it extremely easy to say if two words are
@@ -52,16 +41,15 @@
 
         A number of different measures of relatedness have been implemented in
         this software package. These include a simple edge counting
-        approach. The measures require a backend taxonomy that defines concepts
-        in a domain (or in general), and some basic relationships between these
-        concepts.
+        approach. The measures require the UMLS-Interface that define UMLS 
+        concepts, and some basic relationships between these concepts.
 
   CONTENTS
         All the modules that will be installed in the Perl system directory are
         present in the '/lib' directory tree of the package. These include the
         semantic relatedness modules -- 
 
-          Semantic/Similarity/jcn.pm
+          Semantic/Similarity/lch.pm
           Semantic/Similarity/path.pm
 
         -- present in the lib/ subdirectory. All these modules, once installed
@@ -73,7 +61,7 @@
 
           queryUMLS.pl -- returns the semantic similarity of two 
                           terms or UMLS CUIs given a specified 
-                          measure
+                          measure (and view of the UMLS).
       
   INSTALL
         To install these modules run the following magic commands:
@@ -95,33 +83,6 @@
         documentation. However, it is highly recommended not messing around
         with other parameters, unless you know what you're doing.
 
-  TAXONOMY INTERFACE
-        The modules implemented in this package require a backend taxonomy for
-        computing semantic relatedness. A taxonomy is provided to these modules
-        as an interface object. An interface object (for example
-        Snomed::Interface v0.01) is a Perl module that provides certain methods
-        that can be used by the Semantic::Similarity modules to access the
-        taxonomy. The following methods are expected in the interface object:
-
-          $version = $interface->version();
-          $depth   = $interface->depth();
-          $bool    = $interface->exists($concept);
-          @tList   = $interface->getTermList($concept);
-          @cList   = $interface->getConceptList($term);
-          @path    = $interface->findShortestPath($concept1, $concept2);
-    
-        The 'version' method returns the version of the UMLS that is 
-        being used. The 'depth' method returns the max depth of the 
-        view of the UMLS that is being used. The 'exists' method checks 
-        if a concept exists in the view of the UMLS being used. The 
-        'getTermsList' method lists all terms corresponding to a 
-        concept in the given UMLS viewand the 'getConceptList' method
-        retrieves the list of CUIs corresponding to a given term. The 
-        'findShortestPath' method returns the shortest path between 
-        two CUIs given the view of the UMLS being used.
-
-        Right now we know that this package works with UMLS::Interface.
-    
   SOFTWARE COPYRIGHT AND LICENSE
         Copyright (C) 2004-2009 Bridget T McInnes,  Siddharth Patwardhan, 
         Serguei Pakhomov and Ted Pedersen
@@ -142,15 +103,6 @@
 
         Note: The text of the GNU General Public License is provided in the file
         'GPL.txt' that you should have received with this distribution.
-
-  ACKNOWLEDGMENTS
-        We would like to thank the following for their support and contribution
-        towards the development of this package. We thank Jason Rennie for his
-        QueryData package, the WordNet guys at Princeton for WordNet, Resnik,
-        Hirst, St-Onge, Jiang, Conrath, Lin, Wu, Palmer, Leacock, and Chodorow
-        for their algorithms and work on the relatedness measures. We also thank
-        Bano (Satanjeev Banerjee) for his work on the adapted gloss overlap
-        module.
 
   REFERENCES
         1   Wu Z. and Palmer M. 1994. Verb Semantics and Lexical Selection. In
@@ -214,9 +166,8 @@
 
     SEE ALSO
 
-        <http://groups.yahoo.com/group/wn-similarity>,
-        <http://search.cpan.org/dist/WordNet-Similarity>,
-        <http://wn-similarity.sourceforge.net>
+        <http://search.cpan.org/dist/UMLS-Interface>,
+        <http://search.cpan.org/dist/UMLS-Similarity>
 
     AUTHORS
 

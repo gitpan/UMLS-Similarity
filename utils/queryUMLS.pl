@@ -262,9 +262,6 @@ else {
     &errorCheck($umls);
 }
 
-
-
-
 foreach $cc1 (@c1)
 {
     foreach $cc2 (@c2)
@@ -355,7 +352,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: queryUMLS.pl,v 1.10 2009/01/12 21:27:05 btmcinnes Exp $';
+    print '$Id: queryUMLS.pl,v 1.11 2009/01/13 22:20:50 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

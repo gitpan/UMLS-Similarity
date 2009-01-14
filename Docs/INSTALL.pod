@@ -1,7 +1,7 @@
 ##################################################################
 #
 #    INSTALLATION Instructions for the UMLS-Similarity Package
-#    $Id: INSTALL.pod,v 1.1 2008/05/20 21:53:22 btmcinnes Exp $ 
+#    $Id: INSTALL.pod,v 1.4 2009/01/14 15:54:20 btmcinnes Exp $ 
 ##################################################################
 
 =head1
@@ -25,7 +25,6 @@ Perl (version 5.8.5 or better)
 --CPAN modules
 UMLS::Interface
 
-
 =head1 PROGGRAMMING LANGUAGES
 
 =head2 Perl (version 5.8.5 or better)
@@ -42,7 +41,28 @@ Please see the UMLS-Interface documentation.
 
 =head1 INSTALLATION 
 
-If you have the super-user access, then you can install SenseClusters 
+If you have supervisor access, or have configured MCPAN for local 
+install, you can install via: 
+
+perl -MCPAN -e shell
+> install UMLS-Similarity
+
+
+If not, you can, "manually" install by downloading the *.tar.gz file,  
+unpacking, and executing the following commands. 
+
+perl Makefile.PL PREFIX=/space/kulka020/Bit-Vector LIB=/space/kulka020/MyPerlLib
+make
+make test
+make install
+
+Note that the PREFIX and LIB settings are just examples to help you create 
+a local install, if you do not have supervisor (su) access. 
+
+You must include /space/kulka020/MyPerlLib in your PERL5LIB environment 
+variable to access this module when running.
+
+If you have the super-user access, then you can install UMLS-Similarity 
 into system directories via :
 	
 		perl Makefile.PL
@@ -51,24 +71,5 @@ into system directories via :
 	 	make clean
 
 The exact location of where UMLS-Similarity will be installed 
-dependson your system configuration. A message will be printed 
-out aftermake install telling your exactly where it was installed. 
-
-If you do not have authority to write into system directories, you can
-install SenseClusters in a local directory that you own and have permissions 
-to read and write into as follows:
-
-		perl Makefile.PL PREFIX = /YOUR/DIR
-		make
-		make install
-		make clean
-
-This will install the UMLS-Similarity programs into 
-
-		/YOUR/DIR/bin/
-
-and man pages into 
-
-		/YOUR/DIR/share/man/ (Linux)
-		/YOUR/DIR/man/       (Solaris)
-
+depends on your system configuration. A message will be printed 
+out after 'make install' telling your exactly where it was installed. 

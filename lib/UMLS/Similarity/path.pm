@@ -1,12 +1,5 @@
 # UMLS::Similarity::path.pm
 #
-# This module is a copy of UMLS::Similarity::path.pm version 0.01
-# (used as is from Semantic::Similarity)
-# (Updated 09/01/2009 -- Bridget)
-#
-# This module is a copy of Semantic::Similarity::path.pm version 0.01
-# (Updated 08/09/2004 -- Sid)
-#
 # Module implementing the simple edge counting measure of 
 # semantic relatedness.
 #
@@ -141,34 +134,39 @@ __END__
 =head1 NAME
 
 UMLS::Similarity::path - Perl module for computing semantic relatedness
-of word senses by simple edge counting. This is a taxonomy independent
-implementation of the algorithm.
+of concepts in the UMLS by simple edge counting. 
 
 =head1 SYNOPSIS
+  #!/usr/bin/perl
 
+  use UMLS::Interface;
   use UMLS::Similarity::path;
 
-  use WordNet::Interface;
+  my $umls = UMLS::Interface->new(); 
+  die "Unable to create UMLS::Interface object.\n" if(!$umls);
+  ($errCode, $errString) = $umls->getError();
+  die "$errString\n" if($errCode);
 
-  my $interface = WordNet::Interface->new();
-
-  my $myobj = UMLS::Similarity::path->new($interface);
-
+  my $path = UMLS::Similarity::path->new($umls);
+  die "Unable to create measure object.\n" if(!$path);
+  
   my $cui1 = "C0005767";
   my $cui2 = "C0007634";
+	
+  @ts1 = $umls->getTermList($cui1);
+  my $term1 = pop @ts1;
 
-  my $value = $myobj->getRelatedness($cui1, $cui2);
+  @ts2 = $umls->getTermList($cui2);
+  my $term2 = pop @ts2;
 
-  ($error, $errorString) = $myobj->getError();
+  my $value = $path->getRelatedness($cui1, $cui2);
 
-  die "$errorString\n" if($error);
- 
-  print "Similarity (path) : $cui1 <-> $cui2 = $value\n";
+  print "The similarity between $cui1 ($term1) and $cui2 ($term2) is $value\n";
 
 =head1 DESCRIPTION
 
-This module computes the semantic relatedness of word senses by simple
-edge counitng in a taxonomy. 
+This module computes the semantic relatedness of two concepts by simple 
+edge counitng in a specified view of the UMLS.
 
 =head1 USAGE
 
@@ -191,8 +189,7 @@ lines of code in the perl program.
 
 The reference of the initialized object is stored in the scalar
 variable '$measure'. '$interface' contains an interface object that
-should have been created earlier in the program. The interface object
-defines methods to access a backend taxonomy (such as UMLS, etc.). 
+should have been created earlier in the program (UMLS-Interface).
 
 If the 'new' method is unable to create the object, '$measure' would 
 be undefined. This, as well as any other error/warning may be tested.
@@ -201,7 +198,7 @@ be undefined. This, as well as any other error/warning may be tested.
    ($err, $errString) = $measure->getError();
    die $errString."\n" if($err);
 
-To find the sematic relatedness of the concept 'blood' (C0005767) and
+To find the semantic relatedness of the concept 'blood' (C0005767) and
 the concept 'cell' (C0007634) using the measure, we would write
 the following piece of code:
 
@@ -216,13 +213,9 @@ traces are turned off.
 
 =head1 SEE ALSO
 
+perl(1), UMLS::Interface
+
 perl(1), UMLS::Similarity(3)
-
-http://www.cogsci.princeton.edu/~wn
-
-http://www.ai.mit.edu/people/jrennie/WordNet
-
-http://groups.yahoo.com/group/wn-similarity
 
 =head1 AUTHORS
 

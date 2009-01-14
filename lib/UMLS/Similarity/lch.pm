@@ -1,12 +1,5 @@
 # UMLS::Similarity::lch.pm
 #
-# This module is a copy of UMLS::Similarity::lch.pm version 0.01
-# (used as is from Semantic::Similarity)
-# (Updated 09/01/2009 -- Bridget)
-#
-# This module is a copy of Semantic::Similarity::lch.pm version 0.01
-# (Updated 08/09/2004 -- Sid)
-#
 # Module implementing the semantic relatedness measure described 
 # by Leacock and Chodorow (1998).
 #
@@ -149,38 +142,45 @@ __END__
 =head1 NAME
 
 UMLS::Similarity::lch - Perl module for computing semantic relatedness
-of word senses using the method described by Leacock and Chodorow (1998). This
-module is a taxonomy independent implementation of the algorithm.
+of concepts in the Unified Medical Language System (UMLS) using the 
+method described by Leacock and Chodorow (1998). 
 
 =head1 SYNOPSIS
 
+  #!/usr/bin/perl
+
+  use UMLS::Interface;
   use UMLS::Similarity::lch;
 
-  use WordNet::Interface;
+  my $umls = UMLS::Interface->new(); 
+  die "Unable to create UMLS::Interface object.\n" if(!$umls);
+  ($errCode, $errString) = $umls->getError();
+  die "$errString\n" if($errCode);
 
-  my $interface = WordNet::Interface->new();
-
-  my $myobj = UMLS::Similarity::lch->new($interface);
-
+  my $lch = UMLS::Similarity::lch->new($umls);
+  die "Unable to create measure object.\n" if(!$lch);
+  
   my $cui1 = "C0005767";
   my $cui2 = "C0007634";
+	
+  @ts1 = $umls->getTermList($cui1);
+  my $term1 = pop @ts1;
 
-  my $value = $myobj->getRelatedness($cui1, $cui2);
+  @ts2 = $umls->getTermList($cui2);
+  my $term2 = pop @ts2;
 
-  ($error, $errorString) = $myobj->getError();
+  my $value = $lch->getRelatedness($cui1, $cui2);
 
-  die "$errorString\n" if($error);
-
-  print "Similarity (lch) : $cui1 <-> $cui2 = $value\n";
+  print "The similarity between $cui1 ($term1) and $cui2 ($term2) is $value\n";
 
 =head1 DESCRIPTION
 
-This module computes the semantic relatedness of word senses according
-to a method described by Leacock and Chodorow (1998). This method
-counts up the number of edges between the concepts in the backend
-taxonomy.  This value is then scaled by the maximum depth of the
-taxonomy. A relatedness value is obtained by taking the negative log
-of this scaled value.
+This module computes the semantic relatedness of two concepts in 
+the UMLS according to a method described by Leacock and Chodorow 
+(1998). This method counts up the number of edges between the 
+concepts in the a specified view of the UMLS.  This value is then 
+scaled by the maximum depth of this view. A relatedness value is 
+obtained by taking the negative log of this scaled value.
 
 =head1 USAGE
 
@@ -203,8 +203,7 @@ lines of code in the perl program.
 
 The reference of the initialized object is stored in the scalar
 variable '$measure'. '$interface' contains an interface object that
-should have been created earlier in the program. The interface object
-defines methods to access a backend taxonomy (such as UMLS, etc.). 
+should have been created earlier in the program (UMLS-Interface). 
 
 If the 'new' method is unable to create the object, '$measure' would 
 be undefined. This, as well as any other error/warning may be tested.
@@ -213,7 +212,7 @@ be undefined. This, as well as any other error/warning may be tested.
    ($err, $errString) = $measure->getError();
    die $errString."\n" if($err);
 
-To find the sematic relatedness of the concept 'blood' (C0005767) and
+To find the semantic relatedness of the concept 'blood' (C0005767) and
 the concept 'cell' (C0007634) using the measure, we would write
 the following piece of code:
 
@@ -228,13 +227,9 @@ traces are turned off.
 
 =head1 SEE ALSO
 
+perl(1), UMLS::Interface
+
 perl(1), UMLS::Similarity(3)
-
-http://www.cogsci.princeton.edu/~wn
-
-http://www.ai.mit.edu/people/jrennie/WordNet
-
-http://groups.yahoo.com/group/wn-similarity
 
 =head1 AUTHORS
 
