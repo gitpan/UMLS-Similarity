@@ -19,7 +19,7 @@ my $author4 = 'Bridget McInnes <bthomson@cs.umn.edu>';
 WriteMakefile(
               'NAME'		  => 'UMLS::Similarity',
               'VERSION_FROM'	  => 'lib/UMLS/Similarity.pm',
-              'PREREQ_PM'         => {'UMLS::Interface' => '0'},
+              'PREREQ_PM'         => {'UMLS::Interface' => '0.13'},
               'EXE_FILES'         => [("utils/queryUMLS.pl")],
               'dist'              => {'COMPRESS' => 'gzip -9f', 'SUFFIX' => 'gz'},
               ($] >= 5.005 ?

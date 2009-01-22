@@ -1,7 +1,7 @@
-# UMLS::Similarity::lch.pm
+# UMLS::Similarity::wup.pm
 #
 # Module implementing the semantic relatedness measure described 
-# by Leacock and Chodorow (1998).
+# by Wu and Palmer (1994)
 #
 # Copyright (c) 2004-2009,
 #
@@ -35,7 +35,7 @@
 # Boston, MA  02111-1307, USA.
 
 
-package UMLS::Similarity::lch;
+package UMLS::Similarity::wup;
 
 use strict;
 use warnings;
@@ -51,7 +51,7 @@ sub new
     my $className = shift;
     return undef if(ref $className);
 
-    if($debug) { print STDERR "In UMLS::Similarity::lch->new()\n"; }
+    if($debug) { print STDERR "In UMLS::Similarity::wup->new()\n"; }
 
     my $interface = shift;
 
@@ -69,7 +69,7 @@ sub new
 
     if(!$interface)
     {
-	$self->{'errorString'} .= "\nError (UMLS::Similarity::lch->new()) - ";
+	$self->{'errorString'} .= "\nError (UMLS::Similarity::wup->new()) - ";
 	$self->{'errorString'} .= "An interface object is required.";
 	$self->{'error'} = 2;
     }
@@ -89,18 +89,16 @@ sub getRelatedness
     my $concept2 = shift;
 
     my $interface = $self->{'interface'};
-
-    my (@path) = $interface->findShortestPath($concept1, $concept2);
-
-    my $version = $interface->version();
-
-    my $depth = $interface->depth();
     
-    my $score = 0;
-    if($#path > -1) {
-	$score = -1 * ( log ( ($#path+1)/(2*$depth) ) );
-    }
-    return $score
+    my $lcs = $interface->findLeastCommonSubsumer($concept1, $concept2);
+
+    my $lcs_depth = $interface->findMinimumDepth($lcs);
+    my $c1_depth  = $interface->findMinimumDepth($concept1);
+    my $c2_depth  = $interface->findMinimumDepth($concept2);
+    
+    my $score = (2 * $lcs_depth) / ($c1_depth + $c2_depth);
+    
+    return $score;
 }
 
 # Method to return recent error/warning condition
@@ -109,7 +107,7 @@ sub getError
     my $self = shift;
     return (2, "") if(!defined $self || !ref $self);
 
-    if($debug) { print STDERR "In UMLS::Similarity::lch->getError()\n"; }
+    if($debug) { print STDERR "In UMLS::Similarity::wup->getError()\n"; }
 
     my $dontClear = shift;
     my $error = $self->{'error'};
@@ -141,22 +139,22 @@ __END__
 
 =head1 NAME
 
-UMLS::Similarity::lch - Perl module for computing semantic relatedness
+UMLS::Similarity::wup - Perl module for computing semantic relatedness
 of concepts in the Unified Medical Language System (UMLS) using the 
-method described by Leacock and Chodorow (1998). 
+method described by Wu and Palmer (1994).
 
 =head1 SYNOPSIS
 
   use UMLS::Interface;
-  use UMLS::Similarity::lch;
+  use UMLS::Similarity::wup;
 
   my $umls = UMLS::Interface->new(); 
   die "Unable to create UMLS::Interface object.\n" if(!$umls);
   ($errCode, $errString) = $umls->getError();
   die "$errString\n" if($errCode);
 
-  my $lch = UMLS::Similarity::lch->new($umls);
-  die "Unable to create measure object.\n" if(!$lch);
+  my $wup = UMLS::Similarity::wup->new($umls);
+  die "Unable to create measure object.\n" if(!$wup);
   
   my $cui1 = "C0005767";
   my $cui2 = "C0007634";
@@ -167,18 +165,18 @@ method described by Leacock and Chodorow (1998).
   @ts2 = $umls->getTermList($cui2);
   my $term2 = pop @ts2;
 
-  my $value = $lch->getRelatedness($cui1, $cui2);
+  my $value = $wup->getRelatedness($cui1, $cui2);
 
   print "The similarity between $cui1 ($term1) and $cui2 ($term2) is $value\n";
 
 =head1 DESCRIPTION
 
-This module computes the semantic relatedness of two concepts in 
-the UMLS according to a method described by Leacock and Chodorow 
-(1998). The relatedness measure proposed by Leacock and Chodorow 
-is S<-log (length / (2 * D))>, where length is the length of the 
-shortest path between the two synsets (using node-counting) and 
-D is the maximum depth of the taxonomy.
+The Wu & Palmer measure calculates relatedness by considering the 
+depths of the two concepts in the UMLS, along with the depth of the 
+LCS.  The formula is S<score = 2*depth(lcs) / (depth(s1) + depth(s2))>.
+This means that S<0 < score <= 1>.  The score can never be zero because 
+the depth of the LCS is never zero (the depth of the root of a taxonomy 
+is one). The score is one if the two input synsets are the same.
 
 =head1 USAGE
 
@@ -193,11 +191,11 @@ See the UMLS::Similarity(3) documentation for details of these methods.
 
 =head1 TYPICAL USAGE EXAMPLES
 
-To create an object of the lch measure, we would have the following
+To create an object of the wup measure, we would have the following
 lines of code in the perl program. 
 
-   use UMLS::Similarity::lch;
-   $measure = UMLS::Similarity::lch->new($interface);
+   use UMLS::Similarity::wup;
+   $measure = UMLS::Similarity::wup->new($interface);
 
 The reference of the initialized object is stored in the scalar
 variable '$measure'. '$interface' contains an interface object that

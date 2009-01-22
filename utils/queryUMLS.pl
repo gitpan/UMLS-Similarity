@@ -117,10 +117,11 @@ this program; if not, write to:
 use UMLS::Interface;
 use UMLS::Similarity::lch;
 use UMLS::Similarity::path;
+use UMLS::Similarity::wup;
 
 use Getopt::Long;
 
-GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "cui", "lch", "config=s");
+GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "cui", "lch", "wup", "path", "config=s");
 
 
 #  if help is defined, print out help
@@ -164,6 +165,30 @@ my $measure = "path";
 if(defined $opt_lch) {
     $measure = "lch";
 }
+if(defined $opt_wup) {
+    $measure = "wup";
+}
+
+if( (defined $opt_lch) and (defined $opt_wup) and (defined $opt_path) ){
+    print STDERR "Can not define --lch --path and --wup at the same time\n";
+    &minimalUsageNotes();
+    exit;
+}   
+if( (defined $opt_lch) and (defined $opt_wup) ){
+    print STDERR "Can not define --lch and --wup at the same time\n";
+    &minimalUsageNotes();
+    exit;
+}   
+if( (defined $opt_lch) and (defined $opt_path) ){
+    print STDERR "Can not define --lch and --path at the same time\n";
+    &minimalUsageNotes();
+    exit;
+}   
+if( (defined $opt_path) and (defined $opt_wup) ){
+    print STDERR "Can not define --path and --wup at the same time\n";
+    &minimalUsageNotes();
+    exit;
+}   
 
 my $umls = "";
 my $lch  = "";
@@ -223,6 +248,16 @@ die "$errString\n" if($errCode);
 
 $lch->{'trace'} = 1;
 
+#  Loading the module implementing the Wu and 
+#  Palmer (1994) measure
+$wup = UMLS::Similarity::wup->new($umls);
+die "Unable to create measure object.\n" if(!$wup);
+
+($errCode, $errString) = $wup->getError();
+die "$errString\n" if($errCode);
+
+$wup->{'trace'} = 1;
+
 #  Loading the module implementing the simple edge counting 
 #  measure of semantic relatedness.
 $path = UMLS::Similarity::path->new($umls);
@@ -279,6 +314,10 @@ foreach $cc1 (@c1)
 	    $score = $lch->getRelatedness($cc1, $cc2);
 	    &errorCheck($lch);
 	}
+	elsif($measure eq "wup") {
+	 $score = $wup->getRelatedness($cc1, $cc2);
+	    &errorCheck($wup);
+	}   
 	else {
 	    $score = $path->getRelatedness($cc1, $cc2);
 	    &errorCheck($path);
@@ -352,7 +391,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: queryUMLS.pl,v 1.11 2009/01/13 22:20:50 btmcinnes Exp $';
+    print '$Id: queryUMLS.pl,v 1.12 2009/01/21 22:50:04 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

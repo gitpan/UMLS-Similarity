@@ -92,7 +92,9 @@ sub getRelatedness
     
     my (@path) = $interface->findShortestPath($concept1, $concept2);
     
-    return ($#path+1);
+    if($#path < 0 ) { return 0; }
+
+    return (1/($#path+1));
 }
 
 # Method to return recent error/warning condition
@@ -164,19 +166,57 @@ of concepts in the UMLS by simple edge counting.
 
 =head1 DESCRIPTION
 
-This module computes the semantic relatedness of two concepts by simple 
-edge counitng in a specified view of the UMLS.
+If the concepts being compared are the same, then the resulting 
+relatedness score will be 1.  For example, the score for C0005767 
+and C0005767 is 1.
+
+Due to multiple inheritance, it is possible for there to be a tie 
+for the shortest path between synsets.  If such a tie occurs, then 
+all of the paths that are tied will be printed to the trace string.
+
+The relatedness value returned by C<getRelatedness()> is the 
+multiplicative inverse of the path length between the two synsets 
+(1/path_length).  This has a slightly subtle effect: it shifts 
+the relative magnitude of scores. For example, if we have the 
+following pairs of synsets with the given path lengths:
+
+  concept1 concept2: 3
+  concept3 concept4: 4
+  concept5 concept6: 5
+
+We observe that the difference in the score for concept1-concept2 
+and concept3-concept4 is the same as for concept3-concept4 and 
+concept5-concept6. When we take the multiplicative inverse of them, 
+we get:
+
+  concept1 concept2: .333
+  concept3 concept4: .25
+  concept5 concept6: .2
+
+Now the difference between the scores for concept3-concept4 is less 
+than the difference for concept1-concept2 and concept3-concept4. This 
+can have negative consequences when computing correlation coefficients.
+It might be useful to compute relatedness as S<max_distance - 
+path_length>, where max_distance is the longest possible shortest 
+path between two conceps.  The original path length can be easily 
+determined by taking the multiplicative inverse of the returned 
+relatedness score: S<1/score = 1/(1/path_length) = path_length>. 
+
+If two different terms are given as input to getRelatedness, but 
+both terms belong to the same concept, then 1 is returned (e.g.,
+car and auto both belong to the same concept).
 
 =head1 USAGE
 
-The semantic relatedness modules in this distribution are built as classes
-that expose the following methods:
+The semantic relatedness modules in this distribution are built as 
+classes that expose the following methods:
   new()
   getRelatedness()
   getError()
   getTraceString()
 
 See the UMLS::Similarity(3) documentation for details of these methods.
+
 
 =head1 TYPICAL USAGE EXAMPLES
 

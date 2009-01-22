@@ -5,15 +5,15 @@ SYNOPSIS
     Plans for future versions of UMLS-Similarity
 
 DESCRIPTION
-  Version 0.09 ToDo
-    1. Add information content measures of association/similarity.
+  Version 0.09
+    1. Add additional measures of association/similarity.
 
 AUTHORS
         Bridget T. McInnes <bthomson at cs.umn.edu>
 
 SEE ALSO
 COPYRIGHT
-        Copyright (C) 2007-2008 Ted Pedersen, Bridget T. McInnes, Sid
+        Copyright (C) 2007-2009 Ted Pedersen, Bridget T. McInnes, Sid
         Patwardhan, Serguei Pakhomov
 
         Permission is granted to copy, distribute and/or modify this
