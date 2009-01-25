@@ -165,13 +165,26 @@
             vector measure of semantic relatedness. Master Thesis, University of
             Minnesota, Duluth, 2003.
 
-    SEE ALSO
-
+  SEE ALSO
         <http://search.cpan.org/dist/UMLS-Interface>,
         <http://search.cpan.org/dist/UMLS-Similarity>
 
-    AUTHORS
+  CONTACT US
+      If you have any trouble installing and using UMLS-Interface, please 
+      contact us via the users mailing list : 
 
+        umls-similarity@yahoogroups.com
+
+      You can join this group by going to:
+
+        http://tech.groups.yahoo.com/group/umls-similarity/
+
+      You may also contact us directly if you prefer :
+
+        Bridget T. McInnes: bthomson at cs.umn.edu
+        Ted Pedersen      : tpederse at d.umn.edu
+
+  AUTHORS
          Bridget T McInnes, University of Minnesota Twin Cities
          bthomson at cs.umn.edu
 
@@ -184,8 +197,7 @@
          Ted Pedersen, University of Minnesota Duluth
          tpederse at d.umn.edu
 
-    DOCUMENTATION COPYRIGHT AND LICENSE
-
+  DOCUMENTATION COPYRIGHT AND LICENSE
         Copyright (C) 2003-2009 Bridget T. McInnes, Siddharth Patwardhan, 
         Serguei Pakhomov and Ted Pedersen.
 

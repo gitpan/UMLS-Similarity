@@ -1,6 +1,11 @@
 NAME
     UMLS::Interface CHANGES
 
+  Changes from version 0.07 to 0.09
+    Removed the queryUMLS.pl module and put in its place umls-similarity.pl.
+    This does exactly what the original queryUMLS.pl does but it also now
+    accepts files and is much nicer.
+
   Changes from version 0.05 to 0.07
     Added the similarity measure described by Wu and Palmer (1994)
 

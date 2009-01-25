@@ -35,7 +35,7 @@
 
 package UMLS::Similarity;
 
-$VERSION = '0.07';
+$VERSION = '0.09';
 
 sub new
 {
@@ -167,18 +167,35 @@ package and how to use it. A few typical examples are given to help
 clearly understand the usage of the modules and the supporting
 utilities.
 
+=head1 CONTACT US
+   
+  If you have any trouble installing and using UMLS-Similarity, 
+  please contact us via the users mailing list :
+    
+      umls-similarity@yahoogroups.com
+     
+  You can join this group by going to:
+    
+      http://tech.groups.yahoo.com/group/umls-similarity/
+     
+  You may also contact us directly if you prefer :
+    
+      Bridget T. McInnes: bthomson at cs.umn.edu 
+
+      Ted Pedersen : tpederse at d.umn.edu
+
 =head1 SEE ALSO
 
 perl(1), UMLS::Interface
 
-perl(1), UMLS::Similarity::lch(3), UMLS::Similarity::path(3)
+perl(1), UMLS::Similarity::lch(3), UMLS::Similarity::path(3), UMLS::Similarity::wup(3)
 
 =head1 AUTHORS
     
-  Bridget T McInnes <bthomson@cs.umn.edu>
-  Siddharth Patwardhan <sidd@cs.utah.edu>
-  Serguei Pakhomov <pakhomov.serguei@mayo.edu>
-  Ted Pedersen <tpederse@d.umn.edu>
+  Bridget T McInnes <bthomson at cs.umn.edu>
+  Siddharth Patwardhan <sidd at cs.utah.edu>
+  Serguei Pakhomov <pakh0002 at umn.edu>
+  Ted Pedersen <tpederse at d.umn.edu>
 
 =head1 COPYRIGHT AND LICENSE
 

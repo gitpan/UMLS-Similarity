@@ -12,5 +12,5 @@ README
 t/test.t
 TODO
 utils/configuration
-utils/queryUMLS.pl
+utils/umls-similarity.pl
 META.yml                                 Module meta-data (added by MakeMaker)
