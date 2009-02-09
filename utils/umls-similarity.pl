@@ -11,11 +11,11 @@ or two CUIs and returns the similarity between the two.
 
 =head1 USAGE
 
-Usage: umls-similarity.pl [OPTIONS] [TERM1 TERM2] [CUI1 CUI2]
+Usage: umls-similarity.pl [OPTIONS] [CUI1|TERM1] [CUI2|TERM2]
 
 =head1 INPUT
 
-=head3 TERM1 TERM2 or CUI1 CUI2
+=head3 [CUI1|TERM1] [CUI2|TERM2]
 
 The input are two terms or two CUIs associated to concepts in the UMLS. 
 
@@ -30,6 +30,14 @@ A file containing pairs of concepts or terms in the following format:
     or 
 
     cui1<>cui2
+
+    or 
+
+    cui1<>term2
+
+    or 
+
+    term1<>cui2
 
 =head3 --username STRING
 
@@ -117,6 +125,13 @@ Copyright (c) 2007-2009,
  Ted Pedersen, University of Minnesota Duluth
  tpederse at d.umn.edu
 
+
+ Siddharth Patwardhan, University of Utah, Salt Lake City
+ sidd@cs.utah.edu
+ 
+ Serguei Pakhomov, University of Minnesota Twin Cities
+ pakh0002@umn.edu
+
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
 Foundation; either version 2 of the License, or (at your option) any later
@@ -144,6 +159,7 @@ this program; if not, write to:
 #                            COMMAND LINE OPTIONS AND USAGE
 #                           ================================
 
+use lib "/export/scratch/programs/lib/site_perl/5.8.7/";
 
 use UMLS::Interface;
 use UMLS::Similarity::lch;
@@ -201,51 +217,57 @@ my %input_hash  = ();
 &calculateSimilarity();
 
 sub calculateSimilarity {
+
+    if($debug) { print STDERR "In calculateSimilarity\n"; }
+
     foreach my $input1 (sort keys %input_hash) {
 	foreach my $input2 (sort keys %{$input_hash{$input1}}) {
+
+	    if($debug) { print STDERR "INPUT=> $input1 : $input2\n"; }
+
 	    my @c1 = ();
 	    my @c2 = ();
 	    
-	    my $cui_flag = 0;
+	    my $cui_flag1 = 0;
+	    my $cui_flag2 = 0;
+
 	    #  check if input contains cuis
-	    if( ($input1=~/C[0-9]+/) and ($input2=~/C[0-9]+/) ) {
+	    if($input1=~/C[0-9]+/) {
 		push @c1, $input1;
-		push @c2, $input2;
-		$cui_flag = 1;
+		$cui_flag1 = 1;
 	    }
-	    #  check if trying to take the similarity of a CUI TERM pair
-	    elsif($input1=~/C[0-9]+/) {
-		print STDERR "Input must be either be both CUIs or both TERMS\n";
-		print STDERR "Please no mix and matching.\n\n";
-		&minimalUsageNotes();
-		exit;
-	    }
-	    elsif($input2=~/C[0-9]+/) {
-		print STDERR "Input must be either be both CUIs or both TERMS\n";
-		print STDERR "Please no mix and matching.\n\n";
-		&minimalUsageNotes();
-		exit;
-	    }
-	    #  okay the input contains terms
 	    else {
 		@c1 = $umls->getConceptList($input1); 
 		&errorCheck($umls);
+		
+	    }
+	    if($input2=~/C[0-9]+/) {
+		push @c2, $input2;
+		$cui_flag2 = 1;
+	    }
+	    else {
 		@c2 = $umls->getConceptList($input2); 
 		&errorCheck($umls);
 	    }
 	    
+	    if($debug) {
+		print STDERR "$input1 (@c1)\n";
+		print STDERR "$input2 (@c2)\n";
+	    }
+
 	    #  get the similarity between the concepts
 	    foreach $cc1 (@c1) {
 		foreach $cc2 (@c2) {
 		    
-		    my $t1 = ""; my $t2 = "";
-		    if($cui_flag) {
+		    my $t1 = $input1; my $t2 = $input2;
+		    if($cui_flag1) {
 			my @ts1 = $umls->getTermList($cc1);
-			&errorCheck($umls);
+			&errorCheck($umls);			
+			($t1) = @ts1;
+		    }
+		    if($cui_flag2) {
 			my @ts2 = $umls->getTermList($cc2);
 			&errorCheck($umls);
-			
-			($t1) = @ts1;
 			($t2) = @ts2;
 		    }
 		    
@@ -260,6 +282,10 @@ sub calculateSimilarity {
 			else          { print "$noscore<>$input1<>$input2\n"; }
 			$printFlag = 1;
 			next;
+		    }
+		    
+		    if($debug) { 
+			print STDERR "Obtaining similarity for $cc1 and $cc2\n";
 		    }
 		    
 		    my $score = "";
@@ -411,7 +437,7 @@ sub loadUMLS {
 #  set user input and default options
 sub setOptions {
 
-    if($debug) { print "In setOptions\n"; }
+    if($debug) { print STDERR "In setOptions\n"; }
 
     my $default = "";
     my $set     = "";
@@ -532,7 +558,7 @@ sub errorCheck {
 ##############################################################################
 sub minimalUsageNotes {
     
-    print "Usage: umls-similarity.pl [OPTIONS] [TERM1 TERM2] [CUI1 CUI2]\n\n";
+    print "Usage: umls-similarity.pl [OPTIONS] [TERM1 TERM2] [CUI1 CUI2]\n";
     &askHelp();
     exit;
 }
@@ -576,7 +602,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.14 2009/01/25 01:28:17 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.20 2009/02/09 18:36:54 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

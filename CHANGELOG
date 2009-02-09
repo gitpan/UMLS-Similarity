@@ -1,6 +1,13 @@
 NAME
     UMLS::Interface CHANGES
 
+  Changes from version 0.09 to 0.11
+    Allow the umls-similarity.pl program to obtain the semantic similarity
+    between a term and CUI as well as CUI-CUI and term-term pairs.
+
+    Added some error checking to the umls-similarity.pl program and the
+    measure modules.
+
   Changes from version 0.07 to 0.09
     Removed the queryUMLS.pl module and put in its place umls-similarity.pl.
     This does exactly what the original queryUMLS.pl does but it also now

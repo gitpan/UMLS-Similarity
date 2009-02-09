@@ -19,8 +19,8 @@ my $author1 = 'Bridget McInnes <bthomson@cs.umn.edu>';
 WriteMakefile(
               'NAME'		  => 'UMLS::Similarity',
               'VERSION_FROM'	  => 'lib/UMLS/Similarity.pm',
-              'PREREQ_PM'         => {'UMLS::Interface' => '0.15'},
-              'EXE_FILES'         => [("utils/umls-similarity.pl")],
+              'PREREQ_PM'         => {'UMLS::Interface' => '0.17'},
+	      'EXE_FILES'         => [("utils/umls-similarity.pl")],
               'dist'              => {'COMPRESS' => 'gzip -9f', 'SUFFIX' => 'gz'},
               ($] >= 5.005 ?
                ('ABSTRACT_FROM'   => 'lib/UMLS/Similarity.pm', # retrieve abstract from module

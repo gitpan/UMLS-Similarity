@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               UMLS-Similarity
-version:            0.09
+version:            0.11
 abstract:           This is a suite of Perl modules that implements a 
 author:
     - Bridget McInnes <bthomson@cs.umn.edu>, Ted Pedersen <tpederse@d.umn.edu>, Serguei Pakhomov <pakh0002 at umn.edu>, Siddharth Patwardhan <sidd@cs.utah.edu>
@@ -9,7 +9,7 @@ distribution_type:  module
 configure_requires:
     ExtUtils::MakeMaker:  0
 requires:
-    UMLS::Interface:  0.15
+    UMLS::Interface:  0.17
 no_index:
     directory:
         - t

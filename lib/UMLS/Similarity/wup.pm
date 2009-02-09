@@ -85,18 +85,28 @@ sub getRelatedness
 {
     my $self = shift;
     return undef if(!defined $self || !ref $self);
+
     my $concept1 = shift;
     my $concept2 = shift;
-
+    
     my $interface = $self->{'interface'};
     
-    my $lcs = $interface->findLeastCommonSubsumer($concept1, $concept2);
-
-    my $lcs_depth = $interface->findMinimumDepth($lcs);
     my $c1_depth  = $interface->findMinimumDepth($concept1);
     my $c2_depth  = $interface->findMinimumDepth($concept2);
+
+    if( !(defined $c1_depth) or	!(defined $c2_depth)) {
+	return 0;
+    }
     
-    my $score = (2 * $lcs_depth) / ($c1_depth + $c2_depth);
+    my $lcs = $interface->findLeastCommonSubsumer($concept1, $concept2);
+        
+    my $lcs_depth;
+    if(defined $lcs) {
+	$lcs_depth = $interface->findMinimumDepth($lcs);
+    }
+    else { return 0; }
+    
+    my $score = (2 * $lcs_depth) / ($c1_depth + $c2_depth);   
     
     return $score;
 }
