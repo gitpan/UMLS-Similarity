@@ -135,7 +135,7 @@ __END__
 
 =head1 NAME
 
-UMLS::Similarity::path - Perl module for computing semantic relatedness
+UMLS::Similarity::path - Perl module for computing semantic similarity 
 of concepts in the UMLS by simple edge counting. 
 
 =head1 SYNOPSIS
@@ -167,7 +167,7 @@ of concepts in the UMLS by simple edge counting.
 =head1 DESCRIPTION
 
 If the concepts being compared are the same, then the resulting 
-relatedness score will be 1.  For example, the score for C0005767 
+similarity score will be 1.  For example, the score for C0005767 
 and C0005767 is 1.
 
 Due to multiple inheritance, it is possible for there to be a tie 

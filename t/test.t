@@ -14,12 +14,15 @@
 #  8. MRDOC table can be accessed
 
 
-BEGIN { $| = 1; print "1..4\n"; }
+BEGIN { $| = 1; print "1..6\n"; }
 END {print "not ok 1\n" unless $loaded;}
 
 use UMLS::Interface;
 use UMLS::Similarity::lch;
 use UMLS::Similarity::path;
+use UMLS::Similarity::cdist;
+use UMLS::Similarity::nam;
+
 $loaded = 1;
 print "ok 1\n";
 
@@ -50,3 +53,20 @@ if(!$path) {
 else {
     print "ok 4\n";
 }
+
+my $cdist = UMLS::Similarity::cdist->new($umls);
+if(!$cdist) {
+    print "not ok 5\n";
+}
+else {
+    print "ok 5\n";
+}
+
+my $nam = UMLS::Similarity::nam->new($umls);
+if(!$nam) {
+    print "not ok 6\n";
+}
+else {
+    print "ok 6\n";
+}
+

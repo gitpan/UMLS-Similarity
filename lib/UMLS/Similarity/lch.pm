@@ -96,8 +96,6 @@ sub getRelatedness
 
     my $depth = $interface->depth();
     
-    #my $depth = 32;
-
     my $score = 0;
     
     if($#path > -1) { $score = log (2 * $depth / ($#path+1)); }

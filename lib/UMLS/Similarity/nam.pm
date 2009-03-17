@@ -1,7 +1,7 @@
-# UMLS::Similarity::wup.pm
+# UMLS::Similarity::nam.pm
 #
-# Module implementing the semantic relatedness measure described 
-# by Wu and Palmer (1994)
+# Module implementing the semantic similarity measure described 
+# by Nguyen and Al-Mubaid (2006)
 #
 # Copyright (c) 2004-2009,
 #
@@ -35,7 +35,7 @@
 # Boston, MA  02111-1307, USA.
 
 
-package UMLS::Similarity::wup;
+package UMLS::Similarity::nam;
 
 use strict;
 use warnings;
@@ -51,7 +51,7 @@ sub new
     my $className = shift;
     return undef if(ref $className);
 
-    if($debug) { print STDERR "In UMLS::Similarity::wup->new()\n"; }
+    if($debug) { print STDERR "In UMLS::Similarity::nam->new()\n"; }
 
     my $interface = shift;
 
@@ -69,7 +69,7 @@ sub new
 
     if(!$interface)
     {
-	$self->{'errorString'} .= "\nError (UMLS::Similarity::wup->new()) - ";
+	$self->{'errorString'} .= "\nError (UMLS::Similarity::nam->new()) - ";
 	$self->{'errorString'} .= "An interface object is required.";
 	$self->{'error'} = 2;
     }
@@ -99,15 +99,21 @@ sub getRelatedness
     }
     
     my $lcs = $interface->findLeastCommonSubsumer($concept1, $concept2);
-
+    
     my $lcs_depth;
     if(defined $lcs) {
 	$lcs_depth = $interface->findMinimumDepth($lcs);
     }
     else { return 0; }
     
-    my $score = (2 * $lcs_depth) / ($c1_depth + $c2_depth);   
+    my @path = $interface->findShortestPath($concept1, $concept2);
 
+    my $l = $#path;
+
+    my $D = $interface->depth();
+
+    my $score = log( $l * ($D-$lcs_depth) + 2 ) / log(2);    
+    
     return $score;
 }
 
@@ -117,7 +123,7 @@ sub getError
     my $self = shift;
     return (2, "") if(!defined $self || !ref $self);
 
-    if($debug) { print STDERR "In UMLS::Similarity::wup->getError()\n"; }
+    if($debug) { print STDERR "In UMLS::Similarity::nam->getError()\n"; }
 
     my $dontClear = shift;
     my $error = $self->{'error'};
@@ -149,22 +155,22 @@ __END__
 
 =head1 NAME
 
-UMLS::Similarity::wup - Perl module for computing semantic relatedness
+UMLS::Similarity::nam - Perl module for computing semantic relatedness
 of concepts in the Unified Medical Language System (UMLS) using the 
-method described by Wu and Palmer (1994).
+method described by Nguyen and Al-Mubaid (2006)
 
 =head1 SYNOPSIS
 
   use UMLS::Interface;
-  use UMLS::Similarity::wup;
+  use UMLS::Similarity::nam;
 
   my $umls = UMLS::Interface->new(); 
   die "Unable to create UMLS::Interface object.\n" if(!$umls);
   ($errCode, $errString) = $umls->getError();
   die "$errString\n" if($errCode);
 
-  my $wup = UMLS::Similarity::wup->new($umls);
-  die "Unable to create measure object.\n" if(!$wup);
+  my $nam = UMLS::Similarity::nam->new($umls);
+  die "Unable to create measure object.\n" if(!$nam);
   
   my $cui1 = "C0005767";
   my $cui2 = "C0007634";
@@ -175,18 +181,17 @@ method described by Wu and Palmer (1994).
   @ts2 = $umls->getTermList($cui2);
   my $term2 = pop @ts2;
 
-  my $value = $wup->getRelatedness($cui1, $cui2);
+  my $value = $nam->getRelatedness($cui1, $cui2);
 
   print "The similarity between $cui1 ($term1) and $cui2 ($term2) is $value\n";
 
 =head1 DESCRIPTION
 
-The Wu & Palmer measure calculates relatedness by considering the 
-depths of the two concepts in the UMLS, along with the depth of the 
-LCS.  The formula is S<score = 2*depth(lcs) / (depth(s1) + depth(s2))>.
-This means that S<0 < score <= 1>.  The score can never be zero because 
-the depth of the LCS is never zero (the depth of the root of a taxonomy 
-is one). The score is one if the two input concepts are the same.
+The Nguyen and Al-Mubaid measure calculates similarity by calculating 
+the log of two plus the product of the shortest distance between the 
+two concepts minus one and the depth of the taxonomy minus the depth 
+of the LCS. Concepts that are more similar with have a lower similarity 
+score than concepts that are less similar with this measure.
 
 =head1 USAGE
 
@@ -201,11 +206,11 @@ See the UMLS::Similarity(3) documentation for details of these methods.
 
 =head1 TYPICAL USAGE EXAMPLES
 
-To create an object of the wup measure, we would have the following
+To create an object of the nam measure, we would have the following
 lines of code in the perl program. 
 
-   use UMLS::Similarity::wup;
-   $measure = UMLS::Similarity::wup->new($interface);
+   use UMLS::Similarity::nam;
+   $measure = UMLS::Similarity::nam->new($interface);
 
 The reference of the initialized object is stored in the scalar
 variable '$measure'. '$interface' contains an interface object that

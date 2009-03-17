@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-umls-similarity.pl - this program returns a semantic similarity score between two concepts
+umls-similarity.pl - This program returns a semantic similarity score between two concepts.
 
 =head1 SYNOPSIS
 
@@ -62,7 +62,8 @@ available measure are:
     1. Leacock and Chodorow (1998) refered to as lch
     2. Wu and Palmer (1994) refered to as  wup
     3. The basic path measure refered to as path
-
+    4. Rada, et. al. (1989) refered to as cdist
+    5. Nguyan and Al-Mubaid (2006) refered to as nam
 
 =head3 --precision N
 
@@ -165,6 +166,8 @@ use UMLS::Interface;
 use UMLS::Similarity::lch;
 use UMLS::Similarity::path;
 use UMLS::Similarity::wup;
+use UMLS::Similarity::cdist;
+use UMLS::Similarity::nam;
 
 use Getopt::Long;
 
@@ -202,9 +205,6 @@ my $hostname    = "";
 my $socket      = "";    
 my $measure     = "";
 my $umls        = "";
-my $lch         = "";
-my $path        = "";
-my $wup         = "";
 my $noscore     = "";
 my $infile      = "";
 
@@ -212,7 +212,9 @@ my %input_hash  = ();
 
 &setOptions         ();
 &loadUMLS           ();
-&loadMeasures       ();
+
+my $meas = &loadMeasures();
+
 &loadInput          ();
 &calculateSimilarity();
 
@@ -289,21 +291,9 @@ sub calculateSimilarity {
 		    }
 		    
 		    my $score = "";
-		    if($measure eq "lch") {
-			$value = $lch->getRelatedness($cc1, $cc2);
-			&errorCheck($lch);
-			$score = sprintf $floatformat, $value;
-		    }
-		    elsif($measure eq "wup") {
-			$value = $wup->getRelatedness($cc1, $cc2);
-			&errorCheck($wup);
-			$score = sprintf $floatformat, $value;
-		    }   
-		    else {
-			$value = $path->getRelatedness($cc1, $cc2);
-			&errorCheck($path);
-			$score = sprintf $floatformat, $value;
-		    }
+		    $value = $meas->getRelatedness($cc1, $cc2);
+		    &errorCheck($meas);
+		    $score = sprintf $floatformat, $value;
 		    
 		    if($cui_flag) { print "$score<>$t1($cc1)<>$t2($cc2)\n"; }
 		    else          { print "$score<>$input1($cc1)<>$input2($cc2)\n"; }
@@ -361,35 +351,41 @@ sub loadInput {
 
 #  load the appropriate measure
 sub loadMeasures {
+    
+    my $meas;
+
     #  load the module implementing the Leacock and 
     #  Chodorow (1998) measure
     if($measure eq "lch") {
-	$lch = UMLS::Similarity::lch->new($umls);
-	die "Unable to create measure object.\n" if(!$lch);
-	($errCode, $errString) = $lch->getError();
-	die "$errString\n" if($errCode);
-	$lch->{'trace'} = 1;
+	$meas = UMLS::Similarity::lch->new($umls);
     }
-
     #  loading the module implementing the Wu and 
     #  Palmer (1994) measure
     if($measure eq "wup") {
-	$wup = UMLS::Similarity::wup->new($umls);
-	die "Unable to create measure object.\n" if(!$wup);
-	($errCode, $errString) = $wup->getError();
-	die "$errString\n" if($errCode);
-	$wup->{'trace'} = 1;
-    }
-    
+	$meas = UMLS::Similarity::wup->new($umls);
+    }    
     #  loading the module implementing the simple edge counting 
     #  measure of semantic relatedness.
     if($measure eq "path") {
-	$path = UMLS::Similarity::path->new($umls);
-	die "Unable to create measure object.\n" if(!$path);
-	($errCode, $errString) = $path->getError();
-	die "$errString\n" if($errCode);
-	$path->{'trace'} = 1;
+	$meas = UMLS::Similarity::path->new($umls);
     }
+    #  load the module implementing the Rada, et. al.
+    #  (1989) called the Conceptual Distance measure
+    if($measure eq "cdist") {
+	$meas = UMLS::Similarity::cdist->new($umls);
+    }
+    #  load the module implementing the Nguyen and 
+    #  Al-Mubaid (2006) measure
+    if($measure eq "nam") {
+	$meas = UMLS::Similarity::nam->new($umls);
+    }
+
+    die "Unable to create measure object.\n" if(!$meas);
+    ($errCode, $errString) = $meas->getError();
+    die "$errString\n" if($errCode);
+    $meas->{'trace'} = 1;
+    
+    return $meas;
 }
 
 #  load the UMLS
@@ -523,7 +519,7 @@ sub setOptions {
 	$default .= "  --measure $measure\n";
     }
 
-    if($measure=~/(path|wup|lch)/) {
+    if($measure=~/(path|wup|lch|cdist|nam)/) {
 	#  good to go
     }
     else {
@@ -602,7 +598,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.20 2009/02/09 18:36:54 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.22 2009/03/17 16:13:51 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

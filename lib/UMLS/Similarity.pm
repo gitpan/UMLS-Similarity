@@ -35,7 +35,7 @@
 
 package UMLS::Similarity;
 
-$VERSION = '0.11';
+$VERSION = '0.13';
 
 sub new
 {
@@ -106,43 +106,43 @@ __END__
 
 =head1 NAME
 
-UMLS::Similarity - This is a suite of Perl modules that implements a 
-number of measures of semantic relatedness. These algorithms use the 
-UMLS-Interface module to access the Unified Medical Language System 
-(UMLS) to generate relatedness scores between concepts.
+UMLS::Similarity - This is a suite of Perl modules that implements 
+a number of semantic similarity measures. These algorithms use the 
+UMLS-Interface module to access the UMLS to generate relatedness 
+scores between concepts.
 
 =head1 SYNOPSIS
 
-use UMLS::Interface;
+ use UMLS::Interface;
   
-use UMLS::Similarity::lch;
-use UMLS::Similarity::path;
+ use UMLS::Similarity::lch;
+ use UMLS::Similarity::path;
 
-my $umls = UMLS::Interface->new(); 
-die "Unable to create UMLS::Interface object.\n" if(!$umls);
-($errCode, $errString) = $umls->getError();
-die "$errString\n" if($errCode);
+ my $umls = UMLS::Interface->new(); 
+ die "Unable to create UMLS::Interface object.\n" if(!$umls);
+ ($errCode, $errString) = $umls->getError();
+ die "$errString\n" if($errCode);
 
-my $lch = UMLS::Similarity::lch->new($umls);
-die "Unable to create measure object.\n" if(!$lch);
+ my $lch = UMLS::Similarity::lch->new($umls);
+ die "Unable to create measure object.\n" if(!$lch);
    
-my $path = UMLS::Similarity::path->new($umls);
-die "Unable to create measure object.\n" if(!$path);
+ my $path = UMLS::Similarity::path->new($umls);
+ die "Unable to create measure object.\n" if(!$path);
 
-my $cui1 = "C0005767";
-my $cui2 = "C0007634";
+ my $cui1 = "C0005767";
+ my $cui2 = "C0007634";
 
-@ts1 = $umls->getTermList($cui1);
-my $term1 = pop @ts1;
+ @ts1 = $umls->getTermList($cui1);
+ my $term1 = pop @ts1;
 
-@ts2 = $umls->getTermList($cui2);
-my $term2 = pop @ts2;
+ @ts2 = $umls->getTermList($cui2);
+ my $term2 = pop @ts2;
 
-my $lvalue = $lch->getRelatedness($cui1, $cui2);
-my $pvalue = $path->getRelatedness($cui1, $cui2);
+ my $lvalue = $lch->getRelatedness($cui1, $cui2);
+ my $pvalue = $path->getRelatedness($cui1, $cui2);
 
-print "The lch similarity between $cui1 ($term1) and $cui2 ($term2) is $lvalue\n";
-print "The path similarity between $cui1 ($term1) and $cui2 ($term2) is $pvalue\n";
+ print "The lch similarity between $cui1 ($term1) and $cui2 ($term2) is $lvalue\n";
+ print "The path similarity between $cui1 ($term1) and $cui2 ($term2) is $pvalue\n";
 
 =head1 DESCRIPTION
 

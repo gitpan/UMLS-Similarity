@@ -1,7 +1,7 @@
-# UMLS::Similarity::wup.pm
+# UMLS::Similarity::cdist.pm
 #
-# Module implementing the semantic relatedness measure described 
-# by Wu and Palmer (1994)
+# Module implementing the simple edge counting measure of 
+# semantic relatedness.
 #
 # Copyright (c) 2004-2009,
 #
@@ -35,7 +35,7 @@
 # Boston, MA  02111-1307, USA.
 
 
-package UMLS::Similarity::wup;
+package UMLS::Similarity::cdist;
 
 use strict;
 use warnings;
@@ -50,30 +50,30 @@ sub new
 {
     my $className = shift;
     return undef if(ref $className);
-
-    if($debug) { print STDERR "In UMLS::Similarity::wup->new()\n"; }
-
+    
+    if($debug) { print STDERR "In UMLS::Similarity::cdist->new()\n"; }
+    
     my $interface = shift;
-
+    
     my $self = {};
     
     # Initialize the error string and the error level.
     $self->{'errorString'} = "";
     $self->{'error'} = 0;
- 
-   # Bless the object.
+    
+    # Bless the object.
     bless($self, $className);
     
     # The backend interface object.
     $self->{'interface'} = $interface;
-
+    
     if(!$interface)
     {
-	$self->{'errorString'} .= "\nError (UMLS::Similarity::wup->new()) - ";
+	$self->{'errorString'} .= "\nError (UMLS::Similarity::cdist->new()) - ";
 	$self->{'errorString'} .= "An interface object is required.";
 	$self->{'error'} = 2;
     }
-
+    
     # The backend interface object.
     $self->{'interface'} = $interface;
     
@@ -85,30 +85,16 @@ sub getRelatedness
 {
     my $self = shift;
     return undef if(!defined $self || !ref $self);
-
     my $concept1 = shift;
     my $concept2 = shift;
     
     my $interface = $self->{'interface'};
     
-    my $c1_depth  = $interface->findMinimumDepth($concept1);
-    my $c2_depth  = $interface->findMinimumDepth($concept2);
-
-    if( !(defined $c1_depth) or	!(defined $c2_depth)) {
-	return 0;
-    }
+    my (@path) = $interface->findShortestPath($concept1, $concept2);
     
-    my $lcs = $interface->findLeastCommonSubsumer($concept1, $concept2);
+    if($#path < 0 ) { return 0; }
 
-    my $lcs_depth;
-    if(defined $lcs) {
-	$lcs_depth = $interface->findMinimumDepth($lcs);
-    }
-    else { return 0; }
-    
-    my $score = (2 * $lcs_depth) / ($c1_depth + $c2_depth);   
-
-    return $score;
+    return $#path;
 }
 
 # Method to return recent error/warning condition
@@ -116,19 +102,19 @@ sub getError
 {
     my $self = shift;
     return (2, "") if(!defined $self || !ref $self);
-
-    if($debug) { print STDERR "In UMLS::Similarity::wup->getError()\n"; }
-
+    
+    if($debug) { print STDERR "In UMLS::Similarity::cdist->getError()\n"; }
+    
     my $dontClear = shift;
     my $error = $self->{'error'};
     my $errorString = $self->{'errorString'};
-
+    
     if(!(defined $dontClear && $dontClear)) {
 	$self->{'error'} = 0;
 	$self->{'errorString'} = "";
     }
     $errorString =~ s/^\n//;
-
+    
     return ($error, $errorString);
 }
 
@@ -149,22 +135,21 @@ __END__
 
 =head1 NAME
 
-UMLS::Similarity::wup - Perl module for computing semantic relatedness
-of concepts in the Unified Medical Language System (UMLS) using the 
-method described by Wu and Palmer (1994).
+UMLS::Similarity::cdist - Perl module for computing semantic relatedness
+of concepts in the UMLS by simple edge counting. 
 
 =head1 SYNOPSIS
 
   use UMLS::Interface;
-  use UMLS::Similarity::wup;
+  use UMLS::Similarity::cdist;
 
   my $umls = UMLS::Interface->new(); 
   die "Unable to create UMLS::Interface object.\n" if(!$umls);
   ($errCode, $errString) = $umls->getError();
   die "$errString\n" if($errCode);
 
-  my $wup = UMLS::Similarity::wup->new($umls);
-  die "Unable to create measure object.\n" if(!$wup);
+  my $cdist = UMLS::Similarity::cdist->new($umls);
+  die "Unable to create measure object.\n" if(!$cdist);
   
   my $cui1 = "C0005767";
   my $cui2 = "C0007634";
@@ -175,23 +160,27 @@ method described by Wu and Palmer (1994).
   @ts2 = $umls->getTermList($cui2);
   my $term2 = pop @ts2;
 
-  my $value = $wup->getRelatedness($cui1, $cui2);
+  my $value = $cdist->getRelatedness($cui1, $cui2);
 
   print "The similarity between $cui1 ($term1) and $cui2 ($term2) is $value\n";
 
 =head1 DESCRIPTION
 
-The Wu & Palmer measure calculates relatedness by considering the 
-depths of the two concepts in the UMLS, along with the depth of the 
-LCS.  The formula is S<score = 2*depth(lcs) / (depth(s1) + depth(s2))>.
-This means that S<0 < score <= 1>.  The score can never be zero because 
-the depth of the LCS is never zero (the depth of the root of a taxonomy 
-is one). The score is one if the two input concepts are the same.
+If the concepts being compared are the same, then the resulting 
+similarity score will be 1.  For example, the score for C0005767 
+and C0005767 is 1.
+
+Due to multiple inheritance, it is possible for there to be a tie 
+for the shortest path between synsets.  If such a tie occurs, then 
+all of the paths that are tied will be printed to the trace string.
+
+The relatedness value returned by C<getRelatedness()> is the 
+number of edges between the two concepts.
 
 =head1 USAGE
 
-The semantic relatedness modules in this distribution are built as classes
-that expose the following methods:
+The semantic relatedness modules in this distribution are built as 
+classes that expose the following methods:
   new()
   getRelatedness()
   getError()
@@ -199,17 +188,18 @@ that expose the following methods:
 
 See the UMLS::Similarity(3) documentation for details of these methods.
 
+
 =head1 TYPICAL USAGE EXAMPLES
 
-To create an object of the wup measure, we would have the following
+To create an object of the cdist measure, we would have the following
 lines of code in the perl program. 
 
-   use UMLS::Similarity::wup;
-   $measure = UMLS::Similarity::wup->new($interface);
+   use UMLS::Similarity::cdist;
+   $measure = UMLS::Similarity::cdist->new($interface);
 
 The reference of the initialized object is stored in the scalar
 variable '$measure'. '$interface' contains an interface object that
-should have been created earlier in the program (UMLS-Interface). 
+should have been created earlier in the program (UMLS-Interface).
 
 If the 'new' method is unable to create the object, '$measure' would 
 be undefined. This, as well as any other error/warning may be tested.
@@ -223,7 +213,7 @@ the concept 'cell' (C0007634) using the measure, we would write
 the following piece of code:
 
    $relatedness = $measure->getRelatedness('C0005767', 'C0007634');
-  
+    
 To get traces for the above computation:
 
    print $measure->getTraceString();
