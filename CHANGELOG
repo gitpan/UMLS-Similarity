@@ -1,6 +1,18 @@
 NAME
     UMLS::Interface CHANGES
 
+  Changes from version 0.13 to 0.15
+    Modified the output of umls-similarity so that if a concept doesn't
+    exist you can tell which one it is. I also added a --verbose option
+    which gives a little more information about the concept that doesn't
+    exist.
+
+    Modified the wup.pm module. The Wu and Palmer measure is twice the depth
+    of the two concepts LCS divided by the product of the the depths of the
+    individual concepts. I was using the minimum depths of these concepts
+    where as I should have been using the depth of the path that contained
+    the LCS itself.
+
   Changes from version 0.11 to 0.13
     Added two new semantic similarity measure modules: i) nam.pm which is an
     implemantion of the semantic similarity measure described by Nguyan and

@@ -21,7 +21,7 @@ The input are two terms or two CUIs associated to concepts in the UMLS.
 
 =head2 Optional Arguments:
 
-=head3 --inputfile FILE
+=head3 --infile FILE
 
 A file containing pairs of concepts or terms in the following format:
 
@@ -69,11 +69,16 @@ available measure are:
 
 Displays values upto N places of decimal.
 
-=head4 --help
+=head3 --verbose
+
+Displays information about the concept if it doesn't
+exist in the source.
+
+=head3 --help
 
 Displays the quick summary of program options.
 
-=head4 --version
+=head3 --version
 
 Displays the version information.
 
@@ -171,7 +176,7 @@ use UMLS::Similarity::nam;
 
 use Getopt::Long;
 
-GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "precision=s");
+GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "precision=s", "verbose");
 
 my $debug = 0;
 
@@ -208,7 +213,7 @@ my $umls        = "";
 my $noscore     = "";
 my $infile      = "";
 
-my %input_hash  = ();
+my @input_array = ();
 
 &setOptions         ();
 &loadUMLS           ();
@@ -221,91 +226,110 @@ my $meas = &loadMeasures();
 sub calculateSimilarity {
 
     if($debug) { print STDERR "In calculateSimilarity\n"; }
+    
+    foreach my $input (@input_array) {
+	my ($input1, $input2) = split/<>/, $input;
+	
+	if($debug) { print STDERR "INPUT=> $input1 : $input2\n"; }
 
-    foreach my $input1 (sort keys %input_hash) {
-	foreach my $input2 (sort keys %{$input_hash{$input1}}) {
-
-	    if($debug) { print STDERR "INPUT=> $input1 : $input2\n"; }
-
-	    my @c1 = ();
-	    my @c2 = ();
-	    
-	    my $cui_flag1 = 0;
-	    my $cui_flag2 = 0;
-
-	    #  check if input contains cuis
-	    if($input1=~/C[0-9]+/) {
+	my @c1 = ();
+	my @c2 = ();
+	
+	my $cui_flag1 = 0;
+	my $cui_flag2 = 0;
+	
+	#  check if input contains cuis
+	if($input1=~/C[0-9]+/) {
+	    if($umls->checkConceptExists($input1)) {
 		push @c1, $input1;
-		$cui_flag1 = 1;
 	    }
-	    else {
-		@c1 = $umls->getConceptList($input1); 
-		&errorCheck($umls);
-		
-	    }
-	    if($input2=~/C[0-9]+/) {
-		push @c2, $input2;
-		$cui_flag2 = 1;
-	    }
-	    else {
-		@c2 = $umls->getConceptList($input2); 
-		&errorCheck($umls);
-	    }
+	    $cui_flag1 = 1;
+	}
+	else {
+	    @c1 = $umls->getConceptList($input1); 
+	    &errorCheck($umls);
 	    
-	    if($debug) {
-		print STDERR "$input1 (@c1)\n";
-		print STDERR "$input2 (@c2)\n";
+	}
+	if($input2=~/C[0-9]+/) {
+	    if($umls->checkConceptExists($input2)) {
+		push @c2, $input2;
 	    }
+	    $cui_flag2 = 1;
+	}
+	else {
+	    @c2 = $umls->getConceptList($input2); 
+	    &errorCheck($umls);
+	}
 
-	    #  get the similarity between the concepts
-	    foreach $cc1 (@c1) {
-		foreach $cc2 (@c2) {
-		    
-		    my $t1 = $input1; my $t2 = $input2;
-		    if($cui_flag1) {
-			my @ts1 = $umls->getTermList($cc1);
-			&errorCheck($umls);			
-			($t1) = @ts1;
-		    }
-		    if($cui_flag2) {
-			my @ts2 = $umls->getTermList($cc2);
-			&errorCheck($umls);
-			($t2) = @ts2;
-		    }
-		    
-		    if(! ($umls->checkConceptExists($cc1)) ) {
-			if($cui_flag) { print "$noscore<>$t1<>$t2\n"; }
-			else          { print "$noscore<>$input1<>$input2\n"; }
-			$printFlag = 1;
-			next;
-		    }
-		    if(! ($umls->checkConceptExists($cc2)) ) {
-			if($cui_flag) { print "$noscore<>$t1<>$t2\n"; }
-			else          { print "$noscore<>$input1<>$input2\n"; }
-			$printFlag = 1;
-			next;
-		    }
-		    
-		    if($debug) { 
-			print STDERR "Obtaining similarity for $cc1 and $cc2\n";
-		    }
-		    
-		    my $score = "";
-		    $value = $meas->getRelatedness($cc1, $cc2);
-		    &errorCheck($meas);
-		    $score = sprintf $floatformat, $value;
-		    
-		    if($cui_flag) { print "$score<>$t1($cc1)<>$t2($cc2)\n"; }
-		    else          { print "$score<>$input1($cc1)<>$input2($cc2)\n"; }
-		    
-		    $printFlag = 1;
+	my $t1 = $input1; my $t2 = $input2;
+	
+	if($cui_flag1) {
+	    my @ts1 = $umls->getTermList($input1);
+	    &errorCheck($umls);			
+	    ($t1) = @ts1;
+	}
+	if($cui_flag2) {
+	    my @ts2 = $umls->getTermList($input2);
+	    &errorCheck($umls);
+	    ($t2) = @ts2;
+	}
+	
+	
+	if($debug) {
+	    print STDERR "$input1:$t1 (@c1)\n";
+	    print STDERR "$input2:$t2 (@c2)\n";
+	}
+	
+	#  get the similarity between the concepts
+	foreach $cc1 (@c1) {
+	    foreach $cc2 (@c2) {
+
+		if($debug) { 
+		    print STDERR "Obtaining similarity for $cc1 and $cc2\n";
+		}
+		
+		my $score = "";
+		$value = $meas->getRelatedness($cc1, $cc2);
+		&errorCheck($meas);
+		$score = sprintf $floatformat, $value;
+		
+		if($cui_flag1 and $cui_flag2) { 
+		    print "$score<>$cc1($t1)<>$cc2($t2)\n"; 
+		}
+		elsif($cui_flag1) {
+		    print "$score<>$t1($cc1)<>$input2($cc2)\n"; 
+		}	    
+		elsif($cui_flag2) {
+		    print "$score<>$input1($cc1)<>$t2($cc2)\n"; 
+		}
+		else { 
+		    print "$score<>$input1($cc1)<>$input2($cc2)\n"; 
+		}		
+		$printFlag = 1;
+	    }
+	}
+	
+	if(!($printFlag)) {
+	    if($#c1 > -1) {
+		foreach my $cc1 (@c1) {
+		    if($cuiflag1) { print "$noscore<>$cc1($t1)<>$input2\n"; }
+		    else          { print "$noscore<>$t1($cc1)<>$input2\n"; }
+		    if($opt_verbose) { print "    => $input2 does not exist\n"; }
 		}
 	    }
-	    
-	    if(! ($printFlag)) {
+	    elsif($#c2 > -1) {
+		foreach my $cc2 (@c2) {
+		    if($cuiflag1) { print "$noscore<>$input1<>$cc2($t2)\n"; }
+		    else          { print "$noscore<>$input1<>$t2($cc2)\n"; }
+		    if($opt_verbose) { print "    => $input1 does not exist\n"; }
+		}
+	    }
+	    else {
 		print "$noscore<>$input1<>$input2\n";
-	    } $printFlag = 0;
+		if($opt_verbose) { print "    => $input2 nor $input1 exist\n"; }
+	    }		
 	}
+	$printFlag = 0;
     }
 }
 
@@ -323,8 +347,7 @@ sub loadInput {
 	    chomp;
 	    if($_=~/^\s*$/) { next; }
 	    if($_=~/\<\>/) {
-		my ($i1, $i2) = split/<>/;
-		$input_hash{$i1}{$i2}++;
+		push @input_array, $_;
 	    }
 	    else {
 		print STDERR "There is an error in the input file ($infile)\n";
@@ -345,7 +368,8 @@ sub loadInput {
 
 	if($debug) { print STDERR "INPUT:  $i1 $i2\n"; }
 
-	$input_hash{$i1}{$i2}++;
+	my $input = "$i1<>$i2";
+	push @input_array, $input;
     }
 }
 
@@ -529,6 +553,10 @@ sub setOptions {
 	exit;
     }   
 
+    if(defined $opt_verbose) {
+	$set .= "  --verbose\n";
+    }
+
     #  check settings
     if($default eq "") { $default = "  No default settings\n"; }
     if($set     eq "") { $set     = "  No user defined settings\n"; }
@@ -589,6 +617,9 @@ sub showHelp() {
 
     print "--precision N            Displays values upto N places of decimal.\n\n";
 
+    print "--verbose                Displays information about a concept if\n";
+    print "                         it doesn't exist in the source.\n\n";
+
     print "--version                Prints the version number\n\n";
  
     print "--help                   Prints this help message.\n\n";
@@ -598,7 +629,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.22 2009/03/17 16:13:51 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.25 2009/03/31 13:14:51 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

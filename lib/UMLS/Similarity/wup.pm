@@ -91,13 +91,6 @@ sub getRelatedness
     
     my $interface = $self->{'interface'};
     
-    my $c1_depth  = $interface->findMinimumDepth($concept1);
-    my $c2_depth  = $interface->findMinimumDepth($concept2);
-
-    if( !(defined $c1_depth) or	!(defined $c2_depth)) {
-	return 0;
-    }
-    
     my $lcs = $interface->findLeastCommonSubsumer($concept1, $concept2);
 
     my $lcs_depth;
@@ -106,6 +99,34 @@ sub getRelatedness
     }
     else { return 0; }
     
+
+    my $c1_paths = $interface->pathsToRoot($concept1);
+    my $c2_paths = $interface->pathsToRoot($concept2);
+    
+    my $c1_depth = 0; my $c2_depth = 0;
+    foreach my $path (@{$c1_paths}) {
+	if($path=~/$lcs/) {
+	    my @p = split/\s+/, $path;
+	    if( ($c1_depth == 0) or ($c1_depth > ($#p+1)) ) {
+		$c1_depth = $#p + 1;
+	    }
+	}
+    }
+    
+    foreach my $path (@{$c2_paths}) {
+	if($path=~/$lcs/) {
+	    my @p = split/\s+/, $path;
+	    if( ($c2_depth == 0) or ($c2_depth > ($#p+1)) ) {
+		$c2_depth = $#p + 1;
+	    }
+	}
+    }
+
+    if($c1_depth == 0 or $c2_depth == 0) {
+	return 0;
+    }
+    
+    print "$lcs $lcs_depth $c1_depth $c2_depth\n";
     my $score = (2 * $lcs_depth) / ($c1_depth + $c2_depth);   
 
     return $score;

@@ -1,7 +1,7 @@
 --- #YAML:1.0
 name:               UMLS-Similarity
-version:            0.13
-abstract:           This is a suite of Perl modules that implements 
+version:            0.15
+abstract:           A suite of Perl modules that implement a number 
 author:
     - Bridget McInnes <bthomson@cs.umn.edu>, Ted Pedersen <tpederse@d.umn.edu>, Serguei Pakhomov <pakh0002 at umn.edu>, Siddharth Patwardhan <sidd@cs.utah.edu>
 license:            unknown

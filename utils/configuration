@@ -1,4 +1,4 @@
-SAB :: include MSH
+SAB :: include SNOMEDCT
 
 REL :: include PAR, CHD
 
