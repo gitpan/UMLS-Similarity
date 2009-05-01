@@ -35,7 +35,7 @@
 
 package UMLS::Similarity;
 
-$VERSION = '0.15';
+$VERSION = '0.17';
 
 sub new
 {
@@ -148,7 +148,9 @@ concepts.
 
 This package consists of Perl modules along with supporting Perl
 programs that implement the semantic relatedness measures described by
-Leacock & Chodorow (1998) and a simple path based measure.
+Leacock & Chodorow (1998), Wu & Palmer (1994), Nguyen and Al-Mubaid 
+(2006), Rada, et. al. 1989, Patwardhan (2003) and a simple path based 
+measure.
 
 The Perl modules are designed as objects with methods that take as
 input two concepts. The semantic relatedness of these concepts is 

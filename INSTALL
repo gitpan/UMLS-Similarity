@@ -53,6 +53,74 @@ INSTALLATION
     your system configuration. A message will be printed out after 'make
     install' telling your exactly where it was installed.
 
+USING vector.pm
+    The vector measure is in a pre-beta stage at this point. It requires the
+    BerkelyDB which I apologize because after installing the UMLS into MySQL
+    the last thing you really want to do is install another database. This
+    shouldn't be as painful and I promise to work on getting this updated so
+    you will no longer be required to do this.
+
+    You can download BerkleyDB from here:
+
+        http://www.oracle.com/technology/software/products/berkeley-db/index.html
+
+    You can either chose the encripted or non-encripted version. I chose the
+    non-ensripted because it was smaller. I am using linux (ubuntu to be
+    specific) so I downloaded the following file:
+
+              Berkeley DB 4.7.25NC.tar.gz
+
+    Extract the package using gunzip and tar
+
+              % gunzip db-4.7.25.NC.tar.gz
+              % tar -xf db-4.7.25.NC.tar
+
+    In the directory, there is a file called doc/index.html which has the
+    installation instructions. I installed it using the following steps and
+    series of commands:
+
+              %  cd build_unix 
+              %  ../dist/configure
+              %  make
+              %  sudo make install
+
+    Next, download the BerkleyDB.pm module from CPAN:
+
+          http://search.cpan.org/dist/BerkeleyDB/
+
+    The installation directions are in the README. Below are the steps and
+    commands that I used to install the package.
+
+    Extract the package using gunzip and tar % gunzip BerkeleyDB-0.38.tar.gz
+    % tar -xf BerkeleyDB-0.38.tar
+
+    In the BerkeleyDB-0.38 directory, you are going to have to modify the
+    config.in file.
+
+    First, change the path of the INCLUDE variable to point to the directory
+    where db.h is installed. For example:
+
+            INCLUDE = /home/bridget/programs/db-4.7.25.NC/build_unix
+
+    Second, change the path of the LIB veriable to point to the directory
+    where the libdb is installed. For example:
+
+            LIB     = /home/bridget/programs/db-4.7.25.NC/build_unix
+ 
+    Then continue on with the typical perl module install:
+
+           % perl Makefile.PL
+           % make
+           % sudo make install
+
+    Theoretically, that should do it. As I said before this is the beta
+    version so in the near future these additional steps will not be
+    necessary to use the vector measure module.
+
+    To use this method you will need to specify the --dbfile option, which
+    is BerkleyDB file that contains the vector information. If you need a
+    test file for this please email me at: bthomson@cs.umn.edu
+
 CONTACT US
       If you have any trouble installing and using UMLS-Interface, please 
       contact us via the users mailing list : 

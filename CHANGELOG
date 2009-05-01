@@ -1,5 +1,18 @@
 NAME
-    UMLS::Interface CHANGES
+    UMLS::Similarity CHANGES
+
+  Changes from version 0.15 to 0.17
+    Modified the output of umls-similarity to return only the pair of CUIs
+    that obtain the highest similarity score when terms that map to multiple
+    concepts are being used. I added a --allsenses option if you would like
+    the original output that displayed all possible CUIs with their
+    similarity score for a given pair of terms.
+
+    Added the vector measure. This measure is in 'beta' version so there
+    will be some modifications to it in the future.
+
+    I also removed the print statements that were displayed when the Wu and
+    Palmer (wup) measure was being used. Sorry about the noise.
 
   Changes from version 0.13 to 0.15
     Modified the output of umls-similarity so that if a concept doesn't

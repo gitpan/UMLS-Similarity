@@ -74,6 +74,18 @@ Displays values upto N places of decimal.
 Displays information about the concept if it doesn't
 exist in the source.
 
+=head3 --dbfile FILE
+
+This is the Berkley DB file that contains the vector information to 
+use with the vector measure. This is required if you specify vector 
+with the --measure option.
+
+=head3 --allsenses
+
+This option prints out all the possible CUIs pairs and their semantic 
+similarity score if one of the inputs is a term that maps to more than 
+one CUI. Right now we just return the CUIs that are the most similar.
+
 =head3 --help
 
 Displays the quick summary of program options.
@@ -165,7 +177,7 @@ this program; if not, write to:
 #                            COMMAND LINE OPTIONS AND USAGE
 #                           ================================
 
-use lib "/export/scratch/programs/lib/site_perl/5.8.7/";
+
 
 use UMLS::Interface;
 use UMLS::Similarity::lch;
@@ -174,9 +186,12 @@ use UMLS::Similarity::wup;
 use UMLS::Similarity::cdist;
 use UMLS::Similarity::nam;
 
+use UMLS::Similarity::vector;
+
+
 use Getopt::Long;
 
-GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "precision=s", "verbose");
+GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "dbfile=s", "precision=s", "verbose", "allsenses");
 
 my $debug = 0;
 
@@ -280,36 +295,76 @@ sub calculateSimilarity {
 	    print STDERR "$input2:$t2 (@c2)\n";
 	}
 	
+	my %similarityHash = ();
+
 	#  get the similarity between the concepts
-	foreach $cc1 (@c1) {
-	    foreach $cc2 (@c2) {
+	foreach my $cc1 (@c1) {
+	    foreach my $cc2 (@c2) {
 
 		if($debug) { 
 		    print STDERR "Obtaining similarity for $cc1 and $cc2\n";
 		}
 		
 		my $score = "";
-		$value = $meas->getRelatedness($cc1, $cc2);
+		$value = $meas->getRelatedness($cc1, $cc2, $t1, $t2);
 		&errorCheck($meas);
 		$score = sprintf $floatformat, $value;
 		
-		if($cui_flag1 and $cui_flag2) { 
-		    print "$score<>$cc1($t1)<>$cc2($t2)\n"; 
-		}
-		elsif($cui_flag1) {
-		    print "$score<>$t1($cc1)<>$input2($cc2)\n"; 
-		}	    
-		elsif($cui_flag2) {
-		    print "$score<>$input1($cc1)<>$t2($cc2)\n"; 
-		}
-		else { 
-		    print "$score<>$input1($cc1)<>$input2($cc2)\n"; 
-		}		
-		$printFlag = 1;
+		$similarityHash{$cc1}{$cc2} = $score;
 	    }
 	}
 	
-	if(!($printFlag)) {
+	#  find the maximum score
+	#  find the minimum score
+	my $max_cc1 = ""; my $max_cc2 = ""; my $max_score = 0;
+	my $min_cc1 = ""; my $min_cc2 = ""; my $min_score = 999;
+	foreach my $concept1 (sort keys %similarityHash) {
+	    foreach my $concept2 (sort keys %{$similarityHash{$concept1}}) {
+		if($max_score <= $similarityHash{$concept1}{$concept2}) {
+		    $max_score = $similarityHash{$concept1}{$concept2};
+		    $max_cc1 = $concept1;
+		    $max_cc2 = $concept2;
+		}
+		if($min_score > $similarityHash{$concept1}{$concept2}) {
+		    $min_score = $similarityHash{$concept1}{$concept2};
+		    $min_cc1 = $concept1;
+		    $min_cc2 = $concept2;
+		}
+	    }
+	}
+	
+	my $score = 0; my $cc1 = ""; my $cc2 = "";
+	if($measure eq "nam") {
+	    $score = $min_score; 
+	    $cc1   = $min_cc1;
+	    $cc2   = $min_cc2;
+	}
+	else {
+	    $score = $max_score;
+	    $cc1   = $max_cc1;
+	    $cc2   = $max_cc2;
+	}
+	
+	#  print all the concepts and their scores
+	if(defined $opt_allsenses) {
+	    foreach my $cc1 (sort keys %similarityHash) {
+		foreach my $cc2 (sort keys %{$similarityHash{$cc1}}) {
+		    if($cui_flag1 and $cui_flag2) { print "$score<>$cc1($t1)<>$cc2($t2)\n";     }
+		    elsif($cui_flag1)             { print "$score<>$t1($cc1)<>$input2($cc2)\n"; }
+		    elsif($cui_flag2)             { print "$score<>$input1($cc1)<>$t2($cc2)\n"; }
+		    else   			  { print "$score<>$input1($cc1)<>$input2($cc2)\n"; }
+		}
+	    }
+	}
+	#  print the most similar concepts and the score
+	elsif($cc1 ne "" or $cc2 ne "") {
+	    if($cui_flag1 and $cui_flag2) { print "$score<>$cc1($t1)<>$cc2($t2)\n";     }
+	    elsif($cui_flag1)             { print "$score<>$t1($cc1)<>$input2($cc2)\n"; }
+	    elsif($cui_flag2)             { print "$score<>$input1($cc1)<>$t2($cc2)\n"; }
+	    else   			  { print "$score<>$input1($cc1)<>$input2($cc2)\n"; }
+	}
+	#  there were no concepts to print - one of them was missing a similarity score
+	else {
 	    if($#c1 > -1) {
 		foreach my $cc1 (@c1) {
 		    if($cuiflag1) { print "$noscore<>$cc1($t1)<>$input2\n"; }
@@ -329,9 +384,9 @@ sub calculateSimilarity {
 		if($opt_verbose) { print "    => $input2 nor $input1 exist\n"; }
 	    }		
 	}
-	$printFlag = 0;
     }
 }
+
 
 sub loadInput {
 
@@ -378,6 +433,9 @@ sub loadMeasures {
     
     my $meas;
 
+    if($measure eq "vector") {
+	$meas = UMLS::Similarity::vector->new($umls, $opt_dbfile)
+    }
     #  load the module implementing the Leacock and 
     #  Chodorow (1998) measure
     if($measure eq "lch") {
@@ -543,7 +601,7 @@ sub setOptions {
 	$default .= "  --measure $measure\n";
     }
 
-    if($measure=~/(path|wup|lch|cdist|nam)/) {
+    if($measure=~/(path|wup|lch|cdist|nam|vector)/) {
 	#  good to go
     }
     else {
@@ -553,6 +611,17 @@ sub setOptions {
 	exit;
     }   
 
+    # make certain the db file is specified if the vector measure 
+    # is being used
+    if($measure=~/vector/) {
+	if(! (defined $opt_dbfile)) {
+	    print "The --dbfile option must be specified when using\n";
+	    print "the vector measure.\n\n";
+	    &minimalUsageNotes();
+	    exit;
+	}
+    }
+	  
     if(defined $opt_verbose) {
 	$set .= "  --verbose\n";
     }
@@ -620,6 +689,15 @@ sub showHelp() {
     print "--verbose                Displays information about a concept if\n";
     print "                         it doesn't exist in the source.\n\n";
 
+    print "--dbfile FILE            Berkely DB file containing the vector\n";
+    print "                         information for the vector measure.\n\n";
+
+    print "--allsenses              This option prints out all the possible\n";
+    print "                         CUIs pairs and their semantic similarity\n"; 
+    print "                         score if one of the inputs is a term that\n"; 
+    print "                         maps to more than one CUI. Right now we \n"; 
+    print "                         return the CUIs that are the most similar.\n\n";
+
     print "--version                Prints the version number\n\n";
  
     print "--help                   Prints this help message.\n\n";
@@ -629,7 +707,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.25 2009/03/31 13:14:51 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.28 2009/05/01 18:18:56 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

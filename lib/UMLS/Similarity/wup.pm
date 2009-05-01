@@ -126,7 +126,6 @@ sub getRelatedness
 	return 0;
     }
     
-    print "$lcs $lcs_depth $c1_depth $c2_depth\n";
     my $score = (2 * $lcs_depth) / ($c1_depth + $c2_depth);   
 
     return $score;

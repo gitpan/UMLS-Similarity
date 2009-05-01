@@ -5,9 +5,9 @@
       This package consists of Perl modules along with supporting Perl
       programs that implement the semantic relatedness measures described 
       by Leacock & Chodorow (1998), Wu & Palmer (1994), Nguyen and Al-Mubaid 
-      (2006), Rada, et. al. 1989 and a simple path based measure. In the 
-      near future, we are planning to add  Jiang & Conrath (1997), Resnik 
-      (1995) and Lin (1998).
+      (2006), Rada, et. al. 1989, Patwardhan (2003) and a simple path based 
+      measure. In the near future, we are planning to add  Jiang & Conrath 
+      (1997), Resnik (1995) and Lin (1998).
 
       UMLS::Similarity requires the UMLS::Interface module to access 
       the Unified Medical Language System (UMLS) in order to determine 
@@ -55,6 +55,7 @@
           Semantic/Similarity/wup.pm
           Semantic/Similarity/nam.pm
           Semantic/Similarity/cdist.pm
+          Semantic/Similarity/vector.pm (beta)
 
         -- present in the lib/ subdirectory. All these modules, once installed
         in the Perl system directory, can be directly used by Perl programs.
