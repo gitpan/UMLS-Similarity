@@ -1,4 +1,4 @@
-SAB :: include SNOMEDCT
+SAB :: include FMA
 
 REL :: include PAR, CHD
 

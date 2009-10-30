@@ -1,6 +1,31 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 0.17 to 0.19
+    The --verbose option originally in the package is changed to a --info
+    option. This option prints out a little more information about a concept
+    if it doesn't exist in the sources that are being used.
+
+    The reason for this change is because a new --verbose option was added
+    to UMLS-Interface and we wanted to keep the options consistent. Since I
+    do not think too many people were using the old --verbose option, I
+    don't *think* it will cause too many problems.
+
+    The new --verbose option will print out path information to a file
+    rather than having this be done automatically. This will reduce the
+    amount of storage space required to hold the path information for a
+    given set of sources and relations.
+
+    A new --forcerun option was also added. This option will just create the
+    what we call the index - the path information - required by the program
+    without prompting you to continue. So this will assume you know what you
+    are doing and will not question you :)
+
+    I also fixed (I hope) how the modules are installed in the
+    umls-similarity.pl program in the utils/ directory. It should not
+    require BerkeleyDB now unless you are running the
+    UMLS::Similarity::vector measure.
+
   Changes from version 0.15 to 0.17
     Modified the output of umls-similarity to return only the pair of CUIs
     that obtain the highest similarity score when terms that map to multiple

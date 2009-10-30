@@ -69,7 +69,7 @@ available measure are:
 
 Displays values upto N places of decimal.
 
-=head3 --verbose
+=head3 --info
 
 Displays information about the concept if it doesn't
 exist in the source.
@@ -85,6 +85,16 @@ with the --measure option.
 This option prints out all the possible CUIs pairs and their semantic 
 similarity score if one of the inputs is a term that maps to more than 
 one CUI. Right now we just return the CUIs that are the most similar.
+
+=head3 --forcerun
+
+This option will bypass any command prompts such as asking 
+if you would like to continue with the index creation. 
+
+=head3 --verbose
+
+This option will print out the table information to the 
+config file that you specified.
 
 =head3 --help
 
@@ -177,21 +187,12 @@ this program; if not, write to:
 #                            COMMAND LINE OPTIONS AND USAGE
 #                           ================================
 
-
+use lib "/export/scratch/programs/lib/site_perl/5.8.7/";
 
 use UMLS::Interface;
-use UMLS::Similarity::lch;
-use UMLS::Similarity::path;
-use UMLS::Similarity::wup;
-use UMLS::Similarity::cdist;
-use UMLS::Similarity::nam;
-
-use UMLS::Similarity::vector;
-
-
 use Getopt::Long;
 
-GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "dbfile=s", "precision=s", "verbose", "allsenses");
+GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "dbfile=s", "precision=s", "info", "allsenses", "forcerun", "verbose");
 
 my $debug = 0;
 
@@ -369,19 +370,19 @@ sub calculateSimilarity {
 		foreach my $cc1 (@c1) {
 		    if($cuiflag1) { print "$noscore<>$cc1($t1)<>$input2\n"; }
 		    else          { print "$noscore<>$t1($cc1)<>$input2\n"; }
-		    if($opt_verbose) { print "    => $input2 does not exist\n"; }
+		    if($opt_info) { print "    => $input2 does not exist\n"; }
 		}
 	    }
 	    elsif($#c2 > -1) {
 		foreach my $cc2 (@c2) {
 		    if($cuiflag1) { print "$noscore<>$input1<>$cc2($t2)\n"; }
 		    else          { print "$noscore<>$input1<>$t2($cc2)\n"; }
-		    if($opt_verbose) { print "    => $input1 does not exist\n"; }
+		    if($opt_info) { print "    => $input1 does not exist\n"; }
 		}
 	    }
 	    else {
 		print "$noscore<>$input1<>$input2\n";
-		if($opt_verbose) { print "    => $input2 nor $input1 exist\n"; }
+		if($opt_info) { print "    => $input2 nor $input1 exist\n"; }
 	    }		
 	}
     }
@@ -434,31 +435,37 @@ sub loadMeasures {
     my $meas;
 
     if($measure eq "vector") {
+	use UMLS::Similarity::vector;
 	$meas = UMLS::Similarity::vector->new($umls, $opt_dbfile)
     }
     #  load the module implementing the Leacock and 
     #  Chodorow (1998) measure
     if($measure eq "lch") {
+	use UMLS::Similarity::lch;	
 	$meas = UMLS::Similarity::lch->new($umls);
     }
     #  loading the module implementing the Wu and 
     #  Palmer (1994) measure
     if($measure eq "wup") {
+	use UMLS::Similarity::wup;	
 	$meas = UMLS::Similarity::wup->new($umls);
     }    
     #  loading the module implementing the simple edge counting 
     #  measure of semantic relatedness.
     if($measure eq "path") {
+	use UMLS::Similarity::path;
 	$meas = UMLS::Similarity::path->new($umls);
     }
     #  load the module implementing the Rada, et. al.
     #  (1989) called the Conceptual Distance measure
     if($measure eq "cdist") {
+	use UMLS::Similarity::cdist;
 	$meas = UMLS::Similarity::cdist->new($umls);
     }
     #  load the module implementing the Nguyen and 
     #  Al-Mubaid (2006) measure
     if($measure eq "nam") {
+	use UMLS::Similarity::nam;
 	$meas = UMLS::Similarity::nam->new($umls);
     }
 
@@ -473,41 +480,28 @@ sub loadMeasures {
 #  load the UMLS
 sub loadUMLS {
  
-    if(defined $opt_username and defined $opt_config) {
-	$umls = UMLS::Interface->new({"driver" => "mysql", 
-				      "database" => "$database", 
-				      "username" => "$opt_username",  
-				      "password" => "$opt_password", 
-				      "hostname" => "$hostname", 
-				      "socket"   => "$socket",
-				      "config"   => "$opt_config"}); 
-	die "Unable to create UMLS::Interface object.\n" if(!$umls);
-	($errCode, $errString) = $umls->getError();
-	die "$errString\n" if($errCode);
+    if(defined $opt_config) {
+	$option_hash{"config"} = $opt_config;
     }
-    elsif(defined $opt_username) {
-	$umls = UMLS::Interface->new({"driver" => "mysql", 
-				      "database" => "$database", 
-				      "username" => "$opt_username",  
-				      "password" => "$opt_password", 
-				      "hostname" => "$hostname", 
-				      "socket"   => "$socket"}); 
-	die "Unable to create UMLS::Interface object.\n" if(!$umls);
-	($errCode, $errString) = $umls->getError();
-	die "$errString\n" if($errCode);
+    if(defined $opt_forcerun) {
+	$option_hash{"forcerun"} = $opt_forcerun;
     }
-    elsif(defined $opt_config) {
-	$umls = UMLS::Interface->new({"config" => "$opt_config"});
-	die "Unable to create UMLS::Interface object.\n" if(!$umls);
-	($errCode, $errString) = $umls->getError();
-	die "$errString\n" if($errCode);
+    if(defined $opt_verbose) {
+	$option_hash{"verbose"} = $opt_verbose;
     }
-    else {
-	$umls = UMLS::Interface->new(); 
-	die "Unable to create UMLS::Interface object.\n" if(!$umls);
-	($errCode, $errString) = $umls->getError();
-	die "$errString\n" if($errCode);
+    if(defined $opt_username and defined $opt_password) {
+	$option_hash{"driver"}   = "mysql";
+	$option_hash{"database"} = $database;
+	$option_hash{"username"} = $opt_username;
+	$option_hash{"password"} = $opt_password;
+	$option_hash{"hostname"} = $hostname;
+	$option_hash{"socket"}   = $socket;
     }
+    
+    $umls = UMLS::Interface->new(\%option_hash); 
+    die "Unable to create UMLS::Interface object.\n" if(!$umls);
+    ($errCode, $errString) = $umls->getError();
+    die "$errString\n" if($errCode);
     
     &errorCheck($umls);
 }
@@ -626,6 +620,10 @@ sub setOptions {
 	$set .= "  --verbose\n";
     }
 
+    if(defined $opt_info) {
+	$set .= "  --verbose\n";
+    }
+
     #  check settings
     if($default eq "") { $default = "  No default settings\n"; }
     if($set     eq "") { $set     = "  No user defined settings\n"; }
@@ -686,7 +684,7 @@ sub showHelp() {
 
     print "--precision N            Displays values upto N places of decimal.\n\n";
 
-    print "--verbose                Displays information about a concept if\n";
+    print "--info                   Displays information about a concept if\n";
     print "                         it doesn't exist in the source.\n\n";
 
     print "--dbfile FILE            Berkely DB file containing the vector\n";
@@ -698,8 +696,16 @@ sub showHelp() {
     print "                         maps to more than one CUI. Right now we \n"; 
     print "                         return the CUIs that are the most similar.\n\n";
 
+    print "--forcerun               This option will bypass any command \n";
+    print "                         prompts such as asking if you would \n";
+    print "                         like to continue with the index \n";
+    print "                         creation. \n\n";
+    
+    print "--verbose                This option prints out the path information\n";
+    print "                         to a file in your config directory.\n\n";    
+    
     print "--version                Prints the version number\n\n";
- 
+    
     print "--help                   Prints this help message.\n\n";
 }
 
@@ -707,7 +713,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.28 2009/05/01 18:18:56 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.29 2009/10/30 14:40:28 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 
