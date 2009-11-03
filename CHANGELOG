@@ -1,6 +1,17 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 0.21 to 0.29
+    I used the following require command:
+
+        require "UMLS::Similarity::vector"
+
+    rather than
+
+        require "UMLS/Similarity/vector.pm";
+
+    Not certain what I was thinking ...
+
   Changes from version 0.19 to 0.21
     I fixed (for certain this time) how the modules are installed in the
     umls-similarity.pl program in the utils/ directory. It should not
