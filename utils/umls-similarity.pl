@@ -435,7 +435,7 @@ sub loadMeasures {
     my $meas;
 
     if($measure eq "vector") {
-	use UMLS::Similarity::vector;
+	require "UMLS::Similarity::vector";
 	$meas = UMLS::Similarity::vector->new($umls, $opt_dbfile)
     }
     #  load the module implementing the Leacock and 
@@ -713,7 +713,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.29 2009/10/30 14:40:28 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.2 2009/11/03 20:08:32 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

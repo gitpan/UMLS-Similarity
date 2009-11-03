@@ -1,6 +1,31 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 0.19 to 0.21
+    I fixed (for certain this time) how the modules are installed in the
+    umls-similarity.pl program in the utils/ directory. It should not
+    require BerkeleyDB now unless you are running the
+    UMLS::Similarity::vector measure.
+
+    For documentation puposes:
+
+            'use' loads the package at compile time
+
+    where as
+
+            'require' loads the package at run time
+
+    Here is some documentation on it:
+
+    <http://perldoc.perl.org/perlfaq8.html#What's-the-difference-between-req
+    uire-and-use?>
+
+    So when using 'use UMLS::Similarity::vector' - the program was loading
+    vector.pm at compile time which used dbif.pm which requires BerkeleyDB
+    to be installed. I switched to 'require "UMLS::Similarity::vector"'
+    which now only loads vector.pm at runtime and only when use specify the
+    vector measure.
+
   Changes from version 0.17 to 0.19
     The --verbose option originally in the package is changed to a --info
     option. This option prints out a little more information about a concept

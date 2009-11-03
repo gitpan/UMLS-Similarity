@@ -455,7 +455,9 @@ sub getRelatedness
     
     for my $i (0..$#firstTermList) {
 	my $word = $firstTermList[$i];
-	$word=~s/$removal_regex//g;
+	$word=~s/\(.*?\)//g;
+	$word=~s/\[.*?\]//g;
+	$word=~s/$removal_regex/ /g;
 	$word=~s/(nos|nes)//g;
 	my @ws = split/\s+/, $word;
 	foreach my $w (@ws) {
@@ -466,6 +468,8 @@ sub getRelatedness
 
     for my $i (0..$#secondTermList) {
 	my $word = $secondTermList[$i];
+	$word=~s/\(.*?\)//g;  
+	$word=~s/\[.*?\]//g; 
 	$word=~s/$removal_regex/ /g;
 	$word=~s/(nos|nes)//g;
 	my @ws = split/\s+/, $word;
@@ -477,37 +481,72 @@ sub getRelatedness
 
     foreach my $rel ($interface->getRelations($concept1))
     {
-	if($rel ne "PAR" and $rel ne "CHD") { next; }
+	#if($rel ne "PAR" and $rel ne "CHD") { next; }
 
 	foreach my $relcon1 ($interface->getRelated($concept1, $rel))
     	{
     	    my $first = join(" ", $interface->getTermList($relcon1));
 	    my @array = split/\s+/, $first;
 	    foreach my $w (@array) { 
-		$w=~s/$removal_regex/ /g;
+		$w=~s/\(.*?\)//g;  
+		$w=~s/\[.*?\]//g;
+		$w=~s/$removal_regex/ /g; 
 		$w=~s/(nos|nes)//g;
 		$w=~s/\s+//g;
 		$w=~s/^\s+//g;
 		$w=~s/\s+$//g;
 		#$firstTermHash{$w}++; 
 	    }
+
+	    my @defs = join(" ", $interface->getCuiDef($relcon1));
+	    foreach my $def (@defs) {
+		my @array = split/\s+/, $def;
+		foreach my $w (@array) { 
+		    $w=~s/\(.*?\)//g;  
+		    $w=~s/\[.*?\]//g;
+		    $w=~s/$removal_regex/ /g; 
+		    $w=~s/(nos|nes)//g;
+		    $w=~s/\s+//g;
+		    $w=~s/^\s+//g;
+		    $w=~s/\s+$//g;
+		    #$firstTermHash{$w}++; 
+		}
+	    }
 	}
     }
     foreach my $rel ($interface->getRelations($concept2)) 
     {
-	if($rel ne "PAR" and $rel ne "CHD") { next; }
+	#if($rel ne "PAR" and $rel ne "CHD") { next; }
 	
 	foreach my $relcon2 ($interface->getRelated($concept2, $rel))
     	{
       	    my $second = join(" ", $interface->getTermList($concept2)); 
 	    my @array = split/\s+/, $second;
 	    foreach my $w (@array) { 
+		$w=~s/\(.*?\)//g;  
+		$w=~s/\[.*?\]//g; 
 		$w=~s/$removal_regex/ /g;
 		$w=~s/(nos|nes)//g;
 		$w=~s/\s+//g;
 		$w=~s/^\s+//g;
 		$w=~s/\s+$//g;
 		#$secondTermHash{$w}++; 
+	    }
+
+
+	    my @defs = join(" ", $interface->getCuiDef($relcon2));
+	    foreach my $def (@defs) {
+		my @array = split/\s+/, $def;
+		foreach my $w (@array) { 
+		    $w=~s/\(.*?\)//g;  
+		    $w=~s/\[.*?\]//g; 
+		    $w=~s/$removal_regex/ /g;
+		    $w=~s/(nos|nes)//g;
+		    $w=~s/\s+//g;
+		    $w=~s/^\s+//g;
+		    $w=~s/\s+$//g;
+		    #$secondTermHash{$w}++; 
+		}
 	    }
         }
     }
@@ -520,24 +559,28 @@ sub getRelatedness
 	my @array = split/\s+/, $def;
 	foreach my $w (@array) {
 	    $w = lc($w);
+	    $w=~s/\(.*?\)//g;  
+	    $w=~s/\[.*?\]//g; 
 	    $w=~s/$removal_regex/ /g;
 	    $w=~s/(nos|nes)//g;
 	    $w=~s/\s+//g;
 	    $w=~s/^\s+//g;
 	    $w=~s/\s+$//g;
-	    $firstTermHash{$w}++; 
+	    #$firstTermHash{$w}++; 
 	}
     }
     foreach my $def (@secondDef) {
 	my @array = split/\s+/, $def;
 	foreach my $w (@array) {
 	    $w = lc($w);
+	    $w=~s/\(.*?\)//g;  
+	    $w=~s/\[.*?\]//g; 
 	    $w=~s/$removal_regex/ /g;
 	    $w=~s/(nos|nes)//g;
 	    $w=~s/\s+//g;
 	    $w=~s/^\s+//g;
 	    $w=~s/\s+$//g;
-	    $secondTermHash{$w}++; 
+	    #$secondTermHash{$w}++; 
 	}
     }
 
@@ -547,7 +590,7 @@ sub getRelatedness
 
     my $firstString = join(" ", @firstArray);
     my $secondString = join(" ", @secondArray);
-
+   
     
     # Preprocess...
     $firstString =~ s/\'//g;
@@ -560,7 +603,10 @@ sub getRelatedness
     $secondString =~ s/^\s+//;
     $secondString =~ s/\s+$//;
 #    $secondString = $self->_compoundify($secondString);
-    
+   
+    #print STDERR "1: ($concept1) $firstString\n";
+    #print STDERR "2: ($concept2) $secondString\n"; 
+
     # Get vectors... score...
     my $a;
     my $b;
@@ -795,6 +841,7 @@ sub norm
 	    $out->{$ind} = $vec->{$ind}/$lent;
 	}    
     }
+
     return $out;
 }
 
