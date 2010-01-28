@@ -1,12 +1,12 @@
-# UMLS::Similarity::lch.pm
+# UMLS::Similarity::jnc.pm
 #
 # Module implementing the semantic relatedness measure described 
-# by Leacock and Chodorow (1998).
+# by Jiang and Conrath (1997)
 #
-# Copyright (c) 2004-2009,
+# Copyright (c) 2009-2010,
 #
 # Bridget T McInnes, University of Minnesota, Twin Cities
-# bthomson at cs.umn.edu
+# bthomson at umn.edu
 #
 # Siddharth Patwardhan, University of Utah, Salt Lake City
 # sidd at cs.utah.edu
@@ -35,7 +35,7 @@
 # Boston, MA  02111-1307, USA.
 
 
-package UMLS::Similarity::lch;
+package UMLS::Similarity::jnc;
 
 use strict;
 use warnings;
@@ -51,7 +51,7 @@ sub new
     my $className = shift;
     return undef if(ref $className);
 
-    if($debug) { print STDERR "In UMLS::Similarity::lch->new()\n"; }
+    if($debug) { print STDERR "In UMLS::Similarity::jnc->new()\n"; }
 
     my $interface = shift;
 
@@ -69,7 +69,7 @@ sub new
 
     if(!$interface)
     {
-	$self->{'errorString'} .= "\nError (UMLS::Similarity::lch->new()) - ";
+	$self->{'errorString'} .= "\nError (UMLS::Similarity::jnc->new()) - ";
 	$self->{'errorString'} .= "An interface object is required.";
 	$self->{'error'} = 2;
     }
@@ -84,22 +84,64 @@ sub new
 sub getRelatedness
 {
     my $self = shift;
+
     return undef if(!defined $self || !ref $self);
+
     my $concept1 = shift;
     my $concept2 = shift;
-
-    my $interface = $self->{'interface'};
-
-    my (@path) = $interface->findShortestPath($concept1, $concept2);
     
-    my $depth = $interface->depth();
+    my $interface = $self->{'interface'};
+    
+    # Check for the possibility of the root node having 0 frequency count
+    my $max_score = 0;
+    my $root = $interface->root();
+    my $root_freq = $interface->getFreq($root);
+    if($root_freq > 0) {
+	$max_score = 2 * -log (0.001 / $root_freq) + 1;
+    }
+    else {
+	$self->{errorString} .= "\nWarning (UMLS::Similarity::jnc::getRelatedness()) - ";
+	$self->{errorString} .= "Root node ($root) has a zero frequency count.";
+	$self->{error} = ($self->{error} < 1) ? 1 : $self->{error};
+	return 0;
+    }
+    
+    #  Check to make certain that the IC for each of the concepts is 
+    #  greater than zero otherwise return zero
+    my $ic1 = $interface->getIC($concept1);
+    my $ic2 = $interface->getIC($concept2);
+    if($ic1 <= 0 or $ic2 <= 0) { return 0; }
+    
+    #  get the lcs
+    my $lcs = $interface->findLeastCommonSubsumer($concept1, $concept2);
+
+    #  if the lcs doesn't exist return 0
+    if(! defined $lcs) { return 0; }
+
+    
+    #  get the information content of the lcs
+    my $lcs_ic = $interface->getIC($lcs);
+
+    my $distance = $ic1 + $ic2 - (2 * $lcs_ic);
     
     my $score = 0;
-    
-    if($#path > -1) { $score = log (2 * $depth / ($#path+1)); }
 
-    return $score
+    if ($distance == 0) {
+	if ($root_freq > 0.01) {
+	    $score = 1 / -log (($root_freq - 0.01) / $root_freq);
+	}
+	else {
+	    # root frequency is 0
+	    return 0;
+	}
+    }
+    else { # distance is non-zero
+	$score = 1 / $distance
+    }
+
+    return $score;
 }
+
 
 # Method to return recent error/warning condition
 sub getError
@@ -107,7 +149,7 @@ sub getError
     my $self = shift;
     return (2, "") if(!defined $self || !ref $self);
 
-    if($debug) { print STDERR "In UMLS::Similarity::lch->getError()\n"; }
+    if($debug) { print STDERR "In UMLS::Similarity::jnc->getError()\n"; }
 
     my $dontClear = shift;
     my $error = $self->{'error'};
@@ -139,22 +181,24 @@ __END__
 
 =head1 NAME
 
-UMLS::Similarity::lch - Perl module for computing semantic relatedness
+UMLS::Similarity::jnc - Perl module for computing semantic relatedness
 of concepts in the Unified Medical Language System (UMLS) using the 
-method described by Leacock and Chodorow (1998). 
+method described by Jiang and Conrath 1997.
 
 =head1 SYNOPSIS
 
   use UMLS::Interface;
-  use UMLS::Similarity::lch;
+  use UMLS::Similarity::jnc;
 
-  my $umls = UMLS::Interface->new(); 
+  my $option_hash{"propogation"} = $propogation_file;
+
+  my $umls = UMLS::Interface->new(\%option_hash); 
   die "Unable to create UMLS::Interface object.\n" if(!$umls);
   ($errCode, $errString) = $umls->getError();
   die "$errString\n" if($errCode);
 
-  my $lch = UMLS::Similarity::lch->new($umls);
-  die "Unable to create measure object.\n" if(!$lch);
+  my $jnc = UMLS::Similarity::jnc->new($umls);
+  die "Unable to create measure object.\n" if(!$jnc);
   
   my $cui1 = "C0005767";
   my $cui2 = "C0007634";
@@ -165,18 +209,23 @@ method described by Leacock and Chodorow (1998).
   @ts2 = $umls->getTermList($cui2);
   my $term2 = pop @ts2;
 
-  my $value = $lch->getRelatedness($cui1, $cui2);
+  my $value = $jnc->getRelatedness($cui1, $cui2);
 
   print "The similarity between $cui1 ($term1) and $cui2 ($term2) is $value\n";
 
 =head1 DESCRIPTION
 
 This module computes the semantic relatedness of two concepts in 
-the UMLS according to a method described by Leacock and Chodorow 
-(1998). The relatedness measure proposed by Leacock and Chodorow 
-is S<-log (length / (2 * D))>, where length is the length of the 
-shortest path between the two synsets (using node-counting) and 
-D is the maximum depth of the taxonomy.
+the UMLS according to a method described by Jiang and Conrath (1997). 
+This measure is based on a combination of using edge counts in the UMLS 
+'is-a' hierarchy and using the information content values of the concepts, 
+as describedin the paper by Jiang and Conrath. Their measure, however, 
+computes values that indicate the semantic distance between words (as 
+opposed to theirsemantic relatedness). In this implementation of the 
+measure we invert the value so as to obtain a measure of semantic 
+relatedness. Other issues that arise due to this inversion (such as 
+handling of zero values in the denominator) have been taken care of 
+as special cases.
 
 =head1 USAGE
 
@@ -191,11 +240,11 @@ See the UMLS::Similarity(3) documentation for details of these methods.
 
 =head1 TYPICAL USAGE EXAMPLES
 
-To create an object of the lch measure, we would have the following
+To create an object of the jnc measure, we would have the following
 lines of code in the perl program. 
 
-   use UMLS::Similarity::lch;
-   $measure = UMLS::Similarity::lch->new($interface);
+   use UMLS::Similarity::jnc;
+   $measure = UMLS::Similarity::jnc->new($interface);
 
 The reference of the initialized object is stored in the scalar
 variable '$measure'. '$interface' contains an interface object that

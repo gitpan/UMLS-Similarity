@@ -1,151 +1,145 @@
-INSTALL(1)            User Contributed Perl Documentation           INSTALL(1)
 
+    UMLS-Similarity
 
+TESTING PLATFORMS
+    UMLS-Interface has been developed and tested on Linux and Solaris,
+    primarily using Perl and the C shell (csh).
 
+REQUIREMENTS
+    UMLS-Interface REQUIRES that the following software be installed. More
+    details on how to obtain and install appear below.
 
-       UMLS-Similarity
+    --Programming Languages Perl (version 5.8.5 or better)
 
-TTEESSTTIINNGG PPLLAATTFFOORRMMSS
-       UMLS-Interface has been developed and tested on Linux and Solaris,
-       primarily using Perl and the C shell (csh).
+    --CPAN modules UMLS::Interface
 
-RREEQQUUIIRREEMMEENNTTSS
-       UMLS-Interface REQUIRES that the following software be installed.  More
-       details on how to obtain and install appear below.
+PROGGRAMMING LANGUAGES
+  Perl (version 5.8.5 or better)
+    Perl is freely available at:
 
-       --Programming Languages Perl (version 5.8.5 or better)
+    <http://www.perl.org>
 
-       --CPAN modules UMLS::Interface
+    It is very likely that you will already have Perl installed if you are
+    using a Unix/Linux based system.
 
-PPRROOGGGGRRAAMMMMIINNGG LLAANNGGUUAAGGEESS
-   PPeerrll ((vveerrssiioonn 55..88..55 oorr bbeetttteerr))
-       Perl is freely available at:
+CPAN MODULES
+  UMLS-Interface
+    Please see the UMLS-Interface documentation.
 
-       <http://www.perl.org>
+INSTALLATION
+    If you have supervisor access, or have configured MCPAN for local
+    install, you can install via:
 
-       It is very likely that you will already have Perl installed if you are
-       using a Unix/Linux based system.
+     perl -MCPAN -e shell
+     > install UMLS-Similarity
 
-CCPPAANN MMOODDUULLEESS
-   UUMMLLSS--IInntteerrffaaccee
-       Please see the UMLS-Interface documentation.
+    If not, you can, "manually" install by downloading the *.tar.gz file,
+    unpacking, and executing the following commands.
 
-IINNSSTTAALLLLAATTIIOONN
-       If you have supervisor access, or have configured MCPAN for local
-       install, you can install via:
+                    perl Makefile.PL PREFIX=/home/programs LIB=/home/lib
+                    make
+                    make test
+                    make install
 
-        perl -MCPAN -e shell
-        > install UMLS-Similarity
+    Note that the PREFIX and LIB settings are just examples to help you
+    create a local install, if you do not have supervisor (su) access.
 
-       If not, you can, "manually" install by downloading the *.tar.gz file,
-       unpacking, and executing the following commands.
+    You must include /home/lib in your PERL5LIB environment variable to
+    access this module when running.
 
-                       perl Makefile.PL PREFIX=/home/programs LIB=/home/lib
-                       make
-                       make test
-                       make install
+    If you have the super-user access, then you can install UMLS-Similarity
+    into system directories via :
 
-       Note that the PREFIX and LIB settings are just examples to help you
-       create a local install, if you do not have supervisor (su) access.
+                    perl Makefile.PL
+                    make
+                    make install
+                    make clean
 
-       You must include /home/lib in your PERL5LIB environment variable to
-       access this module when running.
+    The exact location of where UMLS-Similarity will be installed depends on
+    your system configuration. A message will be printed out after 'make
+    install' telling your exactly where it was installed.
 
-       If you have the super-user access, then you can install UMLS-Similarity
-       into system directories via :
+USING vector.pm
+    The vector measure is in a pre-beta stage at this point. It requires the
+    BerkelyDB which I apologize because after installing the UMLS into MySQL
+    the last thing you really want to do is install another database. This
+    shouldn't be as painful and I promise to work on getting this updated so
+    you will no longer be required to do this.
 
-                       perl Makefile.PL
-                       make
-                       make install
-                       make clean
+    You can download BerkleyDB from here:
 
-       The exact location of where UMLS-Similarity will be installed depends
-       on your system configuration. A message will be printed out after ’make
-       install’ telling your exactly where it was installed.
+    <http://www.oracle.com/technology/software/products/berkeley-db/index.ht
+    ml>
 
-UUSSIINNGG vveeccttoorr..ppmm
-       The vector measure is in a pre-beta stage at this point. It requires
-       the BerkelyDB which I apologize because after installing the UMLS into
-       MySQL the last thing you really want to do is install another database.
-       This shouldn’t be as painful and I promise to work on getting this
-       updated so you will no longer be required to do this.
+    You can either chose the encripted or non-encripted version. I chose the
+    non-ensripted because it was smaller. I am using linux (ubuntu to be
+    specific) so I downloaded the following file:
 
-       You can download BerkleyDB from here:
+              Berkeley DB 4.7.25NC.tar.gz
 
-       <http://www.oracle.com/technology/software/products/berkeley-db/index.html>
+    Extract the package using gunzip and tar
 
-       You can either chose the encripted or non-encripted version. I chose
-       the non-ensripted because it was smaller. I am using linux (ubuntu to
-       be specific) so I downloaded the following file:
+              % gunzip db-4.7.25.NC.tar.gz
+              % tar -xf db-4.7.25.NC.tar
 
-                 Berkeley DB 4.7.25NC.tar.gz
+    In the directory, there is a file called doc/index.html which has the
+    installation instructions. I installed it using the following steps and
+    series of commands:
 
-       Extract the package using gunzip and tar
+              %  cd build_unix 
+              %  ../dist/configure
+              %  make
+              %  sudo make install
 
-                 % gunzip db-4.7.25.NC.tar.gz
-                 % tar -xf db-4.7.25.NC.tar
+    Next, download the BerkleyDB.pm module from CPAN:
 
-       In the directory, there is a file called doc/index.html which has the
-       installation instructions. I installed it using the following steps and
-       series of commands:
+    <http://search.cpan.org/dist/BerkeleyDB/>
 
-                 %  cd build_unix
-                 %  ../dist/configure
-                 %  make
-                 %  sudo make install
+    The installation directions are in the README. Below are the steps and
+    commands that I used to install the package.
 
-       Next, download the BerkleyDB.pm module from CPAN:
+    Extract the package using gunzip and tar % gunzip BerkeleyDB-0.38.tar.gz
+    % tar -xf BerkeleyDB-0.38.tar
 
-       <http://search.cpan.org/dist/BerkeleyDB/>
+    In the BerkeleyDB-0.38 directory, you are going to have to modify the
+    config.in file.
 
-       The installation directions are in the README. Below are the steps and
-       commands that I used to install the package.
+    First, change the path of the INCLUDE variable to point to the directory
+    where db.h is installed. For example:
 
-       Extract the package using gunzip and tar      % gunzip
-       BerkeleyDB-0.38.tar.gz      % tar -xf BerkeleyDB-0.38.tar
+            INCLUDE = /home/bridget/programs/db-4.7.25.NC/build_unix
 
-       In the BerkeleyDB-0.38 directory, you are going to have to modify the
-       config.in file.
+    Second, change the path of the LIB veriable to point to the directory
+    where the libdb is installed. For example:
 
-       First, change the path of the INCLUDE variable to point to the
-       directory where db.h is installed. For example:
+            LIB     = /home/bridget/programs/db-4.7.25.NC/build_unix
 
-               INCLUDE = /home/bridget/programs/db-4.7.25.NC/build_unix
+    Then continue on with the typical perl module install:
 
-       Second, change the path of the LIB veriable to point to the directory
-       where the libdb is installed. For example:
+           % perl Makefile.PL
+           % make
+           % sudo make install
 
-               LIB     = /home/bridget/programs/db-4.7.25.NC/build_unix
+    Theoretically, that should do it. As I said before this is the beta
+    version so in the near future these additional steps will not be
+    necessary to use the vector measure module.
 
-       Then continue on with the typical perl module install:
+    To use this method you will need to specify the --dbfile option, which
+    is BerkleyDB file that contains the vector information. If you need a
+    test file for this please email me at: bthomson@cs.umn.edu
 
-              % perl Makefile.PL
-              % make
-              % sudo make install
+CONTACT US
+    If you have any trouble installing and using UMLS-Interface, please
+    contact us via the users mailing list :
 
-       Theoretically, that should do it. As I said before this is the beta
-       version so in the near future these additional steps will not be
-       necessary to use the vector measure module.
+    umls-similarity@yahoogroups.com
 
-       To use this method you will need to specify the --dbfile option, which
-       is BerkleyDB file that contains the vector information. If you need a
-       test file for this please email me at: bthomson@cs.umn.edu
+    You can join this group by going to:
 
-CCOONNTTAACCTT UUSS
-       If you have any trouble installing and using UMLS-Interface, please
-       contact us via the users mailing list :
+    <http://tech.groups.yahoo.com/group/umls-similarity/>
 
-       umls-similarity@yahoogroups.com
+    You may also contact us directly if you prefer :
 
-       You can join this group by going to:
+     Bridget T. McInnes: bthomson at cs.umn.edu
+     Ted Pedersen      : tpederse at d.umn.edu
 
-       <http://tech.groups.yahoo.com/group/umls-similarity/>
-
-       You may also contact us directly if you prefer :
-
-        Bridget T. McInnes: bthomson at cs.umn.edu
-        Ted Pedersen      : tpederse at d.umn.edu
-
-
-
-perl v5.10.0                      2009-10-30                        INSTALL(1)

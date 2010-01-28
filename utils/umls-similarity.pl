@@ -39,6 +39,18 @@ A file containing pairs of concepts or terms in the following format:
 
     term1<>cui2
 
+Unless the --matrix option is chosen then it is just a list of CUIS:
+    cui1
+    cui2
+    cui3 
+    ...
+
+=head3 --matrix
+
+This option returns a matrix of similarity scores given a file 
+containing a list of CUIs. The file is passed using the --infile
+option
+
 =head3 --username STRING
 
 Username is required to access the umls database on MySql
@@ -90,6 +102,10 @@ one CUI. Right now we just return the CUIs that are the most similar.
 
 This option will bypass any command prompts such as asking 
 if you would like to continue with the index creation. 
+
+=head3 --debug
+
+Sets the UMLS-Interface debug flag on for testing
 
 =head3 --verbose
 
@@ -192,8 +208,7 @@ use lib "/export/scratch/programs/lib/site_perl/5.8.7/";
 use UMLS::Interface;
 use Getopt::Long;
 
-eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "dbfile=s", "precision=s", "info", "allsenses", "forcerun", "verbose")) or die ("Please check 
-the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "forcerun", "debug", "verbose", "propogationfile=s", "realtime")) or die ("Please check the above mentioned option(s).\n");
 
 
 my $debug = 0;
@@ -221,6 +236,7 @@ if( !(defined $opt_infile) and (scalar(@ARGV) < 2) ) {
 }
 
 #  initialize variables
+my $propogation = "";
 my $precision   = "";
 my $floatformat = "";
 my $database    = "";
@@ -245,157 +261,200 @@ sub calculateSimilarity {
 
     if($debug) { print STDERR "In calculateSimilarity\n"; }
     
-    foreach my $input (@input_array) {
-	my ($input1, $input2) = split/<>/, $input;
-	
-	if($debug) { print STDERR "INPUT=> $input1 : $input2\n"; }
+    if(defined $opt_matrix) { print "@input_array\n"; }
 
-	my @c1 = ();
-	my @c2 = ();
+    my @secondary_array = @input_array;
+    foreach my $input1 (@input_array) {
 	
-	my $cui_flag1 = 0;
-	my $cui_flag2 = 0;
-	
-	#  check if input contains cuis
-	if($input1=~/C[0-9]+/) {
-	    if($umls->checkConceptExists($input1)) {
-		push @c1, $input1;
-	    }
-	    $cui_flag1 = 1;
+
+	if(! (defined $opt_matrix) ) {
+	    my ($i1, $i2) = split/<>/, $input1;
+	    $input1 = $i1;
+	    @secondary_array = ();
+	    push @secondary_array, $i2;
 	}
 	else {
-	    @c1 = $umls->getConceptList($input1); 
-	    &errorCheck($umls);
+	    print "$input1 ";
+	}
+
+	foreach $input2 (@secondary_array) {	
+	    if($debug) { print STDERR "INPUT=> $input1 : $input2\n"; }
 	    
-	}
-	if($input2=~/C[0-9]+/) {
-	    if($umls->checkConceptExists($input2)) {
-		push @c2, $input2;
-	    }
-	    $cui_flag2 = 1;
-	}
-	else {
-	    @c2 = $umls->getConceptList($input2); 
-	    &errorCheck($umls);
-	}
-
-	my $t1 = $input1; my $t2 = $input2;
-	
-	if($cui_flag1) {
-	    my @ts1 = $umls->getTermList($input1);
-	    &errorCheck($umls);			
-	    ($t1) = @ts1;
-	}
-	if($cui_flag2) {
-	    my @ts2 = $umls->getTermList($input2);
-	    &errorCheck($umls);
-	    ($t2) = @ts2;
-	}
-	
-	
-	if($debug) {
-	    print STDERR "$input1:$t1 (@c1)\n";
-	    print STDERR "$input2:$t2 (@c2)\n";
-	}
-	
-	my %similarityHash = ();
-
-	#  get the similarity between the concepts
-	foreach my $cc1 (@c1) {
-	    foreach my $cc2 (@c2) {
-
-		if($debug) { 
-		    print STDERR "Obtaining similarity for $cc1 and $cc2\n";
+	    my @c1 = ();
+	    my @c2 = ();
+	    
+	    my $cui_flag1 = 0;
+	    my $cui_flag2 = 0;
+	    
+	    #  check if input contains cuis
+	    if($input1=~/C[0-9]+/) {
+		if($umls->checkConceptExists($input1)) {
+		    push @c1, $input1;
 		}
-		
-		my $score = "";
-		$value = $meas->getRelatedness($cc1, $cc2, $t1, $t2);
-		&errorCheck($meas);
-		$score = sprintf $floatformat, $value;
-		
-		$similarityHash{$cc1}{$cc2} = $score;
-	    }
-	}
-	
-	#  find the maximum score
-	#  find the minimum score
-	my $max_cc1 = ""; my $max_cc2 = ""; my $max_score = 0;
-	my $min_cc1 = ""; my $min_cc2 = ""; my $min_score = 999;
-	foreach my $concept1 (sort keys %similarityHash) {
-	    foreach my $concept2 (sort keys %{$similarityHash{$concept1}}) {
-		if($max_score <= $similarityHash{$concept1}{$concept2}) {
-		    $max_score = $similarityHash{$concept1}{$concept2};
-		    $max_cc1 = $concept1;
-		    $max_cc2 = $concept2;
-		}
-		if($min_score > $similarityHash{$concept1}{$concept2}) {
-		    $min_score = $similarityHash{$concept1}{$concept2};
-		    $min_cc1 = $concept1;
-		    $min_cc2 = $concept2;
-		}
-	    }
-	}
-	
-	my $score = 0; my $cc1 = ""; my $cc2 = "";
-	if($measure eq "nam") {
-	    $score = $min_score; 
-	    $cc1   = $min_cc1;
-	    $cc2   = $min_cc2;
-	}
-	else {
-	    $score = $max_score;
-	    $cc1   = $max_cc1;
-	    $cc2   = $max_cc2;
-	}
-	
-	#  print all the concepts and their scores
-	if(defined $opt_allsenses) {
-	    foreach my $cc1 (sort keys %similarityHash) {
-		foreach my $cc2 (sort keys %{$similarityHash{$cc1}}) {
-		    if($cui_flag1 and $cui_flag2) { print "$score<>$cc1($t1)<>$cc2($t2)\n";     }
-		    elsif($cui_flag1)             { print "$score<>$t1($cc1)<>$input2($cc2)\n"; }
-		    elsif($cui_flag2)             { print "$score<>$input1($cc1)<>$t2($cc2)\n"; }
-		    else   			  { print "$score<>$input1($cc1)<>$input2($cc2)\n"; }
-		}
-	    }
-	}
-	#  print the most similar concepts and the score
-	elsif($cc1 ne "" or $cc2 ne "") {
-	    if($cui_flag1 and $cui_flag2) { print "$score<>$cc1($t1)<>$cc2($t2)\n";     }
-	    elsif($cui_flag1)             { print "$score<>$t1($cc1)<>$input2($cc2)\n"; }
-	    elsif($cui_flag2)             { print "$score<>$input1($cc1)<>$t2($cc2)\n"; }
-	    else   			  { print "$score<>$input1($cc1)<>$input2($cc2)\n"; }
-	}
-	#  there were no concepts to print - one of them was missing a similarity score
-	else {
-	    if($#c1 > -1) {
-		foreach my $cc1 (@c1) {
-		    if($cuiflag1) { print "$noscore<>$cc1($t1)<>$input2\n"; }
-		    else          { print "$noscore<>$t1($cc1)<>$input2\n"; }
-		    if($opt_info) { print "    => $input2 does not exist\n"; }
-		}
-	    }
-	    elsif($#c2 > -1) {
-		foreach my $cc2 (@c2) {
-		    if($cuiflag1) { print "$noscore<>$input1<>$cc2($t2)\n"; }
-		    else          { print "$noscore<>$input1<>$t2($cc2)\n"; }
-		    if($opt_info) { print "    => $input1 does not exist\n"; }
-		}
+		$cui_flag1 = 1;
 	    }
 	    else {
-		print "$noscore<>$input1<>$input2\n";
-		if($opt_info) { print "    => $input2 nor $input1 exist\n"; }
-	    }		
+		@c1 = $umls->getConceptList($input1); 
+		&errorCheck($umls);
+		
+	    }
+	    if($input2=~/C[0-9]+/) {
+		if($umls->checkConceptExists($input2)) {
+		    push @c2, $input2;
+		}
+		$cui_flag2 = 1;
+	    }
+	    else {
+		@c2 = $umls->getConceptList($input2); 
+		&errorCheck($umls);
+	    }
+	    
+	    my $t1 = $input1; my $t2 = $input2;
+	    
+	    if($cui_flag1) {
+		my @ts1 = $umls->getTermList($input1);
+		&errorCheck($umls);			
+		($t1) = @ts1;
+	    }
+	    if($cui_flag2) {
+		my @ts2 = $umls->getTermList($input2);
+		&errorCheck($umls);
+		($t2) = @ts2;
+	    }
+	    
+	    
+	    if($debug) {
+		print STDERR "$input1:$t1 (@c1)\n";
+		print STDERR "$input2:$t2 (@c2)\n";
+	    }
+	    
+	    my %similarityHash = ();
+	    
+	    #  get the similarity between the concepts
+	    foreach my $cc1 (@c1) {
+		foreach my $cc2 (@c2) {
+		    
+		    if($debug) { 
+			print STDERR "Obtaining similarity for $cc1 and $cc2\n";
+		    }
+		    
+		    my $score = "";
+		    $value = $meas->getRelatedness($cc1, $cc2, $t1, $t2);
+		    &errorCheck($meas);
+		    $score = sprintf $floatformat, $value;
+		    
+		    $similarityHash{$cc1}{$cc2} = $score;
+		}
+	    }
+	    
+	    #  find the maximum score
+	    #  find the minimum score
+	    my $max_cc1 = ""; my $max_cc2 = ""; my $max_score = 0;
+	    my $min_cc1 = ""; my $min_cc2 = ""; my $min_score = 999;
+	    foreach my $concept1 (sort keys %similarityHash) {
+		foreach my $concept2 (sort keys %{$similarityHash{$concept1}}) {
+		    if($max_score <= $similarityHash{$concept1}{$concept2}) {
+			$max_score = $similarityHash{$concept1}{$concept2};
+			$max_cc1 = $concept1;
+			$max_cc2 = $concept2;
+		    }
+		    if($min_score > $similarityHash{$concept1}{$concept2}) {
+			$min_score = $similarityHash{$concept1}{$concept2};
+			$min_cc1 = $concept1;
+			$min_cc2 = $concept2;
+		    }
+		}
+	    }
+	    
+	    my $score = 0; my $cc1 = ""; my $cc2 = "";
+	    if($measure eq "nam") {
+		$score = $min_score; 
+		$cc1   = $min_cc1;
+		$cc2   = $min_cc2;
+	    }
+	    else {
+		$score = $max_score;
+		$cc1   = $max_cc1;
+		$cc2   = $max_cc2;
+	    }
+
+	    #  print the matrix
+	    if(defined $opt_matrix) { print "$score "; }
+	    #  print all the concepts and their scores
+	    elsif(defined $opt_allsenses) {
+		foreach my $cc1 (sort keys %similarityHash) {
+		    foreach my $cc2 (sort keys %{$similarityHash{$cc1}}) {
+			if($cui_flag1 and $cui_flag2) { print "$score<>$cc1($t1)<>$cc2($t2)\n";     }
+			elsif($cui_flag1)             { print "$score<>$t1($cc1)<>$input2($cc2)\n"; }
+			elsif($cui_flag2)             { print "$score<>$input1($cc1)<>$t2($cc2)\n"; }
+			else      		      { print "$score<>$input1($cc1)<>$input2($cc2)\n"; }
+		    }
+		}
+	    }
+	    #  print the most similar concepts and the score
+	    elsif($cc1 ne "" or $cc2 ne "") {
+		if($cui_flag1 and $cui_flag2) { print "$score<>$cc1($t1)<>$cc2($t2)\n";     }
+		elsif($cui_flag1)             { print "$score<>$t1($cc1)<>$input2($cc2)\n"; }
+		elsif($cui_flag2)             { print "$score<>$input1($cc1)<>$t2($cc2)\n"; }
+		else   			  { print "$score<>$input1($cc1)<>$input2($cc2)\n"; }
+	    }
+	    #  there were no concepts to print - one of them was missing a similarity score
+	    else {
+		if($#c1 > -1) {
+		    foreach my $cc1 (@c1) {
+			if($cuiflag1) { print "$noscore<>$cc1($t1)<>$input2\n"; }
+			else          { print "$noscore<>$t1($cc1)<>$input2\n"; }
+			if($opt_info) { print "    => $input2 does not exist\n"; }
+		    }
+		}
+		elsif($#c2 > -1) {
+		    foreach my $cc2 (@c2) {
+			if($cuiflag1) { print "$noscore<>$input1<>$cc2($t2)\n"; }
+			else          { print "$noscore<>$input1<>$t2($cc2)\n"; }
+			if($opt_info) { print "    => $input1 does not exist\n"; }
+		    }
+		}
+		else {
+		    print "$noscore<>$input1<>$input2\n";
+		    if($opt_info) { print "    => $input2 nor $input1 exist\n"; }
+		}		
+	    }
 	}
+	#  if the matrix is defined - print a new line
+	if(defined $opt_matrix) { print "\n"; }
     }
+   
 }
 
-
 sub loadInput {
-
+    
     if($debug) { print STDERR "In loadInput\n"; }
+    
+    #  if file and matrix is defined get the cuis from the input file
+    if( (defined $opt_infile) && (defined $opt_matrix) ) {
+
+	if($debug) { print STDERR "FILE ($opt_infile) DEFINED\n"; }
+
+	open(FILE, $infile) || die "Could not open file: $infile\n";
+	my $linecounter = 1;
+	while(<FILE>) {
+	    chomp;
+	    if($_=~/^\s*$/) { next; }
+	    if($_=~/C[0-9]+/) {
+		push @input_array, $_;
+	    }
+	    else {
+		print STDERR "There is an error in the input file ($infile)\n";
+		print STDERR "one line $linecounter. The input is not in the\n";
+		print STDERR "correct format. Here is the input line:\n";
+		print STDERR "$_\n\n";
+		exit;
+	    }
+	}
+    }
+    
     #  if file is defined get the terms or cuis from the input file
-    if(defined $opt_infile) {
+    elsif(defined $opt_infile) {
 
 	if($debug) { print STDERR "FILE ($opt_infile) DEFINED\n"; }
 
@@ -470,6 +529,28 @@ sub loadMeasures {
 	use UMLS::Similarity::nam;
 	$meas = UMLS::Similarity::nam->new($umls);
     }
+    #  load the module implementing the Resnik (1995) measure
+    if($measure eq "res") {
+	use UMLS::Similarity::res;
+	$meas = UMLS::Similarity::res->new($umls);
+    }
+    #  load the module implementing the Jiang and Conrath 
+    #  (1997) measure
+    if($measure eq "jnc") {
+	use UMLS::Similarity::jnc;
+	$meas = UMLS::Similarity::jnc->new($umls);
+    }
+    #  load the module implementing the Lin (1998) measure
+    if($measure eq "lin") {
+	use UMLS::Similarity::lin;
+	$meas = UMLS::Similarity::lin->new($umls);
+    }
+    #  load the module implementing the random measure
+    if($measure eq "random") {
+	use UMLS::Similarity::random;
+	$meas = UMLS::Similarity::random->new($umls);
+    }
+
 
     die "Unable to create measure object.\n" if(!$meas);
     ($errCode, $errString) = $meas->getError();
@@ -485,11 +566,20 @@ sub loadUMLS {
     if(defined $opt_config) {
 	$option_hash{"config"} = $opt_config;
     }
+    if(defined $opt_debug) {
+	$option_hash{"debug"} = $opt_debug;
+    }
     if(defined $opt_forcerun) {
 	$option_hash{"forcerun"} = $opt_forcerun;
     }
+    if(defined $opt_realtime) {
+	$option_hash{"realtime"} = $opt_realtime;
+    }
     if(defined $opt_verbose) {
 	$option_hash{"verbose"} = $opt_verbose;
+    }
+    if(defined $opt_propogationfile) {
+	$option_hash{"propogation"} = $opt_propogationfile;
     }
     if(defined $opt_username and defined $opt_password) {
 	$option_hash{"driver"}   = "mysql";
@@ -516,17 +606,33 @@ sub setOptions {
     my $default = "";
     my $set     = "";
 
+    if(defined $opt_propogationfile) {
+	$set        .= "  --propogationfile $opt_propogationfile\n";
+    }
+
+    #  check config file
+    if(defined $opt_config) {
+	$config = $opt_config;
+	$set   .= "  --config $config\n";
+    }
+
     #  set file
     if(defined $opt_infile) {
 	$infile = $opt_infile;
 	$set   .= "  --infile $opt_infile\n";
     }
 
-    if(defined $opt_config) {
-	$config = $opt_config;
-	$set   .= "  --config $config\n";
+    if( (defined $opt_matrix) && !(defined $opt_infile)) {
+	print STDERR "The file must be specified using the --infile option\n";
+	&minimalUsageNotes();
+	exit;
     }
-
+    
+    #  set matrix
+    if(defined $opt_matrix) {
+	$set .= "  --matrix\n";
+    }
+    
     #  set precision
     $precision = 4;
     if(defined $opt_precision) {
@@ -597,7 +703,7 @@ sub setOptions {
 	$default .= "  --measure $measure\n";
     }
 
-    if($measure=~/(path|wup|lch|cdist|nam|vector)/) {
+    if($measure=~/\b(path|wup|lch|cdist|nam|vector|res|lin|random|jnc)\b/) {
 	#  good to go
     }
     else {
@@ -611,13 +717,24 @@ sub setOptions {
     # is being used
     if($measure=~/vector/) {
 	if(! (defined $opt_dbfile)) {
-	    print "The --dbfile option must be specified when using\n";
-	    print "the vector measure.\n\n";
+	    print STDERR "The --dbfile option must be specified when using\n";
+	    print STDERR "the vector measure.\n\n";
 	    &minimalUsageNotes();
 	    exit;
 	}
     }
 	  
+    #  make certain the propogation file is specified if the resnik, 
+    #  jnc, or lin measure is being used
+    if($measure=~/(res|lin|jnc)/) {
+	if(! (defined $opt_propogationfile)) {
+	    print STDERR "The --propogationfile option must be specified \n";
+	    print STDERR "when using the resnik or lin measures.\n\n";
+	    &minimalUsageNotes();
+	    exit;
+	}
+    }
+
     if(defined $opt_verbose) {
 	$set .= "  --verbose\n";
     }
@@ -681,6 +798,10 @@ sub showHelp() {
         
     print "--infile FILE            File containing TERM or CUI pairs\n\n";
     
+    print "--matrix                 This option returns a matrix of similarity\n";
+    print "                         scores given a file containing a list of \n";
+    print "                         CUIs. File is specified using --infile.\n\n";
+
     print "--measure MEASURE        The measure to use to calculate the\n";
     print "                         semantic similarity. (DEFAULT: path)\n\n";
 
@@ -703,6 +824,9 @@ sub showHelp() {
     print "                         like to continue with the index \n";
     print "                         creation. \n\n";
     
+    print "--debug                  Sets the UMLS-Interface debug flag on\n";
+    print "                         for testing purposes\n\n";
+
     print "--verbose                This option prints out the path information\n";
     print "                         to a file in your config directory.\n\n";    
     
@@ -715,7 +839,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.3 2009/11/03 20:56:54 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.7 2010/01/20 19:20:10 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

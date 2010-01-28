@@ -1,5 +1,13 @@
 NAME
-    UMLS::Similarity CHANGES
+    UMLS::Similarity CHANGES =head2 Changes from version 0.29 to 0.31
+
+    1. Added the information content measures proposed by Resnik (1995),
+    Jiang and Conrath (1997) and Lin (1998), as well as a random measure
+    that returns a random number between one and zero as the similarity
+    score.
+
+    2. Added a --debug option which prints out UMLS-Interface informatin for
+    debugging purposes
 
   Changes from version 0.21 to 0.29
     I used the following require command:

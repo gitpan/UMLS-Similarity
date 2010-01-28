@@ -1,12 +1,12 @@
-# UMLS::Similarity::lch.pm
+# UMLS::Similarity::lin.pm
 #
 # Module implementing the semantic relatedness measure described 
-# by Leacock and Chodorow (1998).
+# by Lin (1998)
 #
-# Copyright (c) 2004-2009,
+# Copyright (c) 2009-2010,
 #
 # Bridget T McInnes, University of Minnesota, Twin Cities
-# bthomson at cs.umn.edu
+# bthomson at umn.edu
 #
 # Siddharth Patwardhan, University of Utah, Salt Lake City
 # sidd at cs.utah.edu
@@ -35,7 +35,7 @@
 # Boston, MA  02111-1307, USA.
 
 
-package UMLS::Similarity::lch;
+package UMLS::Similarity::lin;
 
 use strict;
 use warnings;
@@ -51,7 +51,7 @@ sub new
     my $className = shift;
     return undef if(ref $className);
 
-    if($debug) { print STDERR "In UMLS::Similarity::lch->new()\n"; }
+    if($debug) { print STDERR "In UMLS::Similarity::lin->new()\n"; }
 
     my $interface = shift;
 
@@ -69,7 +69,7 @@ sub new
 
     if(!$interface)
     {
-	$self->{'errorString'} .= "\nError (UMLS::Similarity::lch->new()) - ";
+	$self->{'errorString'} .= "\nError (UMLS::Similarity::lin->new()) - ";
 	$self->{'errorString'} .= "An interface object is required.";
 	$self->{'error'} = 2;
     }
@@ -87,16 +87,23 @@ sub getRelatedness
     return undef if(!defined $self || !ref $self);
     my $concept1 = shift;
     my $concept2 = shift;
-
+    
     my $interface = $self->{'interface'};
 
-    my (@path) = $interface->findShortestPath($concept1, $concept2);
+    my $lcs = $interface->findLeastCommonSubsumer($concept1, $concept2);
     
-    my $depth = $interface->depth();
-    
+    if(! defined $lcs) { return 0; }
+
+
+    my $iclcs = $interface->getIC($lcs);
+
+    my $ic1 = $interface->getIC($concept1);
+    my $ic2 = $interface->getIC($concept2);
+
     my $score = 0;
-    
-    if($#path > -1) { $score = log (2 * $depth / ($#path+1)); }
+    if($ic1 > 0 and $ic2 > 0) { 
+	$score = (2 * $iclcs) / ($ic1 + $ic2);
+    }
 
     return $score
 }
@@ -107,7 +114,7 @@ sub getError
     my $self = shift;
     return (2, "") if(!defined $self || !ref $self);
 
-    if($debug) { print STDERR "In UMLS::Similarity::lch->getError()\n"; }
+    if($debug) { print STDERR "In UMLS::Similarity::lin->getError()\n"; }
 
     my $dontClear = shift;
     my $error = $self->{'error'};
@@ -139,22 +146,24 @@ __END__
 
 =head1 NAME
 
-UMLS::Similarity::lch - Perl module for computing semantic relatedness
+UMLS::Similarity::lin - Perl module for computing semantic relatedness
 of concepts in the Unified Medical Language System (UMLS) using the 
-method described by Leacock and Chodorow (1998). 
+method described by Lin 1998.
 
 =head1 SYNOPSIS
 
   use UMLS::Interface;
-  use UMLS::Similarity::lch;
+  use UMLS::Similarity::lin;
 
-  my $umls = UMLS::Interface->new(); 
+  my $option_hash{"propogation"} = $propogation_file;
+
+  my $umls = UMLS::Interface->new(\%option_hash); 
   die "Unable to create UMLS::Interface object.\n" if(!$umls);
   ($errCode, $errString) = $umls->getError();
   die "$errString\n" if($errCode);
 
-  my $lch = UMLS::Similarity::lch->new($umls);
-  die "Unable to create measure object.\n" if(!$lch);
+  my $lin = UMLS::Similarity::lin->new($umls);
+  die "Unable to create measure object.\n" if(!$lin);
   
   my $cui1 = "C0005767";
   my $cui2 = "C0007634";
@@ -165,18 +174,25 @@ method described by Leacock and Chodorow (1998).
   @ts2 = $umls->getTermList($cui2);
   my $term2 = pop @ts2;
 
-  my $value = $lch->getRelatedness($cui1, $cui2);
+  my $value = $lin->getRelatedness($cui1, $cui2);
 
   print "The similarity between $cui1 ($term1) and $cui2 ($term2) is $value\n";
 
 =head1 DESCRIPTION
 
 This module computes the semantic relatedness of two concepts in 
-the UMLS according to a method described by Leacock and Chodorow 
-(1998). The relatedness measure proposed by Leacock and Chodorow 
-is S<-log (length / (2 * D))>, where length is the length of the 
-shortest path between the two synsets (using node-counting) and 
-D is the maximum depth of the taxonomy.
+the UMLS according to a method described by Lin (1998). The 
+relatedness measure proposed by Lin is the IC(lcs) / IC(concept1) 
++ IC(concept2). One can observe, then, that the realtedness value 
+will be greater-than or equal-to zero and less-than or equal-to one.
+
+If the information content of any of either concept1 or concept2 is zero,
+then zero is returned as the relatedness score, due to lack of data.
+Ideally, the information content of a synset would be zero only if that
+synset were the root node, but when the frequency of a synset is zero,
+we use the value of zero as the information content because of a lack
+of better alternatives.
+
 
 =head1 USAGE
 
@@ -191,11 +207,11 @@ See the UMLS::Similarity(3) documentation for details of these methods.
 
 =head1 TYPICAL USAGE EXAMPLES
 
-To create an object of the lch measure, we would have the following
+To create an object of the lin measure, we would have the following
 lines of code in the perl program. 
 
-   use UMLS::Similarity::lch;
-   $measure = UMLS::Similarity::lch->new($interface);
+   use UMLS::Similarity::lin;
+   $measure = UMLS::Similarity::lin->new($interface);
 
 The reference of the initialized object is stored in the scalar
 variable '$measure'. '$interface' contains an interface object that
