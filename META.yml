@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                UMLS-Similarity
-version:             0.31
+version:             0.33
 abstract:            A suite of Perl modules that implement a number 
 license:             ~
 author:              
@@ -8,7 +8,7 @@ author:
 generated_by:        ExtUtils::MakeMaker version 6.42
 distribution_type:   module
 requires:     
-    UMLS::Interface:               0.35
+    UMLS::Interface:               0.37
 meta-spec:
     url:     http://module-build.sourceforge.net/META-spec-v1.3.html
     version: 1.3

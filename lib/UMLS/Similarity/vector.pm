@@ -868,19 +868,19 @@ __END__
 
 =head1 NAME
 
-Semantic::Similarity::vector - Perl module for computing semantic relatedness
+UMLS::Similarity::vector - Perl module for computing semantic relatedness
 of concepts using second order co-occurrence vectors of definitions of the
 concepts.
 
 =head1 SYNOPSIS
 
-  use Semantic::Similarity::vector;
+  use UMLS::Similarity::vector;
 
   use WordNet::QueryData;
 
   my $interface = WordNet::QueryData->new();
 
-  my $vector = Semantic::Similarity::vector->new($interface);
+  my $vector = UMLS::Similarity::vector->new($interface);
 
   my $value = $vector->getRelatedness("car#n#1", "bus#n#2");
 
@@ -908,15 +908,15 @@ that expose the following methods:
   getError()
   getTraceString()
 
-See the Semantic::Similarity(3) documentation for details of these methods.
+See the UMLS::Similarity(3) documentation for details of these methods.
 
 =head1 TYPICAL USAGE EXAMPLES
 
 To create an object of the vector measure, we would have the following
 lines of code in the perl program. 
 
-  use Semantic::Similarity::vector;
-  $measure = Semantic::Similarity::vector->new($interface, '/home/sid/vector.conf');
+  use UMLS::Similarity::vector;
+  $measure = UMLS::Similarity::vector->new($interface, '/home/sid/vector.conf');
 
 The reference of the initialized object is stored in the scalar
 variable '$measure'. '$interface' contains a interface object that
@@ -954,7 +954,7 @@ method. The configuration files must follow a fixed format.
 
 Every configuration file starts the name of the module ON THE FIRST LINE of
 the file. For example, a configuration file for the vector module will have
-on the first line 'Semantic::Similarity::vector'. This is followed by the various
+on the first line 'UMLS::Similarity::vector'. This is followed by the various
 parameters, each on a new line and having the form 'name::value'. The
 'value' of a parameter is optional (in case of boolean parameters). In case
 'value' is omitted, we would have just 'name::' on that line. Comments are
@@ -990,7 +990,7 @@ which case it takes the value 1, i.e. switches 'on' caching. A value of
 
 =head1 SEE ALSO
 
-perl(1), Semantic::Similarity(3)
+perl(1), UMLS::Similarity(3)
 
 http://www.cogsci.princeton.edu/~wn
 

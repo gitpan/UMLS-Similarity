@@ -208,7 +208,7 @@ use lib "/export/scratch/programs/lib/site_perl/5.8.7/";
 use UMLS::Interface;
 use Getopt::Long;
 
-eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "forcerun", "debug", "verbose", "propogationfile=s", "realtime")) or die ("Please check the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "forcerun", "debug", "verbose", "propagationfile=s", "realtime")) or die ("Please check the above mentioned option(s).\n");
 
 
 my $debug = 0;
@@ -236,7 +236,7 @@ if( !(defined $opt_infile) and (scalar(@ARGV) < 2) ) {
 }
 
 #  initialize variables
-my $propogation = "";
+my $propagation = "";
 my $precision   = "";
 my $floatformat = "";
 my $database    = "";
@@ -578,8 +578,8 @@ sub loadUMLS {
     if(defined $opt_verbose) {
 	$option_hash{"verbose"} = $opt_verbose;
     }
-    if(defined $opt_propogationfile) {
-	$option_hash{"propogation"} = $opt_propogationfile;
+    if(defined $opt_propagationfile) {
+	$option_hash{"propagation"} = $opt_propagationfile;
     }
     if(defined $opt_username and defined $opt_password) {
 	$option_hash{"driver"}   = "mysql";
@@ -606,8 +606,8 @@ sub setOptions {
     my $default = "";
     my $set     = "";
 
-    if(defined $opt_propogationfile) {
-	$set        .= "  --propogationfile $opt_propogationfile\n";
+    if(defined $opt_propagationfile) {
+	$set        .= "  --propagationfile $opt_propagationfile\n";
     }
 
     #  check config file
@@ -724,11 +724,11 @@ sub setOptions {
 	}
     }
 	  
-    #  make certain the propogation file is specified if the resnik, 
+    #  make certain the propagation file is specified if the resnik, 
     #  jnc, or lin measure is being used
     if($measure=~/(res|lin|jnc)/) {
-	if(! (defined $opt_propogationfile)) {
-	    print STDERR "The --propogationfile option must be specified \n";
+	if(! (defined $opt_propagationfile)) {
+	    print STDERR "The --propagationfile option must be specified \n";
 	    print STDERR "when using the resnik or lin measures.\n\n";
 	    &minimalUsageNotes();
 	    exit;
