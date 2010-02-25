@@ -1,8 +1,6 @@
 # UMLS::Similarity::vector.pm version 0.01
 # This is a work in progress
 #
-# Semantic::Similarity::vector.pm version 0.01
-# (Updated 08/10/2004 -- Sid)
 #
 # Module to accept two WordNet synsets and to return a floating point
 # number that indicates how similar those two synsets are, using a
@@ -52,12 +50,6 @@ use UMLS::Interface;
 
 $VERSION = '0.01';
 
-
-# 'new' method for the vector class... creates and returns a Semantic::Similarity::vector object.
-# INPUT PARAMS  : $className  .. (Semantic::Similarity::vector) (required)
-#                 $interface  .. The interface object (required).
-#                 $configFile .. Name of the config file for getting the parameters (optional).
-# RETURN VALUE  : $vector     .. The newly created vector object.
 sub new
 {
     my $className = shift;

@@ -91,14 +91,15 @@ sub getRelatedness
     
     my $interface = $self->{'interface'};
     
-    my $lcs = $interface->findLeastCommonSubsumer($concept1, $concept2);
-
-    my $lcs_depth;
-    if(defined $lcs) {
-	$lcs_depth = $interface->findMinimumDepth($lcs);
-    }
-    else { return 0; }
+    my @lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
     
+    if($#lcses < 0) { return 0; }
+    
+    my $lcs_depth = 0; my $lcs = "";
+    foreach my $l (@lcses) {
+	my $depth  = $interface->findMaximumDepth($l);
+	if($lcs_depth < $depth) { $lcs_depth = $depth; $lcs = $l}
+    }
 
     my $c1_paths = $interface->pathsToRoot($concept1);
     my $c2_paths = $interface->pathsToRoot($concept2);

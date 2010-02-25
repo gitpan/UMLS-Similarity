@@ -112,17 +112,18 @@ sub getRelatedness
     my $ic2 = $interface->getIC($concept2);
     if($ic1 <= 0 or $ic2 <= 0) { return 0; }
     
-    #  get the lcs
-    my $lcs = $interface->findLeastCommonSubsumer($concept1, $concept2);
 
-    #  if the lcs doesn't exist return 0
-    if(! defined $lcs) { return 0; }
-
+    my @lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
     
-    #  get the information content of the lcs
-    my $lcs_ic = $interface->getIC($lcs);
+    my $iclcs = 0;
+    foreach my $lcs (@lcses) {
+	my $value = $interface->getIC($lcs);
+	if($iclcs < $value) { $iclcs = $value; }
+    }
+    
+    if($iclcs == 0) { return 0; }
 
-    my $distance = $ic1 + $ic2 - (2 * $lcs_ic);
+    my $distance = $ic1 + $ic2 - (2 * $iclcs);
     
     my $score = 0;
 

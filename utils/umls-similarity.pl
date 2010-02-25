@@ -208,7 +208,7 @@ use lib "/export/scratch/programs/lib/site_perl/5.8.7/";
 use UMLS::Interface;
 use Getopt::Long;
 
-eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "forcerun", "debug", "verbose", "propagationfile=s", "realtime")) or die ("Please check the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "forcerun", "debug", "verbose", "propagationfile=s", "realtime", "stoplist=s")) or die ("Please check the above mentioned option(s).\n");
 
 
 my $debug = 0;
@@ -550,7 +550,21 @@ sub loadMeasures {
 	use UMLS::Similarity::random;
 	$meas = UMLS::Similarity::random->new($umls);
     }
-
+    #  load the module implementing the lesk measure
+    if($measure eq "lesk") {
+	use UMLS::Similarity::lesk;
+	my %leskoptions = ();
+	
+	if(defined $opt_stoplist) {
+	    $leskoptions{"stoplist"} = $opt_stoplist;
+	}
+	if(defined $opt_config) {
+	    $leskoptions{"config"} = $opt_config;
+	}
+	$meas = UMLS::Similarity::lesk->new($umls,\%leskoptions);
+					    
+    }
+    
 
     die "Unable to create measure object.\n" if(!$meas);
     ($errCode, $errString) = $meas->getError();
@@ -703,7 +717,7 @@ sub setOptions {
 	$default .= "  --measure $measure\n";
     }
 
-    if($measure=~/\b(path|wup|lch|cdist|nam|vector|res|lin|random|jnc)\b/) {
+    if($measure=~/\b(path|wup|lch|cdist|nam|vector|res|lin|random|jnc|lesk)\b/) {
 	#  good to go
     }
     else {

@@ -90,13 +90,17 @@ sub getRelatedness
 
     my $interface = $self->{'interface'};
 
-    my (@path) = $interface->findShortestPath($concept1, $concept2);
+    my (@paths) = $interface->findShortestPath($concept1, $concept2);
     
     my $depth = $interface->depth();
-    
+        
+    my $length = 0;
+    foreach my $path (@paths) {
+	if($#{$path} > $length) { $length = $#{$path}; }
+    }
+
     my $score = 0;
-    
-    if($#path > -1) { $score = log (2 * $depth / ($#path+1)); }
+    if($length > -1) { $score = log (2 * $depth / ($length+1)); }
 
     return $score
 }

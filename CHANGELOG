@@ -1,6 +1,11 @@
 NAME
     UMLS::Similarity CHANGES
 
+   Changes from version 0.33 to 0.35
+    1. Modified the way lcs and shortestpath information is returned by the
+    UMLS-Interface. Needed to modify the UMLS-Similarity to reflect these
+    changes
+
   Changes from version 0.31 to 0.33
     1. Modified the propogation in UMLS-Interface and needed to reflect this
     in UMLS-Similarity

@@ -90,13 +90,17 @@ sub getRelatedness
     
     my $interface = $self->{'interface'};
 
-    my $lcs = $interface->findLeastCommonSubsumer($concept1, $concept2);
+    my @lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
     
-    if(! defined $lcs) { return 0; }
+    my $iclcs = 0;
+    foreach my $lcs (@lcses) {
+	my $value = $interface->getIC($lcs);
+	if($iclcs < $value) { $iclcs = $value; }
+    }
+    
+    if($iclcs == 0) { return 0; }
 
-
-    my $iclcs = $interface->getIC($lcs);
-
+    
     my $ic1 = $interface->getIC($concept1);
     my $ic2 = $interface->getIC($concept2);
 
