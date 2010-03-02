@@ -101,32 +101,17 @@ sub getRelatedness
 	if($lcs_depth < $depth) { $lcs_depth = $depth; $lcs = $l}
     }
 
-    my $c1_paths = $interface->pathsToRoot($concept1);
-    my $c2_paths = $interface->pathsToRoot($concept2);
-    
-    my $c1_depth = 0; my $c2_depth = 0;
-    foreach my $path (@{$c1_paths}) {
-	if($path=~/$lcs/) {
-	    my @p = split/\s+/, $path;
-	    if( ($c1_depth == 0) or ($c1_depth > ($#p+1)) ) {
-		$c1_depth = $#p + 1;
-	    }
-	}
-    }
-    
-    foreach my $path (@{$c2_paths}) {
-	if($path=~/$lcs/) {
-	    my @p = split/\s+/, $path;
-	    if( ($c2_depth == 0) or ($c2_depth > ($#p+1)) ) {
-		$c2_depth = $#p + 1;
-	    }
-	}
-    }
+    my @c1_paths = $interface->findShortestPath($lcs, $concept1);
+    my @c2_paths = $interface->findShortestPath($lcs, $concept2);
 
-    if($c1_depth == 0 or $c2_depth == 0) {
-	return 0;
-    }
+    my $c1_path = shift @c1_paths;
+    my $c2_path = shift @c2_paths;
     
+    my $c1_depth = $lcs_depth + $#{$c1_path};
+    my $c2_depth = $lcs_depth + $#{$c2_path};
+    
+    if($c1_depth < 0 or $c2_depth < 0) { return 0; }
+
     my $score = (2 * $lcs_depth) / ($c1_depth + $c2_depth);   
 
     return $score;

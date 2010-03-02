@@ -92,16 +92,16 @@ sub getRelatedness
 
     my (@paths) = $interface->findShortestPath($concept1, $concept2);
     
+    my $path = shift @paths;
+
+    my $length = $#{$path} + 1;
+    
     my $depth = $interface->depth();
-        
-    my $length = 0;
-    foreach my $path (@paths) {
-	if($#{$path} > $length) { $length = $#{$path}; }
-    }
 
     my $score = 0;
-    if($length > -1) { $score = log (2 * $depth / ($length+1)); }
 
+    if($length > 0) { $score = log ( 2 * $depth / $length ); }
+    
     return $score
 }
 

@@ -92,10 +92,10 @@ sub getRelatedness
 
     my @lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
     
-    my $iclcs = 0;
+    my $iclcs = 0; my $l = "";
     foreach my $lcs (@lcses) {
 	my $value = $interface->getIC($lcs);
-	if($iclcs < $value) { $iclcs = $value; }
+	if($iclcs < $value) { $iclcs = $value; $l = $lcs; }
     }
     
     if($iclcs == 0) { return 0; }
@@ -108,7 +108,7 @@ sub getRelatedness
     if($ic1 > 0 and $ic2 > 0) { 
 	$score = (2 * $iclcs) / ($ic1 + $ic2);
     }
-
+    
     return $score
 }
 

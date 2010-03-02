@@ -1,6 +1,18 @@
 NAME
     UMLS::Similarity CHANGES
 
+   Changes from version 0.35 to 0.37
+    I messed up when modifying the way the lcs and shortestpath information
+    was obtained in UMLS-Similarity after I had changed it in
+    UMLS-Interface. It should all be fixed now.
+
+    I also removed the vector and lesk measures. We are not quite ready for
+    those and are in the process of getting them together for a fresh
+    release.
+
+    I changed the Jiang and Conrath measure from jnc to jcn like it is
+    suppose to be
+
    Changes from version 0.33 to 0.35
     1. Modified the way lcs and shortestpath information is returned by the
     UMLS-Interface. Needed to modify the UMLS-Similarity to reflect these

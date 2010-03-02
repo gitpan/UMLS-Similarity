@@ -5,14 +5,13 @@ INSTALL
 lib/dbif.pm
 lib/UMLS/Similarity.pm
 lib/UMLS/Similarity/cdist.pm
-lib/UMLS/Similarity/jnc.pm
+lib/UMLS/Similarity/jcn.pm
 lib/UMLS/Similarity/lch.pm
 lib/UMLS/Similarity/lin.pm
 lib/UMLS/Similarity/nam.pm
 lib/UMLS/Similarity/path.pm
 lib/UMLS/Similarity/random.pm
 lib/UMLS/Similarity/res.pm
-lib/UMLS/Similarity/vector.pm
 lib/UMLS/Similarity/wup.pm
 Makefile.PL
 MANIFEST			This list of files

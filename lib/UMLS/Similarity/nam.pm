@@ -98,21 +98,27 @@ sub getRelatedness
 	return 0;
     }
     
-    my $lcs = $interface->findLeastCommonSubsumer($concept1, $concept2);
+    my @lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
     
-    my $lcs_depth;
-    if(defined $lcs) {
-	$lcs_depth = $interface->findMinimumDepth($lcs);
+    my $lcs_depth = -1;
+    foreach my $l (@lcses) {
+	my $ldepth = $interface->findMinimumDepth($l);
+	if($lcs_depth == -1)     { $lcs_depth = $ldepth; }
+	elsif($ldepth < $lcs_depth) { $lcs_depth = $ldepth; }
     }
-    else { return 0; }
     
-    my @path = $interface->findShortestPath($concept1, $concept2);
+    if($lcs_depth < 0) { return 0; }
 
-    my $l = $#path;
+    
+    my @paths = $interface->findShortestPath($concept1, $concept2);
+    my $path = shift @paths;
+
+    my $l = $#{$path};
 
     my $D = $interface->depth();
 
     my $score = log( $l * ($D-$lcs_depth) + 2 ) / log(2);    
+    
     
     return $score;
 }

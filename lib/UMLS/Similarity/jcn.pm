@@ -1,4 +1,4 @@
-# UMLS::Similarity::jnc.pm
+# UMLS::Similarity::jcn.pm
 #
 # Module implementing the semantic relatedness measure described 
 # by Jiang and Conrath (1997)
@@ -35,7 +35,7 @@
 # Boston, MA  02111-1307, USA.
 
 
-package UMLS::Similarity::jnc;
+package UMLS::Similarity::jcn;
 
 use strict;
 use warnings;
@@ -51,7 +51,7 @@ sub new
     my $className = shift;
     return undef if(ref $className);
 
-    if($debug) { print STDERR "In UMLS::Similarity::jnc->new()\n"; }
+    if($debug) { print STDERR "In UMLS::Similarity::jcn->new()\n"; }
 
     my $interface = shift;
 
@@ -69,7 +69,7 @@ sub new
 
     if(!$interface)
     {
-	$self->{'errorString'} .= "\nError (UMLS::Similarity::jnc->new()) - ";
+	$self->{'errorString'} .= "\nError (UMLS::Similarity::jcn->new()) - ";
 	$self->{'errorString'} .= "An interface object is required.";
 	$self->{'error'} = 2;
     }
@@ -100,7 +100,7 @@ sub getRelatedness
 	$max_score = 2 * -log (0.001 / $root_freq) + 1;
     }
     else {
-	$self->{errorString} .= "\nWarning (UMLS::Similarity::jnc::getRelatedness()) - ";
+	$self->{errorString} .= "\nWarning (UMLS::Similarity::jcn::getRelatedness()) - ";
 	$self->{errorString} .= "Root node ($root) has a zero frequency count.";
 	$self->{error} = ($self->{error} < 1) ? 1 : $self->{error};
 	return 0;
@@ -150,7 +150,7 @@ sub getError
     my $self = shift;
     return (2, "") if(!defined $self || !ref $self);
 
-    if($debug) { print STDERR "In UMLS::Similarity::jnc->getError()\n"; }
+    if($debug) { print STDERR "In UMLS::Similarity::jcn->getError()\n"; }
 
     my $dontClear = shift;
     my $error = $self->{'error'};
@@ -182,14 +182,14 @@ __END__
 
 =head1 NAME
 
-UMLS::Similarity::jnc - Perl module for computing semantic relatedness
+UMLS::Similarity::jcn - Perl module for computing semantic relatedness
 of concepts in the Unified Medical Language System (UMLS) using the 
 method described by Jiang and Conrath 1997.
 
 =head1 SYNOPSIS
 
   use UMLS::Interface;
-  use UMLS::Similarity::jnc;
+  use UMLS::Similarity::jcn;
 
   my $option_hash{"propogation"} = $propogation_file;
 
@@ -198,8 +198,8 @@ method described by Jiang and Conrath 1997.
   ($errCode, $errString) = $umls->getError();
   die "$errString\n" if($errCode);
 
-  my $jnc = UMLS::Similarity::jnc->new($umls);
-  die "Unable to create measure object.\n" if(!$jnc);
+  my $jcn = UMLS::Similarity::jcn->new($umls);
+  die "Unable to create measure object.\n" if(!$jcn);
   
   my $cui1 = "C0005767";
   my $cui2 = "C0007634";
@@ -210,7 +210,7 @@ method described by Jiang and Conrath 1997.
   @ts2 = $umls->getTermList($cui2);
   my $term2 = pop @ts2;
 
-  my $value = $jnc->getRelatedness($cui1, $cui2);
+  my $value = $jcn->getRelatedness($cui1, $cui2);
 
   print "The similarity between $cui1 ($term1) and $cui2 ($term2) is $value\n";
 
@@ -241,11 +241,11 @@ See the UMLS::Similarity(3) documentation for details of these methods.
 
 =head1 TYPICAL USAGE EXAMPLES
 
-To create an object of the jnc measure, we would have the following
+To create an object of the jcn measure, we would have the following
 lines of code in the perl program. 
 
-   use UMLS::Similarity::jnc;
-   $measure = UMLS::Similarity::jnc->new($interface);
+   use UMLS::Similarity::jcn;
+   $measure = UMLS::Similarity::jcn->new($interface);
 
 The reference of the initialized object is stored in the scalar
 variable '$measure'. '$interface' contains an interface object that

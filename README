@@ -57,7 +57,7 @@
           UMLS/Similarity/cdist.pm
           UMLS/Similarity/res.pm
           UMLS/Similarity/lin.pm
-          UMLS/Similarity/jnc.pm
+          UMLS/Similarity/jcn.pm
           UMLS/Similarity/random.pm
           UMLS/Similarity/vector.pm (beta)
 

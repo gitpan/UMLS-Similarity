@@ -90,11 +90,13 @@ sub getRelatedness
     
     my $interface = $self->{'interface'};
     
-    my (@path) = $interface->findShortestPath($concept1, $concept2);
+    my (@paths) = $interface->findShortestPath($concept1, $concept2);
     
-    if($#path < 0 ) { return 0; }
+    my $path = shift @paths;
 
-    return $#path;
+    if($#{$path} < 0 ) { return 0; }
+
+    return $#{$path};
 }
 
 # Method to return recent error/warning condition

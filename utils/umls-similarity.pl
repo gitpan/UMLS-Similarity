@@ -86,9 +86,15 @@ Displays values upto N places of decimal.
 Displays information about the concept if it doesn't
 exist in the source.
 
-=head3 --dbfile FILE
+=head3 --matrixfile FILE
 
-This is the Berkley DB file that contains the vector information to 
+This is the matrix file that contains the vector information to 
+use with the vector measure. This is required if you specify vector 
+with the --measure option.
+
+=head3 --indexfile FILE
+
+This is the index file that contains the vector information to 
 use with the vector measure. This is required if you specify vector 
 with the --measure option.
 
@@ -208,7 +214,7 @@ use lib "/export/scratch/programs/lib/site_perl/5.8.7/";
 use UMLS::Interface;
 use Getopt::Long;
 
-eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "forcerun", "debug", "verbose", "propagationfile=s", "realtime", "stoplist=s")) or die ("Please check the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "forcerun", "debug", "verbose", "propagationfile=s", "realtime", "stoplist=s", "matrixfile=s", "indexfile=s")) or die ("Please check the above mentioned option(s).\n");
 
 
 my $debug = 0;
@@ -495,10 +501,25 @@ sub loadMeasures {
     
     my $meas;
 
+=comment
     if($measure eq "vector") {
 	require "UMLS/Similarity/vector.pm";
-	$meas = UMLS::Similarity::vector->new($umls, $opt_dbfile)
+
+	my %vectoroptions = ();
+	
+	if(defined $opt_indexfile) {
+	    $vectoroptions{"indexfile"} = $opt_indexfile;
+	}
+	if(defined $opt_matrixfile) {
+	    $vectoroptions{"matrixfile"} = $opt_matrixfile;
+	}
+	if(defined $opt_config) {
+	    $vectoroptions{"config"} = $opt_config;
+	}
+	$meas = UMLS::Similarity::vector->new($umls,\%vectoroptions);
     }
+=cut
+
     #  load the module implementing the Leacock and 
     #  Chodorow (1998) measure
     if($measure eq "lch") {
@@ -536,9 +557,9 @@ sub loadMeasures {
     }
     #  load the module implementing the Jiang and Conrath 
     #  (1997) measure
-    if($measure eq "jnc") {
-	use UMLS::Similarity::jnc;
-	$meas = UMLS::Similarity::jnc->new($umls);
+    if($measure eq "jcn") {
+	use UMLS::Similarity::jcn;
+	$meas = UMLS::Similarity::jcn->new($umls);
     }
     #  load the module implementing the Lin (1998) measure
     if($measure eq "lin") {
@@ -551,6 +572,7 @@ sub loadMeasures {
 	$meas = UMLS::Similarity::random->new($umls);
     }
     #  load the module implementing the lesk measure
+=comment
     if($measure eq "lesk") {
 	use UMLS::Similarity::lesk;
 	my %leskoptions = ();
@@ -564,7 +586,7 @@ sub loadMeasures {
 	$meas = UMLS::Similarity::lesk->new($umls,\%leskoptions);
 					    
     }
-    
+=cut    
 
     die "Unable to create measure object.\n" if(!$meas);
     ($errCode, $errString) = $meas->getError();
@@ -717,7 +739,7 @@ sub setOptions {
 	$default .= "  --measure $measure\n";
     }
 
-    if($measure=~/\b(path|wup|lch|cdist|nam|vector|res|lin|random|jnc|lesk)\b/) {
+    if($measure=~/\b(path|wup|lch|cdist|nam|res|lin|random|jcn)\b/) {
 	#  good to go
     }
     else {
@@ -730,20 +752,26 @@ sub setOptions {
     # make certain the db file is specified if the vector measure 
     # is being used
     if($measure=~/vector/) {
-	if(! (defined $opt_dbfile)) {
-	    print STDERR "The --dbfile option must be specified when using\n";
-	    print STDERR "the vector measure.\n\n";
+	if(! (defined $opt_indexfile)) {
+	    print STDERR "The --indexfile and --matrixfile option must be\n";
+	    print STDERR "specified when using the vector measure.\n\n";
+	    &minimalUsageNotes();
+	    exit;
+	}
+	if(! (defined $opt_matrixfile)) {
+	    print STDERR "The --indexfile and --matrixfile option must be\n";
+	    print STDERR "specified when using the vector measure.\n\n";
 	    &minimalUsageNotes();
 	    exit;
 	}
     }
 	  
     #  make certain the propagation file is specified if the resnik, 
-    #  jnc, or lin measure is being used
-    if($measure=~/(res|lin|jnc)/) {
+    #  jcn, or lin measure is being used
+    if($measure=~/(res|lin|jcn)/) {
 	if(! (defined $opt_propagationfile)) {
 	    print STDERR "The --propagationfile option must be specified \n";
-	    print STDERR "when using the resnik or lin measures.\n\n";
+	    print STDERR "when using the resnik, jcn or lin measures.\n\n";
 	    &minimalUsageNotes();
 	    exit;
 	}
@@ -824,7 +852,10 @@ sub showHelp() {
     print "--info                   Displays information about a concept if\n";
     print "                         it doesn't exist in the source.\n\n";
 
-    print "--dbfile FILE            Berkely DB file containing the vector\n";
+    print "--matrixfile FILE        The matrix file containing the vector\n";
+    print "                         information for the vector measure.\n\n";
+
+    print "--indexfile FILE         The index file containing the vector\n";
     print "                         information for the vector measure.\n\n";
 
     print "--allsenses              This option prints out all the possible\n";
@@ -853,7 +884,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.7 2010/01/20 19:20:10 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.12 2010/03/01 21:51:43 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 
