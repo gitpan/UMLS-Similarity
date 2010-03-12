@@ -1,6 +1,14 @@
 NAME
     UMLS::Similarity CHANGES
 
+   Changes from version 0.37 to 0.39
+    Updated the way that the lcs and shortestpath was being done in
+    UMLS-Interface. There were some complications.
+
+    Added the vector.pm module and the def.pm module
+
+    Added the --measure vector option to umls-similarity
+
    Changes from version 0.35 to 0.37
     I messed up when modifying the way the lcs and shortestpath information
     was obtained in UMLS-Similarity after I had changed it in

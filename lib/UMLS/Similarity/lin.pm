@@ -42,7 +42,7 @@ use warnings;
 use UMLS::Similarity;
 
 use vars qw($VERSION);
-$VERSION = '0.01';
+$VERSION = '0.03';
 
 my $debug = 0;
 

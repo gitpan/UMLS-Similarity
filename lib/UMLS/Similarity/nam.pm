@@ -42,7 +42,7 @@ use warnings;
 use UMLS::Similarity;
 
 use vars qw($VERSION);
-$VERSION = '0.01';
+$VERSION = '0.03';
 
 my $debug = 0;
 
@@ -111,9 +111,10 @@ sub getRelatedness
 
     
     my @paths = $interface->findShortestPath($concept1, $concept2);
-    my $path = shift @paths;
+    my $pathstring = shift @paths;
+    my @path = split/\s+/, $pathstring;
 
-    my $l = $#{$path};
+    my $l = $#path;
 
     my $D = $interface->depth();
 

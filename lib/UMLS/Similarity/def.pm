@@ -1,7 +1,6 @@
-# UMLS::Similarity::res.pm
+# UMLS::Similarity::def.pm
 #
-# Module implementing the semantic relatedness measure described 
-# by Resnik (1995)
+# Module that returns the definitions and related definitions of a concept
 #
 # Copyright (c) 2009-2010,
 #
@@ -35,26 +34,40 @@
 # Boston, MA  02111-1307, USA.
 
 
-package UMLS::Similarity::res;
+package UMLS::Similarity::def;
 
 use strict;
 use warnings;
 use UMLS::Similarity;
 
 use vars qw($VERSION);
-$VERSION = '0.03';
+$VERSION = '0.01';
 
-my $debug = 0;
+my $debug      = 0;
+
+my $term_option= 0;
+my $cui_option = 0;
+my $par_option = 0;
+my $chd_option = 0;
+my $sib_option = 0;
+my $syn_option = 0;
+my $rb_option  = 0;
+my $rn_option  = 0;
+my $ro_option  = 0;
 
 sub new
 {
     my $className = shift;
+    
     return undef if(ref $className);
 
-    if($debug) { print STDERR "In UMLS::Similarity::res->new()\n"; }
+    if($debug) { print STDERR "In UMLS::Similarity::lesk->new()\n"; }
 
     my $interface = shift;
+    my $params    = shift;
 
+    $params = {} if(!defined $params); 
+    
     my $self = {};
     
     # Initialize the error string and the error level.
@@ -69,35 +82,132 @@ sub new
 
     if(!$interface)
     {
-	$self->{'errorString'} .= "\nError (UMLS::Similarity::res->new()) - ";
+	$self->{'errorString'} .= "\nError (UMLS::Similarity::lesk->new()) - ";
 	$self->{'errorString'} .= "An interface object is required.";
 	$self->{'error'} = 2;
     }
 
     # The backend interface object.
     $self->{'interface'} = $interface;
+
+    my $config = $params->{'config'};
     
+    my $def_option = 0;
+    if(defined $config) {
+	open(CONFIG, $config) || die "Could not open config file: $config\n";
+	while(<CONFIG>) {
+	    chomp;
+	    if($_=~/DEF \:\: include (.*)/) {
+		my $options = $1;
+		my @defs = split/[\,]/, $options;
+		foreach my $def (@defs) {
+		    $def=~s/\s+//g;
+		    if($def eq "PAR") { $par_option = 1; }
+		    if($def eq "CHD") { $chd_option = 1; }
+		    if($def eq "SIB") { $sib_option = 1; }
+		    if($def eq "SYN") { $syn_option = 1; }
+		    if($def eq "RO")  { $ro_option  = 1; }
+		    if($def eq "RN")  { $rn_option  = 1; }
+		    if($def eq "RB")  { $rb_option  = 1; }
+		    if($def eq "CUI") { $cui_option = 1; }
+		    if($def eq "TERM"){ $term_option= 1; }
+		}
+		$def_option = 1;
+	    }
+	}
+    }
+    if($def_option == 0) {
+	$par_option = 1;
+	$chd_option = 1;
+	$sib_option = 1;
+	$syn_option = 1;
+	$ro_option  = 1;
+	$rn_option  = 1;
+	$rb_option  = 1;
+	$cui_option = 1;
+	$term_option= 1;
+    }
+
     return $self;
 }
 
 
-sub getRelatedness
+sub getDef
 {
     my $self = shift;
     return undef if(!defined $self || !ref $self);
-    my $concept1 = shift;
-    my $concept2 = shift;
+    my $concept = shift;
     
     my $interface = $self->{'interface'};
 
-    my @lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
-    
-    my $score = 0;
-    foreach my $lcs (@lcses) {
-	my $value = $interface->getIC($lcs);
-	if($score < $value) { $score = $value; }
+    my @defs = ();
+
+    if($par_option == 1) {
+	my @parents   = $interface->getRelated($concept, "PAR");
+	foreach my $parent (@parents) {
+	    my @pardefs = $interface->getCuiDef($parent);
+	    @defs = (@defs, @pardefs);
+	}
     }
-    return $score
+    if($chd_option == 1) {
+	my @children   = $interface->getRelated($concept, "CHD");
+	foreach my $child (@children) { 
+	    my @chddefs = $interface->getCuiDef($child);
+	    @defs = (@defs, @chddefs);
+	}
+    }
+    if($sib_option == 1) {
+	my @siblings   = $interface->getRelated($concept, "SIB");
+	foreach my $sib (@siblings) {
+	    my @sibdefs = $interface->getCuiDef($sib);
+	    @defs = (@defs, @sibdefs);
+	}
+    }
+    if($syn_option == 1) {
+	my @syns   = $interface->getRelated($concept, "SYN");
+	foreach my $syn (@syns) {
+	    my @syndefs = $interface->getCuiDef($syn);
+	    @defs = (@defs, @syndefs);
+	}
+    }
+    if($rb_option == 1) {
+	my @rbs    = $interface->getRelated($concept, "RB");
+	foreach my $rb (@rbs) {
+	    my @rbdefs = $interface->getCuiDef($rb);
+	    @defs = (@defs, @rbdefs);
+	}
+    }
+    if($rn_option == 1) {
+	my @rns    = $interface->getRelated($concept, "RN");
+	foreach my $rn (@rns) {
+	    my @rndefs = $interface->getCuiDef($rn);
+	    @defs = (@defs, @rndefs);
+	}
+    }
+    if($ro_option == 1) {
+	my @ros    = $interface->getRelated($concept, "RO");
+	foreach my $ro (@ros) {
+	    my @rodefs = $interface->getCuiDef($ro);
+	    @defs = (@defs, @rodefs);
+	}
+    }
+    if($cui_option == 1) {
+	my @def   = $interface->getCuiDef($concept);
+	@defs = (@defs, @def);
+    }
+    if($term_option == 1) {
+	my @terms = $interface->getTermList($concept);
+	@defs = (@defs, @terms);
+    }
+
+    my @clean_defs = ();
+    foreach my $def (@defs) {
+	$def=~s/[\.\,\?\'\"\;\:\/\]\[\}\{\!\@\#\$\%\^\&\*\(\)\-\_]//g;
+	push @clean_defs, $def;
+    }
+
+    return \@clean_defs;
+
 }
 
 # Method to return recent error/warning condition
@@ -106,7 +216,7 @@ sub getError
     my $self = shift;
     return (2, "") if(!defined $self || !ref $self);
 
-    if($debug) { print STDERR "In UMLS::Similarity::res->getError()\n"; }
+    if($debug) { print STDERR "In UMLS::Similarity::lesk->getError()\n"; }
 
     my $dontClear = shift;
     my $error = $self->{'error'};
@@ -138,14 +248,14 @@ __END__
 
 =head1 NAME
 
-UMLS::Similarity::res - Perl module for computing semantic relatedness
+UMLS::Similarity::lesk - Perl module for computing semantic relatedness
 of concepts in the Unified Medical Language System (UMLS) using the 
 method described by Resnik 1995.
 
 =head1 SYNOPSIS
 
   use UMLS::Interface;
-  use UMLS::Similarity::res;
+  use UMLS::Similarity::lesk;
 
   my $option_hash{"propogation"} = $propogation_file;
 
@@ -154,8 +264,8 @@ method described by Resnik 1995.
   ($errCode, $errString) = $umls->getError();
   die "$errString\n" if($errCode);
 
-  my $res = UMLS::Similarity::res->new($umls);
-  die "Unable to create measure object.\n" if(!$res);
+  my $lesk = UMLS::Similarity::lesk->new($umls);
+  die "Unable to create measure object.\n" if(!$lesk);
   
   my $cui1 = "C0005767";
   my $cui2 = "C0007634";
@@ -166,7 +276,7 @@ method described by Resnik 1995.
   @ts2 = $umls->getTermList($cui2);
   my $term2 = pop @ts2;
 
-  my $value = $res->getRelatedness($cui1, $cui2);
+  my $value = $lesk->getRelatedness($cui1, $cui2);
 
   print "The similarity between $cui1 ($term1) and $cui2 ($term2) is $value\n";
 
@@ -190,11 +300,11 @@ See the UMLS::Similarity(3) documentation for details of these methods.
 
 =head1 TYPICAL USAGE EXAMPLES
 
-To create an object of the res measure, we would have the following
+To create an object of the lesk measure, we would have the following
 lines of code in the perl program. 
 
-   use UMLS::Similarity::res;
-   $measure = UMLS::Similarity::res->new($interface);
+   use UMLS::Similarity::lesk;
+   $measure = UMLS::Similarity::lesk->new($interface);
 
 The reference of the initialized object is stored in the scalar
 variable '$measure'. '$interface' contains an interface object that

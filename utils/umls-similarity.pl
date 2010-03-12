@@ -501,7 +501,6 @@ sub loadMeasures {
     
     my $meas;
 
-=comment
     if($measure eq "vector") {
 	require "UMLS/Similarity/vector.pm";
 
@@ -518,8 +517,6 @@ sub loadMeasures {
 	}
 	$meas = UMLS::Similarity::vector->new($umls,\%vectoroptions);
     }
-=cut
-
     #  load the module implementing the Leacock and 
     #  Chodorow (1998) measure
     if($measure eq "lch") {
@@ -571,8 +568,9 @@ sub loadMeasures {
 	use UMLS::Similarity::random;
 	$meas = UMLS::Similarity::random->new($umls);
     }
-    #  load the module implementing the lesk measure
+   
 =comment
+    #  load the module implementing the lesk measure
     if($measure eq "lesk") {
 	use UMLS::Similarity::lesk;
 	my %leskoptions = ();
@@ -586,8 +584,8 @@ sub loadMeasures {
 	$meas = UMLS::Similarity::lesk->new($umls,\%leskoptions);
 					    
     }
-=cut    
-
+=cut
+    
     die "Unable to create measure object.\n" if(!$meas);
     ($errCode, $errString) = $meas->getError();
     die "$errString\n" if($errCode);
@@ -739,7 +737,7 @@ sub setOptions {
 	$default .= "  --measure $measure\n";
     }
 
-    if($measure=~/\b(path|wup|lch|cdist|nam|res|lin|random|jcn)\b/) {
+    if($measure=~/\b(path|wup|lch|cdist|nam|vector|res|lin|random|jcn)\b/) {
 	#  good to go
     }
     else {
@@ -771,7 +769,7 @@ sub setOptions {
     if($measure=~/(res|lin|jcn)/) {
 	if(! (defined $opt_propagationfile)) {
 	    print STDERR "The --propagationfile option must be specified \n";
-	    print STDERR "when using the resnik, jcn or lin measures.\n\n";
+	    print STDERR "when using the resnik or lin measures.\n\n";
 	    &minimalUsageNotes();
 	    exit;
 	}
@@ -884,7 +882,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.12 2010/03/01 21:51:43 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.14 2010/03/11 20:07:17 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

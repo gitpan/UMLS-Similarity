@@ -42,7 +42,7 @@ use warnings;
 use UMLS::Similarity;
 
 use vars qw($VERSION);
-$VERSION = '0.01';
+$VERSION = '0.03';
 
 my $debug = 0;
 
@@ -110,9 +110,9 @@ sub getRelatedness
     #  greater than zero otherwise return zero
     my $ic1 = $interface->getIC($concept1);
     my $ic2 = $interface->getIC($concept2);
+
     if($ic1 <= 0 or $ic2 <= 0) { return 0; }
     
-
     my @lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
     
     my $iclcs = 0;

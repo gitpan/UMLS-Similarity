@@ -42,7 +42,7 @@ use warnings;
 use UMLS::Similarity;
 
 use vars qw($VERSION);
-$VERSION = '0.01';
+$VERSION = '0.03';
 
 my $debug = 0;
 
@@ -98,24 +98,31 @@ sub getRelatedness
     my $lcs_depth = 0; my $lcs = "";
     foreach my $l (@lcses) {
 	my $depth  = $interface->findMaximumDepth($l);
-	if($lcs_depth < $depth) { $lcs_depth = $depth; $lcs = $l}
+	if(defined $depth and $lcs_depth < $depth) { $lcs_depth = $depth; $lcs = $l}
     }
 
     my @c1_paths = $interface->findShortestPath($lcs, $concept1);
     my @c2_paths = $interface->findShortestPath($lcs, $concept2);
 
-    my $c1_path = shift @c1_paths;
-    my $c2_path = shift @c2_paths;
+    my @c1_path = split/\s+/, $c1_paths[0];
+    my @c2_path = split/\s+/, $c2_paths[0];
     
-    my $c1_depth = $lcs_depth + $#{$c1_path};
-    my $c2_depth = $lcs_depth + $#{$c2_path};
+    my $c1_depth = $lcs_depth + $#c1_path;
+    my $c2_depth = $lcs_depth + $#c2_path;
     
     if($c1_depth < 0 or $c2_depth < 0) { return 0; }
-
+    
     my $score = (2 * $lcs_depth) / ($c1_depth + $c2_depth);   
-
+    
     return $score;
 }
+
+sub errorCheck {
+    my $obj = shift;
+    my ($errCode, $errString) = $obj->getError();                         
+    print STDERR "$errString\n" if($errCode);                          
+    exit if($errCode > 1);                                             
+}  
 
 # Method to return recent error/warning condition
 sub getError
