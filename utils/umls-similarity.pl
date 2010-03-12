@@ -45,6 +45,17 @@ Unless the --matrix option is chosen then it is just a list of CUIS:
     cui3 
     ...
 
+=head3 --propagationfile FILE
+
+FILE containing the propagation counts of the CUIs. This file must be 
+in the following format:
+
+    freq|CUI|string
+
+where freq   = the frequency of the concept
+      CUI    = the concept's UMLS CUI
+      string = the term associated with the CUI 
+
 =head3 --matrix
 
 This option returns a matrix of similarity scores given a file 
@@ -275,6 +286,9 @@ sub calculateSimilarity {
 
 	if(! (defined $opt_matrix) ) {
 	    my ($i1, $i2) = split/<>/, $input1;
+	    $i1=~s/^\s+//g;	    $i2=~s/\s+$//g;
+	    $i1=~s/^\s+//g;	    $i2=~s/\s+$//g;
+
 	    $input1 = $i1;
 	    @secondary_array = ();
 	    push @secondary_array, $i2;
@@ -568,23 +582,20 @@ sub loadMeasures {
 	use UMLS::Similarity::random;
 	$meas = UMLS::Similarity::random->new($umls);
     }
-   
-=comment
+    
     #  load the module implementing the lesk measure
-    if($measure eq "lesk") {
-	use UMLS::Similarity::lesk;
-	my %leskoptions = ();
+    #if($measure eq "lesk") {
+	#use UMLS::Similarity::lesk;
+	#my %leskoptions = ();
 	
-	if(defined $opt_stoplist) {
-	    $leskoptions{"stoplist"} = $opt_stoplist;
-	}
-	if(defined $opt_config) {
-	    $leskoptions{"config"} = $opt_config;
-	}
-	$meas = UMLS::Similarity::lesk->new($umls,\%leskoptions);
-					    
-    }
-=cut
+	#if(defined $opt_stoplist) {
+	#    $leskoptions{"stoplist"} = $opt_stoplist;
+	#}
+	#if(defined $opt_config) {
+	#    $leskoptions{"config"} = $opt_config;
+	#}
+        #$meas = UMLS::Similarity::lesk->new($umls,\%leskoptions);  
+    #}
     
     die "Unable to create measure object.\n" if(!$meas);
     ($errCode, $errString) = $meas->getError();
@@ -837,6 +848,9 @@ sub showHelp() {
     print "--database STRING        Database contain UMLS (DEFAULT: umls)\n\n";
         
     print "--infile FILE            File containing TERM or CUI pairs\n\n";
+
+    print "--propagationfile FILE   FILE containing the propagation counts\n";
+    print "                         of the CUIs.\n\n";
     
     print "--matrix                 This option returns a matrix of similarity\n";
     print "                         scores given a file containing a list of \n";
@@ -882,7 +896,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.14 2010/03/11 20:07:17 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.16 2010/03/12 21:55:52 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

@@ -6,8 +6,8 @@
       programs that implement the semantic similarity and relatedness 
       measures described by Leacock & Chodorow (1998), Wu & Palmer (1994), 
       Nguyen and Al-Mubaid  (2006), Rada, et. al. 1989, Patwardhan (2003), 
-      Jiang & Conrath (1997), Resnik (1995), Lin (1998) and a simple path 
-      based measure.
+      Jiang & Conrath (1997), Resnik (1995), Lin (1998), Patwardhan and 
+      Pedersen (2006) and a simple path  based measure.
 
       UMLS::Similarity requires the UMLS::Interface module to access 
       the Unified Medical Language System (UMLS) in order to determine 
@@ -173,12 +173,18 @@
             vector measure of semantic relatedness. Master Thesis, University of
             Minnesota, Duluth, 2003.
 
-        15  Rada, R., Mili, H., Bicknell, E. and Blettner, M. Development and 
+        15  Patwardhan, S. and Pedersen T. Using WordNet Based Context Vectors 
+            to Estimate the Semantic Relatedness of Concepts. In Proceedings of 
+            the EACL 2006 Workshop Making Sense of Sense - Bringing Computational 
+            Linguistics and Psycholinguistics Together, pp. 1-8, April 4, 2006, 
+            Trento, Italy.
+
+        16  Rada, R., Mili, H., Bicknell, E. and Blettner, M. Development and 
             application of a metric on semantic nets. In Proceedings of the 
             IEEE Transactions on Systems, Man, and Cybernetics, volume 19, 
             pages 17-30, 1989.
 
-        16  Nguyen, H.A. and Al-Mubaid, H. New ontology based semantic 
+        17  Nguyen, H.A. and Al-Mubaid, H. New ontology based semantic 
             similarity mesaure for the biomedical domain. In Proceedings of 
             the IEEE International Conference on Granular Computing, pages 
             623-628, 2006.

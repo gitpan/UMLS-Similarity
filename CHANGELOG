@@ -1,6 +1,9 @@
 NAME
     UMLS::Similarity CHANGES
 
+   Changes from version 0.39 to 0.41
+    Modified documentation and cleaned up the package
+
    Changes from version 0.37 to 0.39
     Updated the way that the lcs and shortestpath was being done in
     UMLS-Interface. There were some complications.

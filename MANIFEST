@@ -2,7 +2,6 @@ CHANGELOG
 FDL.txt
 GPL.txt
 INSTALL
-lib/dbif.pm
 lib/UMLS/Similarity.pm
 lib/UMLS/Similarity/cdist.pm
 lib/UMLS/Similarity/jcn.pm

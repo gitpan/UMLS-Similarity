@@ -61,7 +61,7 @@ sub new
     
     return undef if(ref $className);
 
-    if($debug) { print STDERR "In UMLS::Similarity::lesk->new()\n"; }
+    if($debug) { print STDERR "In UMLS::Similarity::def->new()\n"; }
 
     my $interface = shift;
     my $params    = shift;
@@ -82,7 +82,7 @@ sub new
 
     if(!$interface)
     {
-	$self->{'errorString'} .= "\nError (UMLS::Similarity::lesk->new()) - ";
+	$self->{'errorString'} .= "\nError (UMLS::Similarity::def->new()) - ";
 	$self->{'errorString'} .= "An interface object is required.";
 	$self->{'error'} = 2;
     }
@@ -216,7 +216,7 @@ sub getError
     my $self = shift;
     return (2, "") if(!defined $self || !ref $self);
 
-    if($debug) { print STDERR "In UMLS::Similarity::lesk->getError()\n"; }
+    if($debug) { print STDERR "In UMLS::Similarity::def->getError()\n"; }
 
     my $dontClear = shift;
     my $error = $self->{'error'};
@@ -248,51 +248,44 @@ __END__
 
 =head1 NAME
 
-UMLS::Similarity::lesk - Perl module for computing semantic relatedness
-of concepts in the Unified Medical Language System (UMLS) using the 
-method described by Resnik 1995.
+UMLS::Similarity::def - Perl module for returning the UMLS definition 
+of a concept and the definition of its related concepts. 
 
 =head1 SYNOPSIS
 
   use UMLS::Interface;
-  use UMLS::Similarity::lesk;
+  use UMLS::Similarity::def; 
 
-  my $option_hash{"propogation"} = $propogation_file;
+  my $option_hash{"config"} = $config_file;
 
   my $umls = UMLS::Interface->new(\%option_hash); 
   die "Unable to create UMLS::Interface object.\n" if(!$umls);
   ($errCode, $errString) = $umls->getError();
   die "$errString\n" if($errCode);
 
-  my $lesk = UMLS::Similarity::lesk->new($umls);
-  die "Unable to create measure object.\n" if(!$lesk);
-  
-  my $cui1 = "C0005767";
-  my $cui2 = "C0007634";
-	
-  @ts1 = $umls->getTermList($cui1);
-  my $term1 = pop @ts1;
+   my $handler = UMLS::Similarity::def->new($umls);
 
-  @ts2 = $umls->getTermList($cui2);
-  my $term2 = pop @ts2;
+   my $def = $handler->getDef('C0005767');
 
-  my $value = $lesk->getRelatedness($cui1, $cui2);
-
-  print "The similarity between $cui1 ($term1) and $cui2 ($term2) is $value\n";
+   foreach my $d (@{$def}) { print "$d\n"; }
 
 =head1 DESCRIPTION
 
-This module computes the semantic relatedness of two concepts in 
-the UMLS according to a method described by Resnik (1995). The 
-relatedness measure proposed by Resnik is the information content 
-of the least common subsumer of the two concepts. 
+This module returns the UMLS definition of a given concept and 
+the definition of its related concepts. The definitions are 
+specified in the configuration file using the following format:
+
+DEF :: include PAR, CHD, SIB, SYN, RO, RB, RN, CUI, TERM
+
+You are not required to use all of the possible relations but 
+the default does contain all of them. 
 
 =head1 USAGE
 
 The semantic relatedness modules in this distribution are built as classes
 that expose the following methods:
   new()
-  getRelatedness()
+  getDef()
   getError()
   getTraceString()
 
@@ -300,14 +293,14 @@ See the UMLS::Similarity(3) documentation for details of these methods.
 
 =head1 TYPICAL USAGE EXAMPLES
 
-To create an object of the lesk measure, we would have the following
+To create an object of the def measure, we would have the following
 lines of code in the perl program. 
 
-   use UMLS::Similarity::lesk;
-   $measure = UMLS::Similarity::lesk->new($interface);
+   use UMLS::Similarity::def;
+   $handler = UMLS::Similarity::def->new($interface);
 
 The reference of the initialized object is stored in the scalar
-variable '$measure'. '$interface' contains an interface object that
+variable '$handler'. '$interface' contains an interface object that
 should have been created earlier in the program (UMLS-Interface). 
 
 If the 'new' method is unable to create the object, '$measure' would 
@@ -317,11 +310,11 @@ be undefined. This, as well as any other error/warning may be tested.
    ($err, $errString) = $measure->getError();
    die $errString."\n" if($err);
 
-To find the semantic relatedness of the concept 'blood' (C0005767) and
-the concept 'cell' (C0007634) using the measure, we would write
-the following piece of code:
+To find the definition of the concept 'blood' (C0005767) and the 
+definition of its related concepts, we would write the following 
+piece of code:
 
-   $relatedness = $measure->getRelatedness('C0005767', 'C0007634');
+   $def = $handler->getDef('C0005767')
   
 To get traces for the above computation:
 
@@ -356,8 +349,6 @@ perl(1), UMLS::Similarity(3)
 =head1 AUTHORS
 
   Bridget T McInnes <bthomson at cs.umn.edu>
-  Siddharth Patwardhan <sidd at cs.utah.edu>
-  Serguei Pakhomov <pakh0002 at umn.edu>
   Ted Pedersen <tpederse at d.umn.edu>
 
 =head1 COPYRIGHT AND LICENSE

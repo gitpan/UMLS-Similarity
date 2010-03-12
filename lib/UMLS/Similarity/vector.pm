@@ -338,21 +338,22 @@ __END__
 
 UMLS::Similarity::vector - Perl module for computing semantic relatedness
 of concepts in the Unified Medical Language System (UMLS) using the 
-method described by Resnik 1995.
+method described by Patwardhan (2003). 
 
 =head1 SYNOPSIS
 
   use UMLS::Interface;
   use UMLS::Similarity::vector;
 
-  my $option_hash{"propogation"} = $propogation_file;
+  my $option_hash{"matrixfile"} = $matrix_file;
+  my $option_hash{"indexfile"}  = $index_file;
 
-  my $umls = UMLS::Interface->new(\%option_hash); 
+  my $umls = UMLS::Interface->new(); 
   die "Unable to create UMLS::Interface object.\n" if(!$umls);
   ($errCode, $errString) = $umls->getError();
   die "$errString\n" if($errCode);
 
-  my $vector = UMLS::Similarity::vector->new($umls);
+  my $vector = UMLS::Similarity::vector->new($umls, \%option_hash);
   die "Unable to create measure object.\n" if(!$vector);
   
   my $cui1 = "C0005767";
@@ -370,10 +371,16 @@ method described by Resnik 1995.
 
 =head1 DESCRIPTION
 
-This module computes the semantic relatedness of two concepts in 
-the UMLS according to a method described by Resnik (1995). The 
-relatedness measure proposed by Resnik is the information content 
-of the least common subsumer of the two concepts. 
+Perl module for computing semantic relatedness of concepts using second 
+order co-occurrence vectors of definitions of the concepts as described 
+by Patwardhan (2003), and Patwardhan and Pedersen (2006).
+
+Schütze (1998) creates what he calls context vectors (second order 
+co-occurrence vectors) of pieces of text for the purpose of Word Sense
+Discrimination. This idea is adopted by Patwardhan and Pedersen to 
+represent the concepts by second-order co-occurrence vectors of their 
+dictionary definitions. The relatedness of two concepts is then computed 
+as the cosine of their representative vectors.
 
 =head1 USAGE
 
