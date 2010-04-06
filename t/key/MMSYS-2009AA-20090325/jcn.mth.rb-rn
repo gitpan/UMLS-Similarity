@@ -1,0 +1,25 @@
+Default Settings:
+  --precision 4
+
+User Settings:
+  --propagationfile t/options/propagationfile
+  --config t/config/config.mth.rb-rn
+  --infile t/tests/mth.rb-rn
+  --measure jcn
+  --realtime
+
+
+User Options:
+  --propagation t/options/propagationfile
+   --realtime option set
+
+UMLS-Interface Configuration Information
+  Sources:
+    MTH
+  Relations:
+    RB
+    RN
+  Database: 
+    umls (MMSYS-2009AA-20090325)
+
+0.0675<>C0038454(cerebrovascular accident)<>C0021308(infarction)

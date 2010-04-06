@@ -16,9 +16,6 @@
 # Ted Pedersen, University of Minnesota, Duluth
 # tpederse at d.umn.edu
 #
-# Ying Liu, University of Minnesota
-# liux0935 at umn.edu
-#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
@@ -43,7 +40,6 @@ package UMLS::Similarity::vector;
 use warnings;
 
 use UMLS::Similarity;
-use UMLS::Similarity::def;
 
 use vars qw($VERSION);
 $VERSION = '0.01';
@@ -51,9 +47,11 @@ $VERSION = '0.01';
 my $debug      = 0;
 my $matrixfile = "";
 my $indexfile  = "";
-my $config     = "";
-my $defhandler = "";
+my $debugfile  = "";
+my $dictfile  = "";
+
 my %index = ();
+my %reverse_index = ();
 my %position =();
 my %length = ();
 
@@ -73,11 +71,30 @@ sub new
     $indexfile  = $params->{'indexfile'};
     $matrixfile = $params->{'matrixfile'};
     $config     = $params->{'config'};
+    $dictfile   = $params->{'dictfile'};
+    $debugfile	= $params->{'debugfile'};
 
-    if($debug) {
-	print STDERR "INDEX: $indexfile\n";
-	print STDERR "MATRIX: $matrixfile\n";
-    }
+    print STDERR "INDEX: $indexfile\n";
+    print STDERR "MATRIX: $matrixfile\n";
+
+#Ying load the dictionary into hash 
+
+if (defined $dictfile)
+{
+	open(DICT, "<$dictfile")
+        or die("Error: cannot open file '$dictfile' for output index.\n");
+
+	my %dictionary = (); 
+	while (my $line = <DICT>)
+	{
+		chomp($line);
+		my @defs = split(':', $line);
+		 
+		$dictionary{$defs[0]} = $defs[1];	
+	}
+	close DICT;
+}
+#Ying load the dictionary file into hash 
 
 #Ying load the index into hash 
 	open(INDX, "<$indexfile")
@@ -89,6 +106,7 @@ sub new
         	my @terms = split(' ', $line);
     
        		$index{$terms[0]} = $terms[1];
+       		$reverse_index{$terms[1]} = $terms[0];
         	$position{$terms[1]} = $terms[2]; 
        		$length{$terms[1]} = $terms[3]; 
 	}
@@ -119,13 +137,6 @@ sub new
     # The backend interface object.
     $self->{'interface'} = $interface;
 
-    #  set the def handler
-    my %defoptions = ();
-    if(defined $config) {
-	$defoptions{"config"} = $config;
-    }
-    $defhandler = UMLS::Similarity::def->new($interface, \%defoptions);
-    
     return $self;
 }
 
@@ -139,14 +150,46 @@ sub getRelatedness
     
     my $interface = $self->{'interface'};
 
-    my $defs1 = $defhandler->getDef($concept1);
-    my $defs2 = $defhandler->getDef($concept2);
-    
-    my $def1 = join " ", @{$defs1};
-    my $def2 = join " ", @{$defs2};
-	
-	my $d1 = lc ($def1);
-	my $d2 = lc ($def2);	
+
+	my $defs1;
+	my $defs2;
+	my $def1;
+	my $def2;
+	my $d1;
+	my $d2;
+	if (defined $dictfile)
+	{
+		$d1 = lc($dictionary{$concept1});
+		$d2 = lc($dictionary{$concept2});
+	}
+	else
+	{
+    #	$defs1 = $defhandler->getDef($concept1);
+	#	$defs2 = $defhandler->getDef($concept2);
+
+	#   $def1 = join " ", @{$defs1};
+    # 	$def2 = join " ", @{$defs2};
+
+
+		$defs1 = $interface->getExtendedDefinition($concept1);
+   		$defs2 = $interface->getExtendedDefinition($concept2);
+
+
+    	$def1 = "";
+    	foreach my $def (@{$defs1}) {
+    	$def=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+)\s*\:\s*(.*?)$/;
+    	$def1 .= $4 . " ";
+    	}
+
+    	$def2 = "";
+    	foreach my $def (@{$defs2}) {
+    	$def=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+)\s*\:\s*(.*?)$/;
+    	$def2 .= $4 . " ";
+    	} 
+
+		$d1 = lc ($def1);
+		$d2 = lc ($def2);	
+	}
 
     #  get the vector for each word in the def
 
@@ -159,14 +202,26 @@ sub getRelatedness
 	my @defs1 = split(" ", $d1);	
 	my @defs2 = split(" ", $d2);	
 
-        foreach my $def_term1 (@defs1)
-        {
+	if (defined $debugfile)
+	{
+		open(DEBUG, ">>$debugfile")
+        	or die("Error: cannot open file '$debugfile' for output index.\n");
+		printf DEBUG "$concept1<>$concept2\n";
+		printf DEBUG "def1: $d1\n";
+	}
+
+
+	my $def1_length = 0 ;
+
+    foreach my $def_term1 (@defs1)
+    {
 		if (defined $index{$def_term1})
 		{
-			#print "has term1: $def_term1\n";
+			#$def1_length++;
+
 			my $index_term = $index{$def_term1};
-        	        my $p = $position{$index_term};
-              		my $l = $length{$index_term};
+            my $p = $position{$index_term};
+        	my $l = $length{$index_term};
 
 			if (($p==0) and (!defined $l))
 			{
@@ -174,41 +229,72 @@ sub getRelatedness
 			}
 			else
 			{
-                		my ($data, $n);
-                		seek MATX, $p, 0;
-                		if (($n = read MATX, $data, $l) != 0)
-                		{
-					#print "term1 data: $data\n";
-                      			my @word_vector = split (' ', $data);
-                        		my $index = shift @word_vector;
-                        		$index =~ m/^(\d+)\:$/;
+				$def1_length++;
 
-	                        	if ($index_term == $1)
-       		                	{
-                                		for (my $z=0; $z<@word_vector; )
-                                		{
-                                      			$vector1{$word_vector[$z]} += $word_vector[$z+1];
+           		my ($data, $n);
+           		seek MATX, $p, 0;
+           		if (($n = read MATX, $data, $l) != 0)
+           		{
+					if (defined $debugfile)
+					{
+						printf DEBUG "$def_term1: ";
+					}
+					chomp($data);
+			#		print "term1 data: $data\n";
+           			my @word_vector = split (' ', $data);
+               		my $index = shift @word_vector;
+               		$index =~ m/^(\d+)\:$/;
+
+                   	if ($index_term == $1)
+                	{
+                   		for (my $z=0; $z<@word_vector; )
+                   		{
+                   			$vector1{$word_vector[$z]} += $word_vector[$z+1];
 							$z += 2;
-                                		}
-                        		}
-                        		else
-                        		{
-                                		print "$def_term1 is not a correct word!\n";
-                                		exit;
-                        		}
-                		}
+
+							if (defined $debugfile)
+							{
+								printf DEBUG "$reverse_index{$word_vector[$z]} ";
+							} 	
+							
+                   		}
+
+						if (defined $debugfile)
+						{
+							printf DEBUG "\n";
+						} 	
+               		}
+               		else
+               		{
+                       		print "$def_term1 is not a correct word!\n";
+                       		exit;
+              		}
+               }	
 			}
 		}
-        }
+    }
 
-        foreach my $def_term2 (@defs2)
-        {
+	if (defined $debugfile)
+	{
+		printf DEBUG "def1 length: $def1_length\n";
+	} 	
+
+	if (defined $debugfile)
+	{
+		printf DEBUG "def2: $d2\n";
+	}
+
+	my $def2_length = 0 ;
+    foreach my $def_term2 (@defs2)
+    {
 		if (defined $index{$def_term2})
 		{
+#			$def2_length++;
+
 			#print "has term2: $def_term2\n";
 			my $index_term = $index{$def_term2};
-                	my $p = $position{$index_term};
-                	my $l = $length{$index_term};
+            my $p = $position{$index_term};
+            my $l = $length{$index_term};
 
 			if (($p==0) and (!defined $l))
 			{
@@ -216,31 +302,55 @@ sub getRelatedness
 			}
 			else
 			{
-                		my ($data, $n);
-                		seek MATX, $p, 0;
-                		if (($n = read MATX, $data, $l) != 0)
-                		{
-                       			my @word_vector = split (' ', $data);
-                        		my $index = shift @word_vector;
-                        		$index =~ m/^(\d+)\:$/;
+				$def2_length++;
 
-                        		if ($index_term == $1)
-                        		{
-                                		for (my $z=0; $z<@word_vector; )
-                                		{
-                                      			$vector2{$word_vector[$z]} += $word_vector[$z+1];
+                my ($data, $n);
+              	seek MATX, $p, 0;
+                if (($n = read MATX, $data, $l) != 0)
+                {
+					if (defined $debugfile)
+					{
+						printf DEBUG "$def_term2: ";
+					}
+					chomp($data);
+                	my @word_vector = split (' ', $data);
+                   	my $index = shift @word_vector;
+                    $index =~ m/^(\d+)\:$/;
+
+                    if ($index_term == $1)
+                   	{
+                    	for (my $z=0; $z<@word_vector; )
+                        {
+                       		$vector2{$word_vector[$z]} += $word_vector[$z+1];
 							$z += 2;
-                                		}
-                        		}
-                        		else
-                        		{
-                                		print "$def_term2 is not a correct word!\n";
-                                		exit;
-                        		}
-                		}
+
+							if (defined $debugfile)
+							{
+								printf DEBUG "$reverse_index{$word_vector[$z]} ";
+							} 	
+							
+                       	}
+
+						if (defined $debugfile)
+						{
+							printf DEBUG "\n";
+						} 	
+                    }
+                    else
+                    {
+                   		print "$def_term2 is not a correct word!\n";
+                   		exit;
+                    }
+                }
 			}
 		}
-        }
+	}
+
+
+	if (defined $debugfile)
+	{
+		printf DEBUG "def2_length: $def2_length\n";
+	} 	
 
 
     #  normalize
@@ -338,22 +448,21 @@ __END__
 
 UMLS::Similarity::vector - Perl module for computing semantic relatedness
 of concepts in the Unified Medical Language System (UMLS) using the 
-method described by Patwardhan (2003). 
+method described by Resnik 1995.
 
 =head1 SYNOPSIS
 
   use UMLS::Interface;
   use UMLS::Similarity::vector;
 
-  my $option_hash{"matrixfile"} = $matrix_file;
-  my $option_hash{"indexfile"}  = $index_file;
+  my $option_hash{"propogation"} = $propogation_file;
 
-  my $umls = UMLS::Interface->new(); 
+  my $umls = UMLS::Interface->new(\%option_hash); 
   die "Unable to create UMLS::Interface object.\n" if(!$umls);
   ($errCode, $errString) = $umls->getError();
   die "$errString\n" if($errCode);
 
-  my $vector = UMLS::Similarity::vector->new($umls, \%option_hash);
+  my $vector = UMLS::Similarity::vector->new($umls);
   die "Unable to create measure object.\n" if(!$vector);
   
   my $cui1 = "C0005767";
@@ -371,16 +480,10 @@ method described by Patwardhan (2003).
 
 =head1 DESCRIPTION
 
-Perl module for computing semantic relatedness of concepts using second 
-order co-occurrence vectors of definitions of the concepts as described 
-by Patwardhan (2003), and Patwardhan and Pedersen (2006).
-
-Schütze (1998) creates what he calls context vectors (second order 
-co-occurrence vectors) of pieces of text for the purpose of Word Sense
-Discrimination. This idea is adopted by Patwardhan and Pedersen to 
-represent the concepts by second-order co-occurrence vectors of their 
-dictionary definitions. The relatedness of two concepts is then computed 
-as the cosine of their representative vectors.
+This module computes the semantic relatedness of two concepts in 
+the UMLS according to a method described by Resnik (1995). The 
+relatedness measure proposed by Resnik is the information content 
+of the least common subsumer of the two concepts. 
 
 =head1 USAGE
 

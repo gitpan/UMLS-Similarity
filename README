@@ -72,6 +72,12 @@
                                 terms or UMLS CUIs given a specified 
                                 measure (and view of the UMLS).
 
+          spearman.pl        -- calculates the Spearman Rank Correlation
+                                between two files
+
+          vector-input.pl    -- creates the matrix and index files required 
+                                for the vector measure
+
   INSTALL
         To install these modules run:
 

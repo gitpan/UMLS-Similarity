@@ -1,0 +1,28 @@
+Default Settings:
+  --precision 4
+
+User Settings:
+  --matrixfile t/options/matrix
+  --indexfile t/options/index
+  --config t/config/config.snomedct.par-chd
+  --infile t/tests/snomedct.par-chd
+  --measure vector
+  --realtime
+
+
+User Options:
+   --realtime option set
+
+UMLS-Interface Configuration Information
+  Sources:
+    SNOMEDCT
+  Relations:
+    CHD
+    PAR
+  Database: 
+    umls (MMSYS-2009AA-20090325)
+
+INDEX: t/options/index
+MATRIX: t/options/matrix
+0.2600<>C0459385(brain tissue structure)<>C0228067(infratentorial brain structure)
+0.0283<>C0175895(calcification)<>C0009814(stenosis)

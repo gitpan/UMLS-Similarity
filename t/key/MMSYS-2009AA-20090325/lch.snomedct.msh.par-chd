@@ -1,0 +1,14 @@
+Default Settings:
+  --precision 4
+
+User Settings:
+  --config t/config/config.snomedct.msh.par-chd
+  --infile t/tests/snomedct.msh.par-chd
+  --measure lch
+  --realtime
+
+
+User Options:
+   --realtime option set
+
+Could not open configuration file: t/config/config.snomedct.msh.par-chd

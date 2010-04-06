@@ -97,6 +97,11 @@ Displays values upto N places of decimal.
 Displays information about the concept if it doesn't
 exist in the source.
 
+=head3 --debugfile FILE
+
+This prints the vector information to file, FILE, for debugging 
+purposes.
+
 =head3 --matrixfile FILE
 
 This is the matrix file that contains the vector information to 
@@ -225,7 +230,7 @@ use lib "/export/scratch/programs/lib/site_perl/5.8.7/";
 use UMLS::Interface;
 use Getopt::Long;
 
-eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "forcerun", "debug", "verbose", "propagationfile=s", "realtime", "stoplist=s", "matrixfile=s", "indexfile=s")) or die ("Please check the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "forcerun", "debug", "verbose", "propagationfile=s", "realtime", "stoplist=s", "debugfile=s", "matrixfile=s", "indexfile=s", "dictfile=s")) or die ("Please check the above mentioned option(s).\n");
 
 
 my $debug = 0;
@@ -266,6 +271,7 @@ my $infile      = "";
 
 my @input_array = ();
 
+&checkOptions       ();
 &setOptions         ();
 &loadUMLS           ();
 
@@ -520,8 +526,14 @@ sub loadMeasures {
 
 	my %vectoroptions = ();
 	
+	if(defined $opt_dictfile) {
+	    $vectoroptions{"dictsfile"} = $opt_dictfile;
+	}
 	if(defined $opt_indexfile) {
 	    $vectoroptions{"indexfile"} = $opt_indexfile;
+	}
+	if(defined $opt_debugfile) {
+	    $vectoroptions{"debugfile"} = $opt_debugfile;
 	}
 	if(defined $opt_matrixfile) {
 	    $vectoroptions{"matrixfile"} = $opt_matrixfile;
@@ -584,18 +596,19 @@ sub loadMeasures {
     }
     
     #  load the module implementing the lesk measure
-    #if($measure eq "lesk") {
-	#use UMLS::Similarity::lesk;
-	#my %leskoptions = ();
+    if($measure eq "lesk") {
+    use UMLS::Similarity::lesk;
+	my %leskoptions = ();
 	
-	#if(defined $opt_stoplist) {
-	#    $leskoptions{"stoplist"} = $opt_stoplist;
-	#}
-	#if(defined $opt_config) {
-	#    $leskoptions{"config"} = $opt_config;
-	#}
-        #$meas = UMLS::Similarity::lesk->new($umls,\%leskoptions);  
-    #}
+	if(defined $opt_stoplist) {
+	    $leskoptions{"stoplist"} = $opt_stoplist;
+	}
+	if(defined $opt_debugfile) {
+	    $leskoptions{"debugfile"} = $opt_debugfile;
+	}
+	
+        $meas = UMLS::Similarity::lesk->new($umls,\%leskoptions);  
+    }
     
     die "Unable to create measure object.\n" if(!$meas);
     ($errCode, $errString) = $meas->getError();
@@ -643,6 +656,109 @@ sub loadUMLS {
     &errorCheck($umls);
 }
 
+#  checks the user input options
+sub checkOptions {
+
+    if( (defined $opt_matrix) && !(defined $opt_infile)) {
+	print STDERR "The file must be specified using the --infile option\n";
+	&minimalUsageNotes();
+	exit;
+    }
+
+    if($opt_measure=~/\b(path|wup|lch|cdist|nam|vector|res|lin|random|jcn|lesk)\b/) {
+	#  good to go
+    }
+    else {
+	print STDERR "The measure ($opt_measure) is not defined for\n";
+	print STDERR "the UMLS-Similarity package at this time.\n\n";
+	&minimalUsageNotes();
+	exit;
+    }   
+	
+    # make certain the db file is specified if the vector measure 
+    # is being used
+    if($opt_measure=~/vector/) {
+	if(! (defined $opt_indexfile)) {
+	    print STDERR "The --indexfile and --matrixfile option must be\n";
+	    print STDERR "specified when using the vector measure.\n\n";
+	    &minimalUsageNotes();
+	    exit;
+	}
+	if(! (defined $opt_matrixfile)) {
+	    print STDERR "The --indexfile and --matrixfile option must be\n";
+	    print STDERR "specified when using the vector measure.\n\n";
+	    &minimalUsageNotes();
+	    exit;
+	}
+    }
+ 
+    if(defined $opt_dictfile) { 
+	if(! ($opt_measure=~/vector/) ) {
+	    print STDERR "The --dictfile option is only available\n";
+	    print STDERR "when using the vector measure.\n\n";
+	    &minimalUsageNotes();
+	    exit;
+	}
+    }    
+
+    if(defined $opt_debugfile) { 
+	if(! ($opt_measure=~/(vector|lesk)/) ) {
+	    print STDERR "The --debugfile option is only available\n";
+	    print STDERR "when using the vector measure.\n\n";
+	    &minimalUsageNotes();
+	    exit;
+	}
+    }    
+   
+    if(defined $opt_matrixfile and defined $opt_indexfile) { 
+	if(! ($opt_measure=~/vector/) ) {
+	    print STDERR "The --matrixfile and --indexfile options are only\n";
+	    print STDERR "available when using the vector measure.\n\n";
+	    &minimalUsageNotes();
+	    exit;
+	}
+    }    
+    
+    if(defined $opt_matrixfile) { 
+	if(! ($opt_measure=~/vector/) ) {
+	    print STDERR "The --matrixfile option is only available\n";
+	    print STDERR "when using the vector measure.\n\n";
+	    &minimalUsageNotes();
+	    exit;
+	}
+    }    
+
+    if(defined $opt_indexfile) { 
+	if(! ($opt_measure=~/vector/) ) {
+	    print STDERR "The --indexfile option is only available\n";
+	    print STDERR "when using the vector measure.\n\n";
+	    &minimalUsageNotes();
+	    exit;
+	}
+    }    
+    
+	    
+	  
+    #  make certain the propagation file is specified if the resnik, 
+    #  jcn, or lin measure is being used
+    if($opt_measure=~/(res|lin|jcn)/) {
+	if(! (defined $opt_propagationfile)) {
+	    print STDERR "The --propagationfile option must be specified \n";
+	    print STDERR "when using the resnik or lin measures.\n\n";
+	    &minimalUsageNotes();
+	    exit;
+	}
+    } 
+
+    if(defined $opt_precision) {
+	if ($opt_precision !~ /^\d+$/) {
+	    print STDERR "Value for switch --precision should be integer >= 0\n";
+	    &minimalUsageNotes();
+	    exit;
+	}
+    }
+}
+
 #  set user input and default options
 sub setOptions {
 
@@ -652,25 +768,34 @@ sub setOptions {
     my $set     = "";
 
     if(defined $opt_propagationfile) {
-	$set        .= "  --propagationfile $opt_propagationfile\n";
+	$set .= "  --propagationfile $opt_propagationfile\n";
     }
 
+    if(defined $opt_debugfile) { 
+	$set .= "  --debugfile $opt_debugfile\n";
+    }
+    if(defined $opt_matrixfile) { 
+	$set .= "  --matrixfile $opt_matrixfile\n";
+    }
+    
+    if(defined $opt_indexfile) { 
+	$set .= "  --indexfile $opt_indexfile\n";
+    }
+    
+    if(defined $opt_dictfile) {
+	$set .= "  --dictfile $opt_dictfile\n";
+    }
+    
     #  check config file
     if(defined $opt_config) {
 	$config = $opt_config;
-	$set   .= "  --config $config\n";
+	$set .= "  --config $config\n";
     }
 
     #  set file
     if(defined $opt_infile) {
 	$infile = $opt_infile;
-	$set   .= "  --infile $opt_infile\n";
-    }
-
-    if( (defined $opt_matrix) && !(defined $opt_infile)) {
-	print STDERR "The file must be specified using the --infile option\n";
-	&minimalUsageNotes();
-	exit;
+	$set .= "  --infile $opt_infile\n";
     }
     
     #  set matrix
@@ -688,12 +813,7 @@ sub setOptions {
 	$precision = 4;
 	$default  .= "  --precision $precision\n";
     }
-
-    if ($precision !~ /^\d+$/) {
-	print STDERR "Value for switch --precision should be integer >= 0. Using 4.\n";
-	$precision = 4;
-	$default  .= "  --precision $precision\n";
-    }
+    
 
     # create the floating point conversion format as required by sprintf!
     $floatformat = join '', '%', '.', $precision, 'f';
@@ -748,50 +868,20 @@ sub setOptions {
 	$default .= "  --measure $measure\n";
     }
 
-    if($measure=~/\b(path|wup|lch|cdist|nam|vector|res|lin|random|jcn)\b/) {
-	#  good to go
+    if(defined $opt_realtime) {
+	$set .= "  --realtime\n";
     }
-    else {
-	print STDERR "The measure ($opt_measure) is not defined for\n";
-	print STDERR "the UMLS-Similarity package at this time.\n\n";
-	&minimalUsageNotes();
-	exit;
-    }   
-
-    # make certain the db file is specified if the vector measure 
-    # is being used
-    if($measure=~/vector/) {
-	if(! (defined $opt_indexfile)) {
-	    print STDERR "The --indexfile and --matrixfile option must be\n";
-	    print STDERR "specified when using the vector measure.\n\n";
-	    &minimalUsageNotes();
-	    exit;
-	}
-	if(! (defined $opt_matrixfile)) {
-	    print STDERR "The --indexfile and --matrixfile option must be\n";
-	    print STDERR "specified when using the vector measure.\n\n";
-	    &minimalUsageNotes();
-	    exit;
-	}
+    
+    if(defined $opt_debug) { 
+	$set .= "  --debug\n";
     }
-	  
-    #  make certain the propagation file is specified if the resnik, 
-    #  jcn, or lin measure is being used
-    if($measure=~/(res|lin|jcn)/) {
-	if(! (defined $opt_propagationfile)) {
-	    print STDERR "The --propagationfile option must be specified \n";
-	    print STDERR "when using the resnik or lin measures.\n\n";
-	    &minimalUsageNotes();
-	    exit;
-	}
-    }
-
+    
     if(defined $opt_verbose) {
 	$set .= "  --verbose\n";
     }
 
     if(defined $opt_info) {
-	$set .= "  --verbose\n";
+	$set .= "  --info\n";
     }
 
     #  check settings
@@ -896,7 +986,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.16 2010/03/12 21:55:52 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.23 2010/04/02 15:31:59 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

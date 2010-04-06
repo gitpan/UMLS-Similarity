@@ -1,0 +1,16 @@
+Default Settings:
+  --precision 4
+
+User Settings:
+  --propagationfile t/options/propagationfile
+  --config t/config/config.snomedct.msh.par-chd
+  --infile t/tests/snomedct.msh.par-chd
+  --measure res
+  --realtime
+
+
+User Options:
+  --propagation t/options/propagationfile
+   --realtime option set
+
+Could not open configuration file: t/config/config.snomedct.msh.par-chd

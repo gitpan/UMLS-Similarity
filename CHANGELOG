@@ -4,6 +4,26 @@ NAME
    Changes from version 0.39 to 0.41
     Modified documentation and cleaned up the package
 
+    Updated the vector.pm that the vector method read the index file and
+    co-occurrence matrix from the command line.
+
+    Added the --dictfile options to read the definitions from a text file.
+    Each line is a definition. def1: the first definition def2: the second
+    definition
+
+    Added the --debugfile options. It can print the definition of each
+    concept and the vector (words) of every word covered by the
+    co-occurrence matrix.
+
+    Added the vector-input.pl. This file generates the index file and
+    co-occurrence matrix file from the bigrams list for vector measure use.
+
+    Added test cases for each of the measures in the t/ directory
+
+    Added a samples/ directory which contains examples of the configuration
+    file, matrix and index files for the vector measure, and propagation
+    file for the information content meausres.
+
    Changes from version 0.37 to 0.39
     Updated the way that the lcs and shortestpath was being done in
     UMLS-Interface. There were some complications.
