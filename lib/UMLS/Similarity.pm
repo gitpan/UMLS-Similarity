@@ -35,7 +35,7 @@
 
 package UMLS::Similarity;
 
-$VERSION = '0.43';
+$VERSION = '0.45';
 
 sub new
 {
@@ -73,13 +73,6 @@ sub new
     bless($self, $className);
     $self->_initialize(shift) if($self->{'error'} < 2);
 
-    # [trace]
-    $self->{'traceString'} = "";
-    $self->{'traceString'} .= "UMLS::Similarity object created:\n";
-    $self->{'traceString'} .= "trace :: ".($self->{'trace'})."\n" if(defined $self->{'trace'});
-    $self->{'traceString'} .= "cache :: ".($self->{'doCache'})."\n" if(defined $self->{'doCache'});
-    # [/trace]
-
     return $self;
 }
 
@@ -92,12 +85,6 @@ sub _initialize
     $self->{'doCache'}      = 1;
     $self->{'pathCache'}    = ();
     $self->{'lcsCache'}     = ();
-    $self->{'traceCache'}   = ();
-    $self->{'cacheQ'}       = ();
-    $self->{'maxCacheSize'} = 1000;
-
-    # Initialize tracing.
-    $self->{'trace'} = 0;
 }
 
 1;
@@ -149,8 +136,8 @@ concepts.
 This package consists of Perl modules along with supporting Perl
 programs that implement the semantic relatedness measures described by
 Leacock & Chodorow (1998), Wu & Palmer (1994), Nguyen and Al-Mubaid 
-(2006), Rada, et. al. 1989, Patwardhan (2003) and a simple path based 
-measure.
+(2006), Rada, et. al. 1989, Patwardhan (2003), Lin (1988), Resnik (1996), 
+Jiang & Conrath (1997), and a simple path based measure.
 
 The Perl modules are designed as objects with methods that take as
 input two concepts. The semantic relatedness of these concepts is 
@@ -190,18 +177,18 @@ utilities.
 
 perl(1), UMLS::Interface
 
-perl(1), UMLS::Similarity::lch(3), UMLS::Similarity::path(3), UMLS::Similarity::wup(3)
+perl(1), UMLS::Similarity::lch(3), UMLS::Similarity::path(3), UMLS::Similarity::wup(3), UMLS::Similarity::nam(3), UMLS::Similarity::cdist(3), UMLS::Similarity::lin(3), UMLS::Similarity::res(3), UMLS::Similarity::jcn(3), UMLS::Similarity::vector(3)
 
 =head1 AUTHORS
     
-  Bridget T McInnes <bthomson at cs.umn.edu>
+  Bridget McInnes <bthomson at cs.umn.edu>
   Siddharth Patwardhan <sidd at cs.utah.edu>
   Serguei Pakhomov <pakh0002 at umn.edu>
   Ted Pedersen <tpederse at d.umn.edu>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2004-2009 by Bridget T McInnes, Siddharth Patwardhan, Serguei Pakhomov and Ted Pedersen
+Copyright 2004-2010 by Bridget McInnes, Siddharth Patwardhan, Serguei Pakhomov and Ted Pedersen
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 

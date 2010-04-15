@@ -1,6 +1,7 @@
 # UMLS::Similarity::vector.pm
 #
 # Module implementing the vector semantic relatedness measure 
+# based on the measure proposed by Patwardhan (2003)
 #
 # Copyright (c) 2009-2010,
 #
@@ -15,6 +16,9 @@
 #
 # Ted Pedersen, University of Minnesota, Duluth
 # tpederse at d.umn.edu
+#
+# Ying Liu, University of Minnesota
+# liux0935 at umn.edu
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -44,16 +48,21 @@ use UMLS::Similarity;
 use vars qw($VERSION);
 $VERSION = '0.01';
 
-my $debug      = 0;
-my $matrixfile = "";
-my $indexfile  = "";
-my $debugfile  = "";
-my $dictfile  = "";
+my $debug        = 0;
+my $defraw_option= 0;
 
-my %index = ();
+my $vectormatrix = "";
+my $vectorindex  = "";
+my $debugfile    = "";
+my $dictfile     = "";
+
+my %index         = ();
 my %reverse_index = ();
-my %position =();
-my %length = ();
+my %position      = ();
+my %length        = ();
+my %dictionary    = ();
+
+local(*DEBUG);
 
 sub new
 {
@@ -68,72 +77,85 @@ sub new
 
     $params = {} if(!defined $params);
 
-    $indexfile  = $params->{'indexfile'};
-    $matrixfile = $params->{'matrixfile'};
-    $config     = $params->{'config'};
-    $dictfile   = $params->{'dictfile'};
-    $debugfile	= $params->{'debugfile'};
+    $vectorindex  = $params->{'vectorindex'};
+    $vectormatrix = $params->{'vectormatrix'};
+    $config       = $params->{'config'};
+    $dictfile     = $params->{'dictfile'};
+    $debugfile	  = $params->{'debugfile'};
+    
+    my $defraw       = $params->{'defraw'};
+    
+    if(defined $defraw) { 
+	$defraw_option = 1;
+    }
 
-    print STDERR "INDEX: $indexfile\n";
-    print STDERR "MATRIX: $matrixfile\n";
-
-#Ying load the dictionary into hash 
-
-if (defined $dictfile)
-{
+    if (defined $dictfile) {
+	
 	open(DICT, "<$dictfile")
-        or die("Error: cannot open file '$dictfile' for output index.\n");
+	    or die("Error: cannot open file '$dictfile' for output index.\n");
+	
+	while(<DICT>) {
+	    chomp;
 
-	my %dictionary = (); 
-	while (my $line = <DICT>)
-	{
-		chomp($line);
-		my @defs = split(':', $line);
-		 
-		$dictionary{$defs[0]} = $defs[1];	
+	    if($_=~/^\s*$/) { next; }
+
+	    my @defs = split/ /;
+	    my $concept = shift @defs; 
+	    my $definition = join (" ", @defs);	
+
+	    $dictionary{$concept} = $definition;	
 	}
 	close DICT;
-}
-#Ying load the dictionary file into hash 
+    }
 
-#Ying load the index into hash 
-	open(INDX, "<$indexfile")
-        or die("Error: cannot open file '$indexfile' for output index.\n");
-
-	while (my $line = <INDX>)
-	{
-        	chomp($line);
-        	my @terms = split(' ', $line);
+    open(INDX, "<$vectorindex")
+        or die("Error: cannot open file '$vectorindex' for output index.\n");
     
-       		$index{$terms[0]} = $terms[1];
-       		$reverse_index{$terms[1]} = $terms[0];
-        	$position{$terms[1]} = $terms[2]; 
-       		$length{$terms[1]} = $terms[3]; 
+    while (my $line = <INDX>)
+    {
+	chomp($line);
+	my @terms = split(' ', $line);
+	
+	$index{$terms[0]} = $terms[1];
+	$reverse_index{$terms[1]} = $terms[0];
+	$position{$terms[1]} = $terms[2]; 
+	$length{$terms[1]} = $terms[3]; 
+    }
+    close INDX;
+
+
+    if(defined $debugfile) { 
+	if(-e $debugfile) {
+	    print "Debug file $debugfile already exists! Overwrite (Y/N)? ";
+	    my $reply = <STDIN>;
+	    chomp $reply;
+	    $reply = uc $reply;
+	    exit 0 if ($reply ne "Y");
 	}
-	close INDX;
-
-#Ying load the index into hash 
-
-
+	
+	open(DEBUG, ">$debugfile") || die "Could not open debug file: $debugfile\n";
+    }
+    
+    
     my $self = {};
     
     # Initialize the error string and the error level.
     $self->{'errorString'} = "";
     $self->{'error'} = 0;
- 
-   # Bless the object.
+    
+    # Bless the object.
     bless($self, $className);
     
     # The backend interface object.
     $self->{'interface'} = $interface;
-
+    
     if(!$interface)
     {
 	$self->{'errorString'} .= "\nError (UMLS::Similarity::vector->new()) - ";
 	$self->{'errorString'} .= "An interface object is required.";
 	$self->{'error'} = 2;
     }
-
+    
     # The backend interface object.
     $self->{'interface'} = $interface;
 
@@ -144,225 +166,221 @@ if (defined $dictfile)
 sub getRelatedness
 {
     my $self = shift;
+    
     return undef if(!defined $self || !ref $self);
+    
     my $concept1 = shift;
     my $concept2 = shift;
     
     my $interface = $self->{'interface'};
-
-
-	my $defs1;
-	my $defs2;
-	my $def1;
-	my $def2;
-	my $d1;
-	my $d2;
-	if (defined $dictfile)
-	{
-		$d1 = lc($dictionary{$concept1});
-		$d2 = lc($dictionary{$concept2});
+        
+    my $d1 = "";
+    my $d2 = "";
+    if (defined $dictfile)
+    {
+	$d1 = $dictionary{$concept1};
+	$d2 = $dictionary{$concept2};
+       
+	if(defined $debugfile) { 
+	    print DEBUG "DEFINITIONS FOR CUI 1: \n";
+	    print DEBUG "1. $d1\n";
+	    print DEBUG "DEFINITIONS FOR CUI 2: \n";
+	    print DEBUG "1. $d2\n";
 	}
-	else
-	{
-    #	$defs1 = $defhandler->getDef($concept1);
-	#	$defs2 = $defhandler->getDef($concept2);
+    }
+    else
+    {
 
-	#   $def1 = join " ", @{$defs1};
-    # 	$def2 = join " ", @{$defs2};
+	my $defs1 = $interface->getExtendedDefinition($concept1);
+	my $defs2 = $interface->getExtendedDefinition($concept2);
+	
+	$d1 = ""; 
 
-
-		$defs1 = $interface->getExtendedDefinition($concept1);
-   		$defs2 = $interface->getExtendedDefinition($concept2);
-
-
-    	$def1 = "";
-    	foreach my $def (@{$defs1}) {
-    	$def=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+)\s*\:\s*(.*?)$/;
-    	$def1 .= $4 . " ";
-    	}
-
-    	$def2 = "";
-    	foreach my $def (@{$defs2}) {
-    	$def=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+)\s*\:\s*(.*?)$/;
-    	$def2 .= $4 . " ";
-    	} 
-
-		$d1 = lc ($def1);
-		$d2 = lc ($def2);	
+	if(defined $debugfile) { print DEBUG "DEFINITIONS FOR CUI 1: \n"; }
+	
+	my $i = 1;
+	foreach my $def (@{$defs1}) {
+	    if(defined $debugfile) { 
+		print DEBUG "$i. $def\n"; 
+		$i++;
+	    }
+	    $def=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+) ([A-Z]+) \s*\:\s*(.*?)$/;
+	    $d1 .= $5 . " "; 
 	}
+	
+	$d2 = ""; 
+	
+	if(defined $debugfile) { print DEBUG "DEFINITIONS FOR CUI 2: \n"; }
 
-    #  get the vector for each word in the def
-
-# Ying: get the vector 
-	open(MATX, "<$matrixfile")
-        or die("Error: cannot open file '$matrixfile' for output index.\n");
-
-	my %vector1 = ();
-	my %vector2 = ();
-	my @defs1 = split(" ", $d1);	
-	my @defs2 = split(" ", $d2);	
-
-	if (defined $debugfile)
-	{
-		open(DEBUG, ">>$debugfile")
-        	or die("Error: cannot open file '$debugfile' for output index.\n");
-		printf DEBUG "$concept1<>$concept2\n";
-		printf DEBUG "def1: $d1\n";
+	my $j = 1;
+	foreach my $def (@{$defs2}) {
+	    if(defined $debugfile) { 
+		print DEBUG "$j. $def\n"; 
+		$j++;
+	    }
+	    $def=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+) ([A-Z]+) \s*\:\s*(.*?)$/;
+	    $d2 .= $5 . " "; 
 	}
-
-
-	my $def1_length = 0 ;
-
+	
+    }
+    
+    #  if the --defraw option is not set clean up the defintions
+    if($defraw_option == 0) { 
+	$d1 = lc($d1); $d2 = lc($d2);
+	
+	$d1=~s/[\.\,\?\/\'\"\;\:\[\]\{\}\!\@\#\$\%\^\&\*\(\)\-\_\+\-\=]//g;
+	$d2=~s/[\.\,\?\/\'\"\;\:\[\]\{\}\!\@\#\$\%\^\&\*\(\)\-\_\+\-\=]//g;
+	
+    }
+    
+    open(MATX, "<$vectormatrix")
+        or die("Error: cannot open file '$vectormatrix' for output index.\n");
+    
+    my %vector1 = ();
+    my %vector2 = ();
+    my @defs1 = split(" ", $d1);	
+    my @defs2 = split(" ", $d2);	
+        
+    my $def1_length = 0 ;
+    
     foreach my $def_term1 (@defs1)
     {
-		if (defined $index{$def_term1})
-		{
-			#$def1_length++;
-
-			my $index_term = $index{$def_term1};
+	if (defined $index{$def_term1})
+	{
+	    my $index_term = $index{$def_term1};
             my $p = $position{$index_term};
-        	my $l = $length{$index_term};
+	    my $l = $length{$index_term};
+	    
+	    if (($p==0) and (!defined $l))
+	    {
+		next;
+	    }
+	    else
+	    {
+		$def1_length++;
+		
+		my ($data, $n);
+		seek MATX, $p, 0;
+		if (($n = read MATX, $data, $l) != 0)
+		{
+		    if (defined $debugfile) {
+			print DEBUG "$def_term1: ";
+		    }
 
-			if (($p==0) and (!defined $l))
+		    chomp($data);
+		    my @word_vector = split (' ', $data);
+		    my $index = shift @word_vector;
+		    $index =~ m/^(\d+)\:$/;
+		    
+		    if ($index_term == $1)
+		    {
+			for (my $z=0; $z<@word_vector; )
 			{
-				next;
+			    $vector1{$word_vector[$z]} += $word_vector[$z+1];
+			    $z += 2;
+			    
+			    if (defined $debugfile) { 
+				if(defined $word_vector[$z]) {
+				    print DEBUG "$reverse_index{$word_vector[$z]} ";
+				}
+			    } 	
+			    
 			}
-			else
-			{
-				$def1_length++;
-
-           		my ($data, $n);
-           		seek MATX, $p, 0;
-           		if (($n = read MATX, $data, $l) != 0)
-           		{
-					if (defined $debugfile)
-					{
-						printf DEBUG "$def_term1: ";
-					}
-					chomp($data);
-			#		print "term1 data: $data\n";
-           			my @word_vector = split (' ', $data);
-               		my $index = shift @word_vector;
-               		$index =~ m/^(\d+)\:$/;
-
-                   	if ($index_term == $1)
-                	{
-                   		for (my $z=0; $z<@word_vector; )
-                   		{
-                   			$vector1{$word_vector[$z]} += $word_vector[$z+1];
-							$z += 2;
-
-							if (defined $debugfile)
-							{
-								printf DEBUG "$reverse_index{$word_vector[$z]} ";
-							} 	
-							
-                   		}
-
-						if (defined $debugfile)
-						{
-							printf DEBUG "\n";
-						} 	
-               		}
-               		else
-               		{
-                       		print "$def_term1 is not a correct word!\n";
-                       		exit;
-              		}
-               }	
-			}
-		}
-    }
-
-	if (defined $debugfile)
-	{
-		printf DEBUG "def1 length: $def1_length\n";
-	} 	
-
-	if (defined $debugfile)
-	{
-		printf DEBUG "def2: $d2\n";
+			
+			if (defined $debugfile) {
+			    print DEBUG "\n";
+			} 	
+		    }
+		    else 
+		    {
+			print STDERR "$def_term1 is not a correct word!\n";
+			exit;
+		    }
+		}	
+	    }
 	}
-
-	my $def2_length = 0 ;
+    }
+    
+    if (defined $debugfile) {
+	print DEBUG "def1 length: $def1_length\n";
+    } 	
+    
+    if (defined $debugfile) {
+	print DEBUG "def2: $d2\n";
+    }
+    
+    my $def2_length = 0 ;
     foreach my $def_term2 (@defs2)
     {
-		if (defined $index{$def_term2})
-		{
-#			$def2_length++;
-
-			#print "has term2: $def_term2\n";
-			my $index_term = $index{$def_term2};
+	if (defined $index{$def_term2})
+	{
+	    my $index_term = $index{$def_term2};
             my $p = $position{$index_term};
             my $l = $length{$index_term};
-
-			if (($p==0) and (!defined $l))
-			{
-				next;
-			}
-			else
-			{
-				$def2_length++;
-
+	    
+	    if (($p==0) and (!defined $l))
+	    {
+		next;
+	    }
+	    else
+	    {
+		$def2_length++;
+		
                 my ($data, $n);
               	seek MATX, $p, 0;
                 if (($n = read MATX, $data, $l) != 0)
                 {
-					if (defined $debugfile)
-					{
-						printf DEBUG "$def_term2: ";
-					}
-					chomp($data);
-                	my @word_vector = split (' ', $data);
-                   	my $index = shift @word_vector;
+		    if (defined $debugfile) {
+			print DEBUG "$def_term2: ";
+		    }
+		    chomp($data);
+		    my @word_vector = split (' ', $data);
+		    my $index = shift @word_vector;
                     $index =~ m/^(\d+)\:$/;
-
+		    
                     if ($index_term == $1)
-                   	{
+		    {
                     	for (my $z=0; $z<@word_vector; )
                         {
-                       		$vector2{$word_vector[$z]} += $word_vector[$z+1];
-							$z += 2;
-
-							if (defined $debugfile)
-							{
-								printf DEBUG "$reverse_index{$word_vector[$z]} ";
-							} 	
-							
+			    $vector2{$word_vector[$z]} += $word_vector[$z+1];
+			    $z += 2;
+			    
+			    if (defined $debugfile) {
+				if(defined $wordvector[$z]) {
+				    print DEBUG "$reverse_index{$word_vector[$z]} ";
+				}
+			    } 	
+			    
                        	}
-
-						if (defined $debugfile)
-						{
-							printf DEBUG "\n";
-						} 	
+			
+			if (defined $debugfile) {
+			    print DEBUG "\n";
+			} 	
                     }
                     else
                     {
-                   		print "$def_term2 is not a correct word!\n";
-                   		exit;
+			print STDERR "$def_term2 is not a correct word!\n";
+			exit;
                     }
                 }
-			}
-		}
+	    }
 	}
-
-
-	if (defined $debugfile)
-	{
-		printf DEBUG "def2_length: $def2_length\n";
-	} 	
-
-
+    }
+    
+    
+    if (defined $debugfile) {
+	print DEBUG "def2_length: $def2_length\n";
+    } 	
+    
+    
     #  normalize
     my $vec1 = &norm(\%vector1);
     my $vec2 = &norm(\%vector2);
-
+    
     #  cosine
     my $score = &_inner($vec1, $vec2);
-
+    
     return $score;
-
-
 }
 
 # Subroutine to normalize a vector.
@@ -429,18 +447,6 @@ sub getError
     return ($error, $errorString);
 }
 
-# Function to return the current trace string
-sub getTraceString
-{
-    my $self = shift;
-    return "" if(!defined $self || !ref $self);
-    my $returnString = $self->{'traceString'};
-    $self->{'traceString'} = "" if($self->{'trace'});
-    $returnString =~ s/\n+$/\n/;
-    return $returnString;
-}
-
-
 1;
 __END__
 
@@ -455,14 +461,19 @@ method described by Resnik 1995.
   use UMLS::Interface;
   use UMLS::Similarity::vector;
 
-  my $option_hash{"propogation"} = $propogation_file;
+  my $vectormatrix = "samples/vectormatrix";
+  my $vectorindex  = "samples/vectorindex";
 
-  my $umls = UMLS::Interface->new(\%option_hash); 
+
+  my $umls = UMLS::Interface->new(); 
   die "Unable to create UMLS::Interface object.\n" if(!$umls);
   ($errCode, $errString) = $umls->getError();
   die "$errString\n" if($errCode);
 
-  my $vector = UMLS::Similarity::vector->new($umls);
+  $vectoroptions{"vectormatrix"} = $vectormatrix;
+  $vectoroptions{"vectorindex"} = $vectorindex;
+  
+  my $vector = UMLS::Similarity::vector->new($umls, \%vectoroptions);
   die "Unable to create measure object.\n" if(!$vector);
   
   my $cui1 = "C0005767";
@@ -478,6 +489,7 @@ method described by Resnik 1995.
 
   print "The similarity between $cui1 ($term1) and $cui2 ($term2) is $value\n";
 
+
 =head1 DESCRIPTION
 
 This module computes the semantic relatedness of two concepts in 
@@ -492,9 +504,6 @@ that expose the following methods:
   new()
   getRelatedness()
   getError()
-  getTraceString()
-
-See the UMLS::Similarity(3) documentation for details of these methods.
 
 =head1 TYPICAL USAGE EXAMPLES
 
@@ -521,13 +530,6 @@ the following piece of code:
 
    $relatedness = $measure->getRelatedness('C0005767', 'C0007634');
   
-To get traces for the above computation:
-
-   print $measure->getTraceString();
-
-However, traces must be enabled using configuration files. By default
-traces are turned off.
-
 =head1 SEE ALSO
 
 perl(1), UMLS::Interface
@@ -557,11 +559,12 @@ perl(1), UMLS::Similarity(3)
   Siddharth Patwardhan <sidd at cs.utah.edu>
   Serguei Pakhomov <pakh0002 at umn.edu>
   Ted Pedersen <tpederse at d.umn.edu>
+  Ying Liu <liux0935 at umn.edu> 
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2004-2009 by Bridget T McInnes, Siddharth Patwardhan, 
-Serguei Pakhomov and Ted Pedersen
+Copyright 2004-2010 by Bridget T McInnes, Siddharth Patwardhan, 
+Serguei Pakhomov, Ying Liu and Ted Pedersen
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 

@@ -1,0 +1,26 @@
+Default Settings:
+  --precision 4
+
+User Settings:
+  --config t/config/config.fma.par-chd
+  --infile t/tests/measures/fma.par-chd
+  --measure nam
+  --realtime
+
+
+User Options:
+   --realtime option set
+
+UMLS-Interface Configuration Information
+  Sources:
+    FMA
+  Relations:
+    CHD
+    PAR
+  Database: 
+    umls (MMSYS-2009AA-20090325)
+
+
+7.1898<>hand(C0018563)<>skull(C0037303)
+6.6147<>skull(C0037303)<>neck(C0027530)
+6.7415<>hand(C0018563)<>neck(C0027530)

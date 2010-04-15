@@ -89,7 +89,8 @@ sub getRelatedness
 
     my $concept1 = shift;
     my $concept2 = shift;
-
+    
+    #  return a random number between zero and one
     my $score = rand();
     
     return $score
@@ -115,19 +116,6 @@ sub getError
 
     return ($error, $errorString);
 }
-
-# Function to return the current trace string
-sub getTraceString
-{
-    my $self = shift;
-    return "" if(!defined $self || !ref $self);
-    my $returnString = $self->{'traceString'};
-    $self->{'traceString'} = "" if($self->{'trace'});
-    $returnString =~ s/\n+$/\n/;
-    return $returnString;
-}
-
-
 1;
 __END__
 
@@ -176,9 +164,6 @@ that expose the following methods:
   new()
   getRelatedness()
   getError()
-  getTraceString()
-
-See the UMLS::Similarity(3) documentation for details of these methods.
 
 =head1 TYPICAL USAGE EXAMPLES
 
@@ -205,13 +190,6 @@ the following piece of code:
 
    $relatedness = $measure->getRelatedness('C0005767', 'C0007634');
   
-To get traces for the above computation:
-
-   print $measure->getTraceString();
-
-However, traces must be enabled using configuration files. By default
-traces are turned off.
-
 =head1 SEE ALSO
 
 perl(1), UMLS::Interface

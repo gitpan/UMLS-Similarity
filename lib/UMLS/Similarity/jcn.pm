@@ -92,7 +92,8 @@ sub getRelatedness
     
     my $interface = $self->{'interface'};
     
-    # Check for the possibility of the root node having 0 frequency count
+    # Check for the possibility of the root node having 0 
+    # frequency count
     my $max_score = 0;
     my $root = $interface->root();
     my $root_freq = $interface->getFreq($root);
@@ -105,28 +106,33 @@ sub getRelatedness
 	$self->{error} = ($self->{error} < 1) ? 1 : $self->{error};
 	return 0;
     }
-    
-    #  Check to make certain that the IC for each of the concepts is 
-    #  greater than zero otherwise return zero
+
+    #  get the IC of each of the concepts
     my $ic1 = $interface->getIC($concept1);
     my $ic2 = $interface->getIC($concept2);
-
-    if($ic1 <= 0 or $ic2 <= 0) { return 0; }
     
+    #  Check to make certain that the IC for each of the
+    #  concepts is greater than zero otherwise return zero
+    if($ic1 <= 0 or $ic2 <= 0) { return 0; }
+
+    #  get the lcses of the concepts
     my @lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
     
+    #  get the IC of the lcs witht he lowest IC 
     my $iclcs = 0;
     foreach my $lcs (@lcses) {
 	my $value = $interface->getIC($lcs);
 	if($iclcs < $value) { $iclcs = $value; }
     }
     
+    #  if this is zero just return zero
     if($iclcs == 0) { return 0; }
 
+    #  otherwise calculate the distance
     my $distance = $ic1 + $ic2 - (2 * $iclcs);
     
+    #  calculate the jcn
     my $score = 0;
-
     if ($distance == 0) {
 	if ($root_freq > 0.01) {
 	    $score = 1 / -log (($root_freq - 0.01) / $root_freq);
@@ -165,33 +171,24 @@ sub getError
     return ($error, $errorString);
 }
 
-# Function to return the current trace string
-sub getTraceString
-{
-    my $self = shift;
-    return "" if(!defined $self || !ref $self);
-    my $returnString = $self->{'traceString'};
-    $self->{'traceString'} = "" if($self->{'trace'});
-    $returnString =~ s/\n+$/\n/;
-    return $returnString;
-}
-
-
 1;
 __END__
 
 =head1 NAME
 
-UMLS::Similarity::jcn - Perl module for computing semantic relatedness
-of concepts in the Unified Medical Language System (UMLS) using the 
-method described by Jiang and Conrath 1997.
+UMLS::Similarity::jcn - Perl module for computing the semantic 
+relatednessof concepts in the Unified Medical Language System 
+(UMLS) using the method described by Jiang and Conrath 1997.
 
 =head1 SYNOPSIS
 
   use UMLS::Interface;
   use UMLS::Similarity::jcn;
 
-  my $option_hash{"propogation"} = $propogation_file;
+  my $propagation_file = "samples/icpropagation";
+
+  my %option_hash = ();
+  $option_hash{"propagation"} = $propagation_file;
 
   my $umls = UMLS::Interface->new(\%option_hash); 
   die "Unable to create UMLS::Interface object.\n" if(!$umls);
@@ -235,9 +232,6 @@ that expose the following methods:
   new()
   getRelatedness()
   getError()
-  getTraceString()
-
-See the UMLS::Similarity(3) documentation for details of these methods.
 
 =head1 TYPICAL USAGE EXAMPLES
 
@@ -264,12 +258,6 @@ the following piece of code:
 
    $relatedness = $measure->getRelatedness('C0005767', 'C0007634');
   
-To get traces for the above computation:
-
-   print $measure->getTraceString();
-
-However, traces must be enabled using configuration files. By default
-traces are turned off.
 
 =head1 SEE ALSO
 
@@ -303,7 +291,7 @@ perl(1), UMLS::Similarity(3)
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2004-2009 by Bridget T McInnes, Siddharth Patwardhan, 
+Copyright 2004-2010 by Bridget T McInnes, Siddharth Patwardhan, 
 Serguei Pakhomov and Ted Pedersen
 
 This library is free software; you can redistribute it and/or modify

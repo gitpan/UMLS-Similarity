@@ -1,9 +1,9 @@
 # UMLS::Similarity::cdist.pm
 #
 # Module implementing the simple edge counting measure of 
-# semantic relatedness.
+# semantic relatedness proposed by Rada, et. al. (1989).
 #
-# Copyright (c) 2004-2009,
+# Copyright (c) 2004-2010,
 #
 # Bridget T McInnes, University of Minnesota, Twin Cities
 # bthomson at cs.umn.edu
@@ -87,19 +87,22 @@ sub getRelatedness
     return undef if(!defined $self || !ref $self);
     my $concept1 = shift;
     my $concept2 = shift;
-    
+
+    #  set up the interface
     my $interface = $self->{'interface'};
     
+    #  get the shortest path between the concepts
     my (@paths) = $interface->findShortestPath($concept1, $concept2);
     
+    #  if there are no paths return nothing
     if($#paths < 0) { return; }
     
+    #  otherwise get the path length
     my $pathstring = shift @paths;
-
     my @path = split/\s+/, $pathstring;
 
+    #  and return it
     if($#path < 0 ) { return 0; }
-
     return $#path;
 }
 
@@ -123,26 +126,14 @@ sub getError
     
     return ($error, $errorString);
 }
-
-# Function to return the current trace string
-sub getTraceString
-{
-    my $self = shift;
-    return "" if(!defined $self || !ref $self);
-    my $returnString = $self->{'traceString'};
-    $self->{'traceString'} = "" if($self->{'trace'});
-    $returnString =~ s/\n+$/\n/;
-    return $returnString;
-}
-
-
 1;
 __END__
 
 =head1 NAME
 
 UMLS::Similarity::cdist - Perl module for computing semantic relatedness
-of concepts in the UMLS by simple edge counting. 
+of concepts in the UMLS by simple edge counting proposed by Rada, et. al. 
+(1989).
 
 =head1 SYNOPSIS
 
@@ -176,10 +167,6 @@ If the concepts being compared are the same, then the resulting
 similarity score will be 1.  For example, the score for C0005767 
 and C0005767 is 1.
 
-Due to multiple inheritance, it is possible for there to be a tie 
-for the shortest path between synsets.  If such a tie occurs, then 
-all of the paths that are tied will be printed to the trace string.
-
 The relatedness value returned by C<getRelatedness()> is the 
 number of edges between the two concepts.
 
@@ -190,10 +177,6 @@ classes that expose the following methods:
   new()
   getRelatedness()
   getError()
-  getTraceString()
-
-See the UMLS::Similarity(3) documentation for details of these methods.
-
 
 =head1 TYPICAL USAGE EXAMPLES
 
@@ -220,13 +203,6 @@ the following piece of code:
 
    $relatedness = $measure->getRelatedness('C0005767', 'C0007634');
     
-To get traces for the above computation:
-
-   print $measure->getTraceString();
-
-However, traces must be enabled using configuration files. By default
-traces are turned off.
-
 =head1 SEE ALSO
 
 perl(1), UMLS::Interface
@@ -259,7 +235,7 @@ perl(1), UMLS::Similarity(3)
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2004-2009 by Bridget T McInnes, Siddharth Patwardhan, 
+Copyright 2004-2010 by Bridget T McInnes, Siddharth Patwardhan, 
 Serguei Pakhomov and Ted Pedersen
 
 This library is free software; you can redistribute it and/or modify

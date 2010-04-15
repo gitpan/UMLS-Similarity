@@ -1,0 +1,26 @@
+Default Settings:
+  --precision 4
+
+User Settings:
+  --config t/config/config.msh.par-chd
+  --infile t/tests/measures/msh.par-chd
+  --measure nam
+  --realtime
+
+
+User Options:
+   --realtime option set
+
+UMLS-Interface Configuration Information
+  Sources:
+    MSH
+  Relations:
+    CHD
+    PAR
+  Database: 
+    umls (MMSYS-2009AA-20090325)
+
+
+6.9307<>hand(C0018563)<>skull(C0037303)
+6.5236<>skull(C0037303)<>neck(C0027530)
+6.4263<>neck(C0027530)<>toe(C0040357)

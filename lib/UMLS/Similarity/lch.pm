@@ -3,7 +3,7 @@
 # Module implementing the semantic relatedness measure described 
 # by Leacock and Chodorow (1998).
 #
-# Copyright (c) 2004-2009,
+# Copyright (c) 2004-2010,
 #
 # Bridget T McInnes, University of Minnesota, Twin Cities
 # bthomson at cs.umn.edu
@@ -88,21 +88,26 @@ sub getRelatedness
     my $concept1 = shift;
     my $concept2 = shift;
 
+    #  get the interface
     my $interface = $self->{'interface'};
 
+    #  find the shortest path
     my (@paths) = $interface->findShortestPath($concept1, $concept2);
 
+    #  if there are no paths return nothing
     if($#paths < 0) { return; }
 
+    #  get a path and calculate the number of nodes
     my $pathstring = shift @paths;
-    my @path = split/\s+/, $pathstring;
-
+    my @path = split/\s+/, $pathstring;    
     my $length = $#path + 1;
 
+    #  get the depth of the taxonomy
     my $depth = $interface->depth();
 
     my $score = 0;
 
+    #  calculate lch
     if($length > 0) { $score = log ( 2 * $depth / $length ); }
     
     return $score
@@ -128,18 +133,6 @@ sub getError
 
     return ($error, $errorString);
 }
-
-# Function to return the current trace string
-sub getTraceString
-{
-    my $self = shift;
-    return "" if(!defined $self || !ref $self);
-    my $returnString = $self->{'traceString'};
-    $self->{'traceString'} = "" if($self->{'trace'});
-    $returnString =~ s/\n+$/\n/;
-    return $returnString;
-}
-
 
 1;
 __END__
@@ -192,9 +185,6 @@ that expose the following methods:
   new()
   getRelatedness()
   getError()
-  getTraceString()
-
-See the UMLS::Similarity(3) documentation for details of these methods.
 
 =head1 TYPICAL USAGE EXAMPLES
 
@@ -221,13 +211,6 @@ the following piece of code:
 
    $relatedness = $measure->getRelatedness('C0005767', 'C0007634');
   
-To get traces for the above computation:
-
-   print $measure->getTraceString();
-
-However, traces must be enabled using configuration files. By default
-traces are turned off.
-
 =head1 SEE ALSO
 
 perl(1), UMLS::Interface
@@ -260,7 +243,7 @@ perl(1), UMLS::Similarity(3)
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2004-2009 by Bridget T McInnes, Siddharth Patwardhan, 
+Copyright 2004-2010 by Bridget T McInnes, Siddharth Patwardhan, 
 Serguei Pakhomov and Ted Pedersen
 
 This library is free software; you can redistribute it and/or modify

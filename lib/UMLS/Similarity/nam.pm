@@ -3,7 +3,7 @@
 # Module implementing the semantic similarity measure described 
 # by Nguyen and Al-Mubaid (2006)
 #
-# Copyright (c) 2004-2009,
+# Copyright (c) 2004-2010,
 #
 # Bridget T McInnes, University of Minnesota, Twin Cities
 # bthomson at cs.umn.edu
@@ -89,8 +89,10 @@ sub getRelatedness
     my $concept1 = shift;
     my $concept2 = shift;
     
+    #  set up the interface
     my $interface = $self->{'interface'};
     
+    #  get the minimum depth of the two concepts
     my $c1_depth  = $interface->findMinimumDepth($concept1);
     my $c2_depth  = $interface->findMinimumDepth($concept2);
 
@@ -98,8 +100,10 @@ sub getRelatedness
 	return 0;
     }
     
+    #  find the lcses
     my @lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
     
+    #  get the minimum depth of the lowest lcs
     my $lcs_depth = -1;
     foreach my $l (@lcses) {
 	my $ldepth = $interface->findMinimumDepth($l);
@@ -107,17 +111,17 @@ sub getRelatedness
 	elsif($ldepth < $lcs_depth) { $lcs_depth = $ldepth; }
     }
     
+    #  if the lcs depth is zero just return zero
     if($lcs_depth < 0) { return 0; }
 
-    
+    #  find the shortest path between the concepts
     my @paths = $interface->findShortestPath($concept1, $concept2);
     my $pathstring = shift @paths;
     my @path = split/\s+/, $pathstring;
 
+    #  calculate nam
     my $l = $#path;
-
     my $D = $interface->depth();
-
     my $score = log( $l * ($D-$lcs_depth) + 2 ) / log(2);    
     
     
@@ -144,18 +148,6 @@ sub getError
 
     return ($error, $errorString);
 }
-
-# Function to return the current trace string
-sub getTraceString
-{
-    my $self = shift;
-    return "" if(!defined $self || !ref $self);
-    my $returnString = $self->{'traceString'};
-    $self->{'traceString'} = "" if($self->{'trace'});
-    $returnString =~ s/\n+$/\n/;
-    return $returnString;
-}
-
 
 1;
 __END__
@@ -207,9 +199,6 @@ that expose the following methods:
   new()
   getRelatedness()
   getError()
-  getTraceString()
-
-See the UMLS::Similarity(3) documentation for details of these methods.
 
 =head1 TYPICAL USAGE EXAMPLES
 
@@ -236,13 +225,6 @@ the following piece of code:
 
    $relatedness = $measure->getRelatedness('C0005767', 'C0007634');
   
-To get traces for the above computation:
-
-   print $measure->getTraceString();
-
-However, traces must be enabled using configuration files. By default
-traces are turned off.
-
 =head1 SEE ALSO
 
 perl(1), UMLS::Interface
@@ -275,7 +257,7 @@ perl(1), UMLS::Similarity(3)
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2004-2009 by Bridget T McInnes, Siddharth Patwardhan, 
+Copyright 2004-2010 by Bridget T McInnes, Siddharth Patwardhan, 
 Serguei Pakhomov and Ted Pedersen
 
 This library is free software; you can redistribute it and/or modify

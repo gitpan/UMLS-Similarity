@@ -29,7 +29,11 @@ print "ok 1\n";
 use strict;
 use warnings;
 
-my $umls = UMLS::Interface->new(); 
+my %option_hash = ();
+$option_hash{"t"} = 1;
+
+my $umls = UMLS::Interface->new(\%option_hash)
+; 
 if(!$umls) { 
     print "not ok 2\n";
 }

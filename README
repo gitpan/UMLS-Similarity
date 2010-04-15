@@ -68,15 +68,19 @@
         programs. These utilities use the modules or provide some supporting
         functionality.
 
-          umls-similarity.pl -- returns the semantic similarity of two 
-                                terms or UMLS CUIs given a specified 
-                                measure (and view of the UMLS).
+          umls-similarity.pl         -- returns the semantic similarity of two 
+                                        terms or UMLS CUIs given a specified 
+                                        measure (and view of the UMLS).
 
-          spearman.pl        -- calculates the Spearman Rank Correlation
-                                between two files
+          spearman.pl                -- calculates the Spearman Rank 
+                                        Correlation between two files
 
-          vector-input.pl    -- creates the matrix and index files required 
-                                for the vector measure
+          vector-input.pl            -- creates the matrix and index files 
+                                        required for the vector measure
+
+          create-propagation-file.pl -- create the information content file
+                                        required for the information content 
+                                        measures
 
   INSTALL
         To install these modules run:

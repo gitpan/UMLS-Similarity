@@ -3,7 +3,7 @@
 # Module implementing the simple edge counting measure of 
 # semantic relatedness.
 #
-# Copyright (c) 2004-2009,
+# Copyright (c) 2004-2010,
 #
 # Bridget T McInnes, University of Minnesota, Twin Cities
 # bthomson at cs.umn.edu
@@ -88,19 +88,29 @@ sub getRelatedness
     my $concept1 = shift;
     my $concept2 = shift;
     
+    #  get the interface
     my $interface = $self->{'interface'};
+
     
+    #  find the shortest paths
     my @paths = $interface->findShortestPath($concept1, $concept2);
     
+    #  if concept 1 and 2 are the same just return 1
     if($concept1 eq $concept2) { return 1; }
 
+    #  find the path with the shortest length
     my $length = 0;
     foreach my $pathstring (@paths) {
 	my @path = split/\s/, $pathstring;
 	if($#path > $length) { $length = $#path + 1; }
 
     }
+
+    #  if length is less than zero (this shouldn't happen) 
+    #  return a score of zero
     if($length <= 0) { return 0; }
+
+    #  otherwise return the reciprocal of the length
     return (1/$length);
 }
 
@@ -124,18 +134,6 @@ sub getError
     
     return ($error, $errorString);
 }
-
-# Function to return the current trace string
-sub getTraceString
-{
-    my $self = shift;
-    return "" if(!defined $self || !ref $self);
-    my $returnString = $self->{'traceString'};
-    $self->{'traceString'} = "" if($self->{'trace'});
-    $returnString =~ s/\n+$/\n/;
-    return $returnString;
-}
-
 
 1;
 __END__
@@ -177,10 +175,6 @@ If the concepts being compared are the same, then the resulting
 similarity score will be 1.  For example, the score for C0005767 
 and C0005767 is 1.
 
-Due to multiple inheritance, it is possible for there to be a tie 
-for the shortest path between synsets.  If such a tie occurs, then 
-all of the paths that are tied will be printed to the trace string.
-
 The relatedness value returned by C<getRelatedness()> is the 
 multiplicative inverse of the path length between the two synsets 
 (1/path_length).  This has a slightly subtle effect: it shifts 
@@ -220,10 +214,6 @@ classes that expose the following methods:
   new()
   getRelatedness()
   getError()
-  getTraceString()
-
-See the UMLS::Similarity(3) documentation for details of these methods.
-
 
 =head1 TYPICAL USAGE EXAMPLES
 
@@ -250,13 +240,6 @@ the following piece of code:
 
    $relatedness = $measure->getRelatedness('C0005767', 'C0007634');
     
-To get traces for the above computation:
-
-   print $measure->getTraceString();
-
-However, traces must be enabled using configuration files. By default
-traces are turned off.
-
 =head1 SEE ALSO
 
 perl(1), UMLS::Interface

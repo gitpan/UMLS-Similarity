@@ -5,7 +5,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 12;
+use Test::More tests => 10;
 
 BEGIN {use_ok 'UMLS::Interface'}
 BEGIN{ use_ok ('File::Spec') }
@@ -16,7 +16,7 @@ my %option_hash = ();
 
 #  set the option hash
 $option_hash{"realtime"} = 1;
-#$option_hash{"debug"} = 1;
+$option_hash{"t"} = 1;
 
 #  connect to the UMLS-Interface
 my $umls = UMLS::Interface->new(\%option_hash);
@@ -39,11 +39,11 @@ if(! (-e $keydir) ) {
 }
 
 #  set up for propagation
-my $matrix = File::Spec->catfile('t','options', 'matrix');
-my $index  = File::Spec->catfile('t','options', 'index');
+my $matrix = File::Spec->catfile('t','options', 'vectormatrix');
+my $index  = File::Spec->catfile('t','options', 'vectorindex');
 
 #  get the tests
-my $testdir = File::Spec->catdir('t','tests');
+my $testdir = File::Spec->catdir('t','tests','measures');
 opendir(DIR, $testdir) || die "Could not open directory $testdir\n";
 my @testfiles = grep { $_ ne '.' and $_ ne '..' and $_ ne "CVS"} readdir DIR;
 
@@ -57,11 +57,11 @@ foreach my $file (@testfiles) {
     my $configfile = "config.$file";		      
     my $keyfile = "$measure.$file";
     
-    my $infile  = File::Spec->catfile('t','tests', $file);
+    my $infile  = File::Spec->catfile('t','tests', 'measures', $file);
     my $config  = File::Spec->catfile('t','config', $configfile);
     my $key     = File::Spec->catfile('t', 'key', $version, $keyfile);
     
-    my $output = `$perl $util_prg --config $config --realtime --matrixfile $matrix --indexfile $index --realtime --measure $measure --infile $infile 2>&1`;
+    my $output = `$perl $util_prg --config $config --realtime --vectormatrix $matrix --vectorindex $index --realtime --measure $measure --infile $infile 2>&1`;
     
     if(-e $key) {
 	ok (open KEY, $key) or diag "Could not open $key: $!";

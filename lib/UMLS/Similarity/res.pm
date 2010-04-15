@@ -87,16 +87,21 @@ sub getRelatedness
     return undef if(!defined $self || !ref $self);
     my $concept1 = shift;
     my $concept2 = shift;
-    
+
+    #  set up the interface
     my $interface = $self->{'interface'};
 
+    #  get the lcses of the concepts
     my @lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
     
+    #  get the ic of the lcs with the lowest ic score
     my $score = 0;
     foreach my $lcs (@lcses) {
 	my $value = $interface->getIC($lcs);
 	if($score < $value) { $score = $value; }
     }
+    
+    #  return that score
     return $score
 }
 
@@ -121,33 +126,24 @@ sub getError
     return ($error, $errorString);
 }
 
-# Function to return the current trace string
-sub getTraceString
-{
-    my $self = shift;
-    return "" if(!defined $self || !ref $self);
-    my $returnString = $self->{'traceString'};
-    $self->{'traceString'} = "" if($self->{'trace'});
-    $returnString =~ s/\n+$/\n/;
-    return $returnString;
-}
-
-
 1;
 __END__
 
 =head1 NAME
 
-UMLS::Similarity::res - Perl module for computing semantic relatedness
-of concepts in the Unified Medical Language System (UMLS) using the 
-method described by Resnik 1995.
+UMLS::Similarity::res - Perl module for computing the semantic 
+relatednessof concepts in the Unified Medical Language System 
+(UMLS) using the method described by Resnik 1995.
 
 =head1 SYNOPSIS
 
   use UMLS::Interface;
   use UMLS::Similarity::res;
 
-  my $option_hash{"propogation"} = $propogation_file;
+  my $propagation_file = "samples/icpropagation";
+
+  my %option_hash = ();
+  $option_hash{"propagation"} = $propagation_file;
 
   my $umls = UMLS::Interface->new(\%option_hash); 
   die "Unable to create UMLS::Interface object.\n" if(!$umls);
@@ -184,9 +180,6 @@ that expose the following methods:
   new()
   getRelatedness()
   getError()
-  getTraceString()
-
-See the UMLS::Similarity(3) documentation for details of these methods.
 
 =head1 TYPICAL USAGE EXAMPLES
 
@@ -213,13 +206,6 @@ the following piece of code:
 
    $relatedness = $measure->getRelatedness('C0005767', 'C0007634');
   
-To get traces for the above computation:
-
-   print $measure->getTraceString();
-
-However, traces must be enabled using configuration files. By default
-traces are turned off.
-
 =head1 SEE ALSO
 
 perl(1), UMLS::Interface
@@ -252,7 +238,7 @@ perl(1), UMLS::Similarity(3)
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2004-2009 by Bridget T McInnes, Siddharth Patwardhan, 
+Copyright 2004-2010 by Bridget T McInnes, Siddharth Patwardhan, 
 Serguei Pakhomov and Ted Pedersen
 
 This library is free software; you can redistribute it and/or modify

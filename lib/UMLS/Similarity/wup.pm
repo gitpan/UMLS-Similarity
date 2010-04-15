@@ -3,7 +3,7 @@
 # Module implementing the semantic relatedness measure described 
 # by Wu and Palmer (1994)
 #
-# Copyright (c) 2004-2009,
+# Copyright (c) 2004-2010,
 #
 # Bridget T McInnes, University of Minnesota, Twin Cities
 # bthomson at cs.umn.edu
@@ -88,30 +88,38 @@ sub getRelatedness
 
     my $concept1 = shift;
     my $concept2 = shift;
-    
+
+    #  get the interface
     my $interface = $self->{'interface'};
     
+    #  find the lcses of the two concepts
     my @lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
     
+    #  if there aren't any return zero
     if($#lcses < 0) { return 0; }
     
+    #  get the depth of the lowest lcs
     my $lcs_depth = 0; my $lcs = "";
     foreach my $l (@lcses) {
 	my $depth  = $interface->findMaximumDepth($l);
 	if(defined $depth and $lcs_depth < $depth) { $lcs_depth = $depth; $lcs = $l}
     }
 
+    #  find the shortestpath between the concept and the lcses
     my @c1_paths = $interface->findShortestPath($lcs, $concept1);
     my @c2_paths = $interface->findShortestPath($lcs, $concept2);
 
     my @c1_path = split/\s+/, $c1_paths[0];
     my @c2_path = split/\s+/, $c2_paths[0];
     
+    #  get the depth of the concepts taking that path
     my $c1_depth = $lcs_depth + $#c1_path;
     my $c2_depth = $lcs_depth + $#c2_path;
     
+    #  if the depth of one of them is less than zero return zero
     if($c1_depth < 0 or $c2_depth < 0) { return 0; }
     
+    #  otherwise calcualte wup
     my $score = (2 * $lcs_depth) / ($c1_depth + $c2_depth);   
     
     return $score;
@@ -144,19 +152,6 @@ sub getError
 
     return ($error, $errorString);
 }
-
-# Function to return the current trace string
-sub getTraceString
-{
-    my $self = shift;
-    return "" if(!defined $self || !ref $self);
-    my $returnString = $self->{'traceString'};
-    $self->{'traceString'} = "" if($self->{'trace'});
-    $returnString =~ s/\n+$/\n/;
-    return $returnString;
-}
-
-
 1;
 __END__
 
@@ -208,9 +203,6 @@ that expose the following methods:
   new()
   getRelatedness()
   getError()
-  getTraceString()
-
-See the UMLS::Similarity(3) documentation for details of these methods.
 
 =head1 TYPICAL USAGE EXAMPLES
 
@@ -236,13 +228,6 @@ the concept 'cell' (C0007634) using the measure, we would write
 the following piece of code:
 
    $relatedness = $measure->getRelatedness('C0005767', 'C0007634');
-  
-To get traces for the above computation:
-
-   print $measure->getTraceString();
-
-However, traces must be enabled using configuration files. By default
-traces are turned off.
 
 =head1 SEE ALSO
 
@@ -276,7 +261,7 @@ perl(1), UMLS::Similarity(3)
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2004-2009 by Bridget T McInnes, Siddharth Patwardhan, 
+Copyright 2004-2010 by Bridget T McInnes, Siddharth Patwardhan, 
 Serguei Pakhomov and Ted Pedersen
 
 This library is free software; you can redistribute it and/or modify

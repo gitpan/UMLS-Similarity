@@ -1,7 +1,34 @@
 NAME
     UMLS::Similarity CHANGES
 
-   Changes from version 0.39 to 0.41
+   Changes from version 0.43 to 0.45
+    1. Fixed some small errors that went out due to lesk
+
+    2. Updated pod documentation
+
+    3. Added README to samples/
+
+    4. Renamed --matrixfile to --vectormatrix Renamed --indexfile to
+    --vectorindex Renamed --propagationfile to --icpropagation
+
+    5. Added the --defraw option for lesk and vector. This will stop any
+    cleaning that is done to the definition prior to use.
+
+    6. Created a create-propagation-file.pl program to create a file
+    containing the information content of the CUIs in a specified set of
+    sources to be used by umls-similarity when using the information content
+    semantic similarity measures.
+
+    7. Created testing file vector-input.t add bigrams input file under
+    t/tests/utils add index and matrix files under t/key/static
+
+    8. Added the --defraw option to vector.pm. If this option is set it will
+    NOT clean the definition otherwise the words in the definition are
+    cleaned up (ie remove punctuation, lower case, ...)
+
+    9. Created testing file create-propagation-file.t
+
+   Changes from version 0.41 to 0.43
     Modified documentation and cleaned up the package
 
     Updated the vector.pm that the vector method read the index file and
@@ -23,6 +50,9 @@ NAME
     Added a samples/ directory which contains examples of the configuration
     file, matrix and index files for the vector measure, and propagation
     file for the information content meausres.
+
+   Changes from version 0.39 to 0.41
+        Modified documentation and cleaned up the package
 
    Changes from version 0.37 to 0.39
     Updated the way that the lcs and shortestpath was being done in

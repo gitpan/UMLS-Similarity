@@ -1,0 +1,28 @@
+Default Settings:
+  --precision 4
+
+User Settings:
+  --icpropagation t/options/msh.par-chd.icpropagation
+  --config t/config/config.msh.par-chd
+  --infile t/tests/measures/msh.par-chd
+  --measure jcn
+  --realtime
+
+
+User Options:
+  --propagation t/options/msh.par-chd.icpropagation
+   --realtime option set
+
+UMLS-Interface Configuration Information
+  Sources:
+    MSH
+  Relations:
+    CHD
+    PAR
+  Database: 
+    umls (MMSYS-2009AA-20090325)
+
+
+0.1044<>hand(C0018563)<>skull(C0037303)
+0.0894<>skull(C0037303)<>neck(C0027530)
+0.0969<>neck(C0027530)<>toe(C0040357)

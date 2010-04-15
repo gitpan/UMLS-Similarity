@@ -19,10 +19,11 @@ my $author1 = 'Bridget McInnes <bthomson@cs.umn.edu>';
 WriteMakefile(
               'NAME'		  => 'UMLS::Similarity',
               'VERSION_FROM'	  => 'lib/UMLS/Similarity.pm',
-              'PREREQ_PM'         => {'UMLS::Interface' => '0.49'},
+              'PREREQ_PM'         => {'UMLS::Interface' => '0.51'},
 	      'EXE_FILES'         => [("utils/umls-similarity.pl", 
 				       "utils/vector-input.pl", 
-				       "utils/spearmans.pl")],
+				       "utils/spearmans.pl", 
+				       "utils/create-propagation-file.pl")],
               'dist'              => {'COMPRESS' => 'gzip -9f', 'SUFFIX' => 'gz'},
               ($] >= 5.005 ?
                ('ABSTRACT_FROM'   => 'lib/UMLS/Similarity.pm', # retrieve abstract from module
