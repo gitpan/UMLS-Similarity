@@ -145,7 +145,7 @@ __END__
 
 UMLS::Similarity::lin - Perl module for computing the semantic 
 relatednessof concepts in the Unified Medical Language System 
-(UMLS) using the method described by Lin 1998.
+(UMLS) using the method described by Lin (1998).
 
 =head1 SYNOPSIS
 

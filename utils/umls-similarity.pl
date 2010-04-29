@@ -215,13 +215,20 @@ purposes.
 =head3 --dictfile FILE
 
 This is a dictionary file for the vector measure. It contains 
-the 'definitions' of a concept which would be used rather than 
-the definitions from the UMLS
+the 'definitions' of a concept (or term) which would be used 
+rather than the definitions from the UMLS. 
 
 The format of this file is:
 
 CUI <definition>
 CUI <definition>
+TERM <definition> 
+TERM <definition>
+
+If using TERM, the term is mapped to concepts in the UMLS and 
+the terms difinition is used as itheir definitions. If more than 
+one term in the dictfile maps to a concept, all of the definitions 
+are used. 
 
 Keep in mind, when using this file, if one of the CUIs that you 
 are obtaining the similarity for does not exist in the file the 
@@ -319,8 +326,6 @@ this program; if not, write to:
 #                           ================================
 #                            COMMAND LINE OPTIONS AND USAGE
 #                           ================================
-
-use lib "/export/scratch/programs/lib/site_perl/5.8.7/";
 
 use UMLS::Interface;
 use Getopt::Long;
@@ -695,7 +700,7 @@ sub loadMeasures {
     
 #    #  load the module implementing the lesk measure
 #    if($measure eq "lesk") {
-#    use UMLS::Similarity::lesk;
+#	use UMLS::Similarity::lesk;
 #	my %leskoptions = ();
 #	
 #	if(defined $opt_stoplist) {
@@ -708,6 +713,10 @@ sub loadMeasures {
 #	if(defined $opt_defraw) { 
 #	    $leskoptions{"defraw"} = $opt_defraw;
 #	}
+#	if(defined $opt_dictfile) {
+#	    $leskoptions{"dictfile"} = $opt_dictfile;
+#	}
+#	
 #        $meas = UMLS::Similarity::lesk->new($umls,\%leskoptions);  
 #    }
     
@@ -1160,7 +1169,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.31 2010/04/15 17:08:48 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.34 2010/04/26 17:17:45 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

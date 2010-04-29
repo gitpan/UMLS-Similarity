@@ -1,0 +1,27 @@
+Default Settings:
+  --precision 4
+
+User Settings:
+  --icpropagation t/options/snomedct.msh.par-chd.icpropagation
+  --config t/config/config.snomedct.msh.par-chd
+  --infile t/tests/long-tests/snomedct.msh.par-chd
+  --measure lin
+  --realtime
+
+
+User Options:
+  --propagation t/options/snomedct.msh.par-chd.icpropagation
+   --realtime option set
+
+UMLS-Interface Configuration Information
+  Sources:
+    MSH
+    SNOMEDCT
+  Relations:
+    CHD
+    PAR
+  Database: 
+    umls (MMSYS-2009AA-20090325)
+
+
+Could not open file t/options/snomedct.msh.par-chd.icpropagation

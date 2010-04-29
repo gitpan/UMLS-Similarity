@@ -133,7 +133,7 @@ __END__
 
 UMLS::Similarity::res - Perl module for computing the semantic 
 relatednessof concepts in the Unified Medical Language System 
-(UMLS) using the method described by Resnik 1995.
+(UMLS) using the method described by Resnik (1995).
 
 =head1 SYNOPSIS
 

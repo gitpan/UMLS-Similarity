@@ -38,6 +38,12 @@ MetaMap installed on your system. You can obtain this package:
 
 L<http://mmtx.nlm.nih.gov/>
 
+=head3 --icfrequency 
+
+The input file contains frequency counts for CUIs in the following 
+format: 
+
+These frequency counts are used to obtain the propagation counts
 
 =head3 --config FILE
 
@@ -109,7 +115,9 @@ content measures in the create-propagation-file.pl program
 
 =item * UMLS::Interface - http://search.cpan.org/dist/UMLS-Interface
 
-=item * UMLS::Similarity - http://search.cpan.org/dist/CreatePropagationFile
+=item * UMLS::Similarity - http://search.cpan.org/dist/UMLS-Similarity
+
+=item * Text::NSP - http://search.cpan.org/dist/Text-NSP
 
 =item * MetaMap - http://mmtx.nlm.nih.gov/
 
@@ -180,12 +188,10 @@ this program; if not, write to:
 #                            COMMAND LINE OPTIONS AND USAGE
 #                           ================================
 
-use lib "/export/scratch/programs/lib/site_perl/5.8.7/";
-
 use UMLS::Interface;
 use Getopt::Long;
 
-eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "config=s", "debug", "t", "metamap", "term")) or die ("Please check the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "config=s", "debug", "t", "metamap", "term", "icfrequency")) or die ("Please check the above mentioned option(s).\n");
 
 
 my $debug = 0;
@@ -245,7 +251,12 @@ my %cuiHash     = ();
 if(defined $opt_metamap) { 
     &getMetaMapCounts($inputfile);
 }
+elsif(defined $opt_icfrequency) {
+    print STDERR "ICFREQ\n";
+    &getFileCounts($inputfile);
+}
 else {
+    print STDERR "TERM\n";
     &getTermCounts($inputfile);
 }
 
@@ -259,6 +270,25 @@ foreach my $cui (sort keys %{$propagationHash}) {
     print OUTPUT "$cui<>$freq\n";
 }
 close OUTPUT;
+
+sub getFileCounts {
+
+    my $file = shift;
+    
+    open(FILE, $file) || die "Could not open --icfrequency file : $file\n";
+    
+    while(<FILE>) {
+	chomp;
+	my ($freq, $cui, $str) = split/\|/;
+	if(exists $cuiHash{$cui}) { 
+	    $cuiHash{$cui} += $freq; 
+	}
+	else {
+	    $cuiHash{$cui} = $freq; 
+	}
+    }
+    close FILE;
+}
 
 sub getTermCounts {
 
@@ -360,7 +390,12 @@ sub timeStamp {
 #  checks the user input options
 sub checkOptions {
 
-
+    if( (defined $opt_metamap) && (defined $opt_icfrequency) ) { 
+	print STDERR "The --metamap and --icfrequency options can\n";
+	print STDERR "not both be specified at the saem time.\n\n";
+	&minimalUsageNotes();
+	exit;
+    }
 }
 
 #  set user input and default options
@@ -375,6 +410,10 @@ sub setOptions {
     if(defined $opt_config) {
 	$config = $opt_config;
 	$set .= "  --config $config\n";
+    }
+
+    if(defined $opt_icfrequency) { 
+	$set .= "  --icfrequency\n";
     }
 
     if(defined $opt_metamap) { 
@@ -538,7 +577,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: create-propagation-file.pl,v 1.3 2010/04/12 22:09:37 btmcinnes Exp $';
+    print '$Id: create-propagation-file.pl,v 1.6 2010/04/20 21:39:38 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

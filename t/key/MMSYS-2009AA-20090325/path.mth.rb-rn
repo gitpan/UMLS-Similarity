@@ -1,0 +1,24 @@
+Default Settings:
+  --precision 4
+
+User Settings:
+  --config t/config/config.mth.rb-rn
+  --infile t/tests/long-tests/mth.rb-rn
+  --measure path
+  --realtime
+
+
+User Options:
+   --realtime option set
+
+UMLS-Interface Configuration Information
+  Sources:
+    MTH
+  Relations:
+    RB
+    RN
+  Database: 
+    umls (MMSYS-2009AA-20090325)
+
+
+0.1429<>C0038454(cerebrovascular accident)<>C0021308(infarction)

@@ -178,7 +178,7 @@ __END__
 
 UMLS::Similarity::jcn - Perl module for computing the semantic 
 relatednessof concepts in the Unified Medical Language System 
-(UMLS) using the method described by Jiang and Conrath 1997.
+(UMLS) using the method described by Jiang and Conrath (1997).
 
 =head1 SYNOPSIS
 

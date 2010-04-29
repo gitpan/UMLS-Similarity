@@ -121,10 +121,8 @@ __END__
 
 =head1 NAME
 
-UMLS::Similarity::random - Perl module for computing semantic relatedness
-of concepts in the Unified Medical Language System (UMLS) using the random 
-method which just assigns a random number between zero and one as the 
-similarity score.
+UMLS::Similarity::random - Perl module for computing a random baseline 
+by assigning a random number between zero and one as the similarity score.
 
 =head1 SYNOPSIS
 

@@ -1,0 +1,26 @@
+Default Settings:
+  --precision 4
+
+User Settings:
+  --icpropagation t/options/mth.rb-rn.icpropagation
+  --config t/config/config.mth.rb-rn
+  --infile t/tests/long-tests/mth.rb-rn
+  --measure lin
+  --realtime
+
+
+User Options:
+  --propagation t/options/mth.rb-rn.icpropagation
+   --realtime option set
+
+UMLS-Interface Configuration Information
+  Sources:
+    MTH
+  Relations:
+    RB
+    RN
+  Database: 
+    umls (MMSYS-2009AA-20090325)
+
+
+Could not open file t/options/mth.rb-rn.icpropagation

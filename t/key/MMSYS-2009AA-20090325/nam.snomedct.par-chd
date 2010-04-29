@@ -1,0 +1,25 @@
+Default Settings:
+  --precision 4
+
+User Settings:
+  --config t/config/config.snomedct.par-chd
+  --infile t/tests/long-tests/snomedct.par-chd
+  --measure nam
+  --realtime
+
+
+User Options:
+   --realtime option set
+
+UMLS-Interface Configuration Information
+  Sources:
+    SNOMEDCT
+  Relations:
+    CHD
+    PAR
+  Database: 
+    umls (MMSYS-2009AA-20090325)
+
+
+5.8074<>C0459385(brain tissue structure)<>C0228067(infratentorial brain structure)
+0.0000<>C0175895(calcification)<>C0009814(stenosis)

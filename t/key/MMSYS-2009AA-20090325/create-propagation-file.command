@@ -18,3 +18,4 @@ UMLS-Interface Configuration Information
     umls (MMSYS-2009AA-20090325)
 
 
+TERM

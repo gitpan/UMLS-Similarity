@@ -81,6 +81,14 @@
           create-propagation-file.pl -- create the information content file
                                         required for the information content 
                                         measures
+        
+      SignificanceTesting.r      -- R script to calculate the correlation 
+                                        between a gold standard and the results 
+                                        obtained using the measures in the 
+                                        umls-similarity.pl program
+         
+      sim2r.pl                   -- converts umls-similarity.pl output to 
+                                        a format that can be read by the R script
 
   INSTALL
         To install these modules run:
@@ -90,8 +98,8 @@
           make test
           make install
 
-        This will install the modules in the standard locations. You will, most
-        probably, require root privileges to install in standard system
+        This will install the modules in the standard locations. You will, 
+        most probably, require root privileges to install in standard system
         directories. To install in a non-standard directory, specify a prefix
         during the 'perl Makefile.PL' stage as:
 
@@ -99,8 +107,24 @@
 
         It is possible to modify other parameters during installation. The
         details of these can be found in the ExtUtils::MakeMaker
-        documentation. However, it is highly recommended not messing around
-        with other parameters, unless you know what you're doing.
+        documentation. However, it is highly recommended not messing 
+        around with other parameters, unless you know what you're doing.
+
+        To conduct an extensive test of the package please set the 
+        UMLS_SIMILARITY_ALL_TESTS environment variable prior to 
+        running make test. This will run the long tests:
+
+        1. path-long.t
+        2. ic-long.t
+        3. relatedness-long.t
+
+        To set the environment variable in c shell:
+        
+       setenv UMLS_SIMILARITY_RUN_ALL 1
+        
+    and in bash shell:
+        
+       export UMLS_SIMILARITY_RUN_ALL=1
 
   SOFTWARE COPYRIGHT AND LICENSE
         Copyright (C) 2004-2009 Bridget T McInnes, Siddharth Patwardhan, 
