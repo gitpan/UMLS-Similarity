@@ -85,11 +85,6 @@ Hostname where mysql is located. DEFAULT: localhost
 
 Database contain UMLS DEFAULT: umls
 
-=head3 --forcerun
-
-This option will bypass any command prompts such as asking 
-if you would like to continue with the index creation. 
-
 =head3 --debug
 
 Sets the UMLS-Interface debug flag on for testing
@@ -212,8 +207,7 @@ if( defined $opt_version ) {
 
 # At least 2 terms should be given on the command line.
 if( scalar(@ARGV) < 2) { 
-    print STDERR "At least 2 files should be specified on the \n";
-    print STDERR "command line \n\n";
+    print STDERR "At least 2 files should be specified on the command line.\n";
     &minimalUsageNotes();
     exit;
 }
@@ -237,8 +231,6 @@ my $database    = "";
 my $hostname    = "";
 my $socket      = "";    
 my $umls        = "";
-my %cuiHash     = ();
-
 
 #  check the options 
 &checkOptions       ();
@@ -248,23 +240,22 @@ my %cuiHash     = ();
 &loadUMLS           ();
 
 #  get the frequency counts
+my $cuiHash     = "";
 if(defined $opt_metamap) { 
-    &getMetaMapCounts($inputfile);
+    $cuiHash = &getMetaMapCounts($inputfile);
 }
 elsif(defined $opt_icfrequency) {
-    print STDERR "ICFREQ\n";
-    &getFileCounts($inputfile);
+    $cuiHash = &getFileCounts($inputfile);
 }
 else {
-    print STDERR "TERM\n";
-    &getTermCounts($inputfile);
+    $cuiHash = &getTermCounts($inputfile);
 }
 
 #  propagate the counts
-my $propagationHash = $umls->propagateCounts(\%cuiHash);
+my $propagationHash = $umls->propagateCounts($cuiHash);
 
 #  print out the propagation counts
-open(OUTPUT, ">>$outputfile") || die "Could not open $outputfile\n";
+open(OUTPUT, ">$outputfile") || die "Could not open $outputfile\n";
 foreach my $cui (sort keys %{$propagationHash}) {
     my $freq = ${$propagationHash}{$cui};
     print OUTPUT "$cui<>$freq\n";
@@ -277,17 +268,20 @@ sub getFileCounts {
     
     open(FILE, $file) || die "Could not open --icfrequency file : $file\n";
     
+    my %hash = ();
     while(<FILE>) {
 	chomp;
 	my ($freq, $cui, $str) = split/\|/;
 	if(exists $cuiHash{$cui}) { 
-	    $cuiHash{$cui} += $freq; 
+	    $hash{$cui} += $freq; 
 	}
 	else {
-	    $cuiHash{$cui} = $freq; 
+	    $hash{$cui} = $freq; 
 	}
     }
     close FILE;
+    
+    return \%hash;
 }
 
 sub getTermCounts {
@@ -299,7 +293,8 @@ sub getTermCounts {
     system "count.pl --ngram 1 $countfile $text";
     
     open(COUNT, $countfile) || die "Could not open the count file : $countfile\n";
-    
+    my %hash = ();
+
     my $header = <COUNT>;
     while(<COUNT>) {
 	chomp;
@@ -308,16 +303,18 @@ sub getTermCounts {
 	my @cuis = $umls->getConceptList($term); 
 
 	foreach my $cui (@cuis) {
-	    if(exists $cuiHash{$cui}) {
-		$cuiHash{$cui} += $freq;
+	    if(exists $hash{$cui}) {
+		$hash{$cui} += $freq;
 	    }
-	    else { $cuiHash{$cui} = $freq; }
-		
+	    else { $hash{$cui} = $freq; }
+	    
 	}
     }
     close COUNT;
 
     system "rm tmp.count";
+    
+    return \%hash;
 }
 
 
@@ -326,6 +323,7 @@ sub getMetaMapCounts {
     my $text = shift;
     open(TEXT, $text) || die "Could not open $text for processing\n";
     
+    my %hash = ();
     while(<TEXT>) {
 	chomp;
 	my $output = &callMetaMap($_);
@@ -338,9 +336,11 @@ sub getMetaMapCounts {
 	    $strings{$cui} = $str;
 	}
 	foreach my $cui (sort keys %temp) {
-	    $cuiHash{$cui}++;			
+	    $hash{$cui}++;			
 	}
     }
+    
+    return \%hash;
 }
 
 sub callMetaMap 
@@ -540,7 +540,7 @@ sub showHelp() {
     print "a specified set of sources and relation using the frequency\n";
     print "information from the inputfile\n\n";
   
-    print "Usage: create-propagation-file.pl [OPTIONS] TERM1 TERM2\n\n";
+    print "Usage: create-propagation-file.pl [OPTIONS] OUTPUTFILE INPUTFILE\n\n";
 
     print "Options:\n\n";
 
@@ -560,11 +560,6 @@ sub showHelp() {
 
     print "--database STRING        Database contain UMLS (DEFAULT: umls)\n\n";
 
-    print "--forcerun               This option will bypass any command \n";
-    print "                         prompts such as asking if you would \n";
-    print "                         like to continue with the index \n";
-    print "                         creation. \n\n";
-    
     print "--debug                  Sets the UMLS-Interface debug flag on\n";
     print "                         for testing purposes\n\n";
 
@@ -577,7 +572,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: create-propagation-file.pl,v 1.6 2010/04/20 21:39:38 btmcinnes Exp $';
+    print '$Id: create-propagation-file.pl,v 1.7 2010/05/12 15:15:16 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

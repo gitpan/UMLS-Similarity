@@ -1,7 +1,7 @@
 # UMLS::Similarity::lin.pm
 #
 # Module implementing the semantic relatedness measure described 
-# by Lin (1998)
+# by Lin (1997)
 #
 # Copyright (c) 2009-2010,
 #
@@ -145,7 +145,19 @@ __END__
 
 UMLS::Similarity::lin - Perl module for computing the semantic 
 relatednessof concepts in the Unified Medical Language System 
-(UMLS) using the method described by Lin (1998).
+(UMLS) using the method described by Lin (1997).
+
+=head1 CITATION
+
+ @article{Lin97,
+  title={{Using syntactic dependency as local context to resolve 
+          word sense ambiguity}},
+  author={Lin, D.},
+  journal={Proceedings of the 35th Annual Meeting of the 
+           Association for Computational Linguistics},
+  pages={64--71},
+  year={1997}
+ }
 
 =head1 SYNOPSIS
 
@@ -192,6 +204,27 @@ Ideally, the information content of a synset would be zero only if that
 synset were the root node, but when the frequency of a synset is zero,
 we use the value of zero as the information content because of a lack
 of better alternatives.
+
+The IC of a concept is defined as the negative log of the probabilty 
+of the concept. 
+
+To use this measure, a propagation file containing the probability 
+of a CUI for each of the CUIs from the source(s) specified in the 
+configuration file. The format for this file is as follows:
+
+ C0000039<>0.00003951
+ C0000052<>0.00003951
+ C0000084<>0.00003951
+ C0000096<>0.00003951
+
+A larger of example of this file can be found in the icpropagation file 
+in the samples/ directory. In order to create a propagation file given 
+
+A propagation file can be created using the create-propagation-file.pl
+program in the utils/ directory. This file will take either a list 
+of CUIs with their frequency counts or a raw text file and compute the 
+probability of each of the CUIs using the set of source(s) and relations 
+specified in the configuration file.
 
 
 =head1 USAGE

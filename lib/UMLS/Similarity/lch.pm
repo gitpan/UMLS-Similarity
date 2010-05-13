@@ -143,6 +143,17 @@ UMLS::Similarity::lch - Perl module for computing semantic relatedness
 of concepts in the Unified Medical Language System (UMLS) using the 
 method described by Leacock and Chodorow (1998). 
 
+=head1 CITATION
+
+ @article{LeacockC98,
+  title={{Combining local context and WordNet similarity 
+          for word sense identification}},
+  author={Leacock, C. and Chodorow, M.},
+  journal={WordNet: An Electronic Lexical Database},
+  pages={265--283},
+  year={1998}
+ }
+
 =head1 SYNOPSIS
 
   use UMLS::Interface;

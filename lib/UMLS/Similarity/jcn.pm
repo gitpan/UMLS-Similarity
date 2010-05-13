@@ -17,6 +17,9 @@
 # Ted Pedersen, University of Minnesota, Duluth
 # tpederse at d.umn.edu
 #
+# Ying Liu, University of Minnesota
+# liux0935 at umn.edu
+#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
@@ -92,21 +95,6 @@ sub getRelatedness
     
     my $interface = $self->{'interface'};
     
-    # Check for the possibility of the root node having 0 
-    # frequency count
-    my $max_score = 0;
-    my $root = $interface->root();
-    my $root_freq = $interface->getFreq($root);
-    if($root_freq > 0) {
-	$max_score = 2 * -log (0.001 / $root_freq) + 1;
-    }
-    else {
-	$self->{errorString} .= "\nWarning (UMLS::Similarity::jcn::getRelatedness()) - ";
-	$self->{errorString} .= "Root node ($root) has a zero frequency count.";
-	$self->{error} = ($self->{error} < 1) ? 1 : $self->{error};
-	return 0;
-    }
-
     #  get the IC of each of the concepts
     my $ic1 = $interface->getIC($concept1);
     my $ic2 = $interface->getIC($concept2);
@@ -131,20 +119,7 @@ sub getRelatedness
     #  otherwise calculate the distance
     my $distance = $ic1 + $ic2 - (2 * $iclcs);
     
-    #  calculate the jcn
-    my $score = 0;
-    if ($distance == 0) {
-	if ($root_freq > 0.01) {
-	    $score = 1 / -log (($root_freq - 0.01) / $root_freq);
-	}
-	else {
-	    # root frequency is 0
-	    return 0;
-	}
-    }
-    else { # distance is non-zero
-	$score = 1 / $distance
-    }
+    my $score = 1 / $distance;
 
     return $score;
 }
@@ -179,6 +154,18 @@ __END__
 UMLS::Similarity::jcn - Perl module for computing the semantic 
 relatednessof concepts in the Unified Medical Language System 
 (UMLS) using the method described by Jiang and Conrath (1997).
+
+=head1 CITATION
+
+ @inproceedings{JiangC97,
+  Author = {Jiang, J. and Conrath, D.},
+  Booktitle = {Proceedings on International Conference 
+               on Research in Computational Linguistics},
+  Pages = {pp. 19-33},
+  Title = {Semantic similarity based on corpus statistics 
+           and lexical taxonomy},
+  Year = {1997}
+ }
 
 =head1 SYNOPSIS
 
@@ -224,6 +211,28 @@ measure we invert the value so as to obtain a measure of semantic
 relatedness. Other issues that arise due to this inversion (such as 
 handling of zero values in the denominator) have been taken care of 
 as special cases.
+
+The IC of a concept is defined as the negative log of the probabilty 
+of the concept. 
+
+To use this measure, a propagation file containing the probability 
+of a CUI for each of the CUIs from the source(s) specified in the 
+configuration file. The format for this file is as follows:
+
+ C0000039<>0.00003951
+ C0000052<>0.00003951
+ C0000084<>0.00003951
+ C0000096<>0.00003951
+
+A larger of example of this file can be found in the icpropagation file 
+in the samples/ directory. In order to create a propagation file given 
+
+A propagation file can be created using the create-propagation-file.pl
+program in the utils/ directory. This file will take either a list 
+of CUIs with their frequency counts or a raw text file and compute the 
+probability of each of the CUIs using the set of source(s) and relations 
+specified in the configuration file.
+
 
 =head1 USAGE
 
@@ -292,7 +301,7 @@ perl(1), UMLS::Similarity(3)
 =head1 COPYRIGHT AND LICENSE
 
 Copyright 2004-2010 by Bridget T McInnes, Siddharth Patwardhan, 
-Serguei Pakhomov and Ted Pedersen
+Serguei Pakhomov, Ying Liu and Ted Pedersen
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 

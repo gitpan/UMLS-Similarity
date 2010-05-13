@@ -8,8 +8,6 @@ User Settings:
   --realtime
 
 
-User Options:
-   --realtime option set
 
 UMLS-Interface Configuration Information
   Sources:
@@ -20,6 +18,11 @@ UMLS-Interface Configuration Information
     PAR
   Database: 
     umls (MMSYS-2009AA-20090325)
+
+
+
+PathFinder User Options:
+   --realtime option set
 
 
 2.0000<>C0459385(brain tissue structure)<>C0228067(infratentorial brain structure)

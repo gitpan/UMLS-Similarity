@@ -1,8 +1,8 @@
-# UMLS::Similarity.pm #
+# UMLS::Similarity.pm 
 #
 # Perl implementation of semantic relatedness measures.
 #
-# Copyright (c) 2004-2009,
+# Copyright (c) 2004-2010,
 #
 # Bridget T McInnes, University of Minnesota, Twin Cities
 # bthomson at cs.umn.edu
@@ -15,6 +15,9 @@
 #
 # Ted Pedersen, University of Minnesota, Duluth
 # tpederse at d.umn.edu
+#
+# Ying Liu, University of Minnesota, Twin Cities
+# liux0935 at umn.edu
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -35,7 +38,7 @@
 
 package UMLS::Similarity;
 
-$VERSION = '0.47';
+$VERSION = '0.49';
 
 sub new
 {
@@ -137,7 +140,8 @@ This package consists of Perl modules along with supporting Perl
 programs that implement the semantic relatedness measures described by
 Leacock & Chodorow (1998), Wu & Palmer (1994), Nguyen and Al-Mubaid 
 (2006), Rada, et. al. 1989, Patwardhan (2003), Lin (1988), Resnik (1996), 
-Jiang & Conrath (1997), and a simple path based measure.
+Jiang & Conrath (1997), Patwardhan (2006), Banerjee and Pedersen (2003) 
+and a simple path based measure.
 
 The Perl modules are designed as objects with methods that take as
 input two concepts. The semantic relatedness of these concepts is 
@@ -155,6 +159,28 @@ The following sections describe the organization of this software
 package and how to use it. A few typical examples are given to help
 clearly understand the usage of the modules and the supporting
 utilities.
+
+=head1 REFERENCING
+
+    If you write a paper that has used UMLS-Interface in some way, we'd 
+    certainly be grateful if you sent us a copy and referenced UMLS-Interface. 
+    We have a published paper that provides a suitable reference:
+
+    @inproceedings{McInnesPP09,
+       title={{UMLS-Interface and UMLS-Similarity : Open Source 
+               Software for Measuring Paths and Semantic Similarity}}, 
+       author={McInnes, B.T. and Pedersen, T. and Pakhomov, S.V.}, 
+       booktitle={Proceedings of the American Medical Informatics 
+                  Association (AMIA) Symposium},
+       year={2009}, 
+       month={November}, 
+       address={San Fransico, CA}
+    }
+
+    This paper is also found in
+    <http://www-users.cs.umn.edu/~bthomson/publications/pubs.html>
+    or
+    <http://www.d.umn.edu/~tpederse/Pubs/amia09.pdf>
 
 =head1 CONTACT US
    
@@ -175,20 +201,31 @@ utilities.
 
 =head1 SEE ALSO
 
-perl(1), UMLS::Interface
+UMLS::Interface(1)
 
-perl(1), UMLS::Similarity::lch(3), UMLS::Similarity::path(3), UMLS::Similarity::wup(3), UMLS::Similarity::nam(3), UMLS::Similarity::cdist(3), UMLS::Similarity::lin(3), UMLS::Similarity::res(3), UMLS::Similarity::jcn(3), UMLS::Similarity::vector(3)
+UMLS::Similarity::lch(3)
+UMLS::Similarity::path(3)
+UMLS::Similarity::wup(3) 
+UMLS::Similarity::nam(3) 
+UMLS::Similarity::cdist(3) 
+UMLS::Similarity::lin(3) 
+UMLS::Similarity::res(3)
+UMLS::Similarity::jcn(3) 
+UMLS::Similarity::vector(3) 
+UMLS::Similarity::random(3)
 
 =head1 AUTHORS
     
-  Bridget McInnes <bthomson at cs.umn.edu>
+  Bridget McInnes <bthomson at umn.edu>
   Siddharth Patwardhan <sidd at cs.utah.edu>
   Serguei Pakhomov <pakh0002 at umn.edu>
   Ted Pedersen <tpederse at d.umn.edu>
+  Ying Liu <liux0935 at umn.edu>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2004-2010 by Bridget McInnes, Siddharth Patwardhan, Serguei Pakhomov and Ted Pedersen
+Copyright 2004-2010 by Bridget McInnes, Siddharth Patwardhan, 
+Serguei Pakhomov, Ying Liu and Ted Pedersen
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 

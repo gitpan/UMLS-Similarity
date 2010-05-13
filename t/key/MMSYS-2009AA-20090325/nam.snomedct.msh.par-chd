@@ -8,8 +8,6 @@ User Settings:
   --realtime
 
 
-User Options:
-   --realtime option set
 
 UMLS-Interface Configuration Information
   Sources:
@@ -22,5 +20,10 @@ UMLS-Interface Configuration Information
     umls (MMSYS-2009AA-20090325)
 
 
-5.9069<>C0459385(brain tissue structure)<>C0228067(infratentorial brain structure)
+
+PathFinder User Options:
+   --realtime option set
+
+
+5.8074<>C0459385(brain tissue structure)<>C0228067(infratentorial brain structure)
 0.0000<>C0175895(calcification)<>C0009814(stenosis)

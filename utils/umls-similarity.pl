@@ -244,6 +244,20 @@ This is a flag for the vector measures. The definitions
 used are 'cleaned'. If the --defraw flag is set they will not be 
 cleaned. 
 
+=head3 --stoplist FILE
+
+A file containing a list of words to be excluded from the features 
+in the vector method. The format required is one stopword per line. 
+For example:
+
+the
+a
+and
+for
+
+...
+
+
 =head1 OUTPUT
 
 disambiguate.pl creates two directories. One containing the arff files
@@ -358,7 +372,7 @@ if( !(defined $opt_infile) and (scalar(@ARGV) < 2) ) {
 }
 
 #  initialize variables
-my $propagation = "";
+my $icpropagation = "";
 my $precision   = "";
 my $floatformat = "";
 my $database    = "";
@@ -414,7 +428,7 @@ sub calculateSimilarity {
 	    
 	    #  check if input contains cuis
 	    if($input1=~/C[0-9]+/) {
-		if($umls->checkConceptExists($input1)) {
+		if($umls->exists($input1)) {
 		    push @c1, $input1;
 		}
 		$cui_flag1 = 1;
@@ -425,7 +439,7 @@ sub calculateSimilarity {
 		
 	    }
 	    if($input2=~/C[0-9]+/) {
-		if($umls->checkConceptExists($input2)) {
+		if($umls->exists($input2)) {
 		    push @c2, $input2;
 		}
 		$cui_flag2 = 1;
@@ -644,6 +658,10 @@ sub loadMeasures {
 	if(defined $opt_defraw) { 
 	    $vectoroptions{"defraw"} = $opt_defraw;
 	}
+	if(defined $opt_stoplist) {
+	    $vectoroptions{"stoplist"} = $opt_stoplist;
+	}
+
 	$meas = UMLS::Similarity::vector->new($umls,\%vectoroptions);
     }
     #  load the module implementing the Leacock and 
@@ -749,10 +767,10 @@ sub loadUMLS {
 	$option_hash{"verbose"} = $opt_verbose;
     }
     if(defined $opt_icpropagation) {
-	$option_hash{"propagation"} = $opt_icpropagation;
+	$option_hash{"icpropagation"} = $opt_icpropagation;
     }
     if(defined $opt_icfrequency) { 
-	$option_hash{"frequency"} = $opt_icfrequency;
+	$option_hash{"icfrequency"} = $opt_icfrequency;
     }
     if(defined $opt_username and defined $opt_password) {
 	$option_hash{"driver"}   = "mysql";
@@ -935,7 +953,11 @@ sub setOptions {
     if(defined $opt_defraw) { 
 	$set .= "  --defraw\n";
     }
-
+    
+    if(defined $opt_stoplist) {
+	$set .= "  --stoplist $opt_stoplist\n";
+    }
+    
     #  check config file
     if(defined $opt_config) {
 	$config = $opt_config;
@@ -1159,9 +1181,12 @@ sub showHelp() {
     print "                         would be used rather than the definitions from the\n";
     print "                         UMLS\n\n";
 
+    print "--stoplist FILE          A file containing a list of words to be excluded\n";
+    print "                         from the features in the vector method.\n\n";
+
     print "--defraw                 This is a flag for the vector measure. The \n";
-    print "                         definitions used are 'cleaned'. If the --defraw flag \n";
-    print "                         is set they will not be cleaned. \n\n";
+    print "                         definitions used are 'cleaned'. If the --defraw\n";
+    print "                         flag is set they will not be cleaned. \n\n";
 
 }
 
@@ -1169,7 +1194,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.34 2010/04/26 17:17:45 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.37 2010/05/12 15:15:16 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

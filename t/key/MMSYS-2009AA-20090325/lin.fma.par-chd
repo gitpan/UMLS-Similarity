@@ -9,9 +9,6 @@ User Settings:
   --realtime
 
 
-User Options:
-  --propagation t/options/fma.par-chd.icpropagation
-   --realtime option set
 
 UMLS-Interface Configuration Information
   Sources:
@@ -22,6 +19,14 @@ UMLS-Interface Configuration Information
   Database: 
     umls (MMSYS-2009AA-20090325)
 
+
+
+PathFinder User Options:
+   --realtime option set
+
+
+ICFinder User Options:
+  --propagation t/options/fma.par-chd.icpropagation
 
 0.0218<>hand(C0018563)<>skull(C0037303)
 0.0206<>skull(C0037303)<>neck(C0027530)

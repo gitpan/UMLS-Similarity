@@ -9,9 +9,6 @@ User Settings:
   --realtime
 
 
-User Options:
-  --propagation t/options/snomedct.msh.par-chd.icpropagation
-   --realtime option set
 
 UMLS-Interface Configuration Information
   Sources:
@@ -23,5 +20,13 @@ UMLS-Interface Configuration Information
   Database: 
     umls (MMSYS-2009AA-20090325)
 
+
+
+PathFinder User Options:
+   --realtime option set
+
+
+ICFinder User Options:
+  --propagation t/options/snomedct.msh.par-chd.icpropagation
 
 Could not open file t/options/snomedct.msh.par-chd.icpropagation

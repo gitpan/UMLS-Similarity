@@ -19,7 +19,7 @@ my $author1 = 'Bridget McInnes <bthomson@cs.umn.edu>';
 WriteMakefile(
               'NAME'		  => 'UMLS::Similarity',
               'VERSION_FROM'	  => 'lib/UMLS/Similarity.pm',
-              'PREREQ_PM'         => {'UMLS::Interface' => '0.51',
+              'PREREQ_PM'         => {'UMLS::Interface' => '0.55',
 				      'Text::NSP' => '0' },
 	      'EXE_FILES'         => [("utils/umls-similarity.pl", 
 				       "utils/vector-input.pl", 

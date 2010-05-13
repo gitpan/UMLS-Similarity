@@ -64,32 +64,35 @@ my @testfiles = grep { $_ ne '.' and $_ ne '..' and $_ ne "CVS"} readdir DIR;
 my $perl     = $^X;
 my $util_prg = File::Spec->catfile('utils', 'umls-similarity.pl');
 
-my $measure = "vector";
+my @measures = qw/vector/;
 
-foreach my $file (@testfiles) {
-    
-    my $configfile = "config.$file";		      
-    my $keyfile = "$measure.$file";
-    
-    my $infile  = File::Spec->catfile('t','tests', 'long-tests', $file);
-    my $config  = File::Spec->catfile('t','config', $configfile);
-    my $key     = File::Spec->catfile('t', 'key', $version, $keyfile);
-    
-    my $output = `$perl $util_prg --config $config --realtime --vectormatrix $matrix --vectorindex $index --realtime --measure $measure --infile $infile 2>&1`;
-    
-    if(-e $key) {
-	ok (open KEY, $key) or diag "Could not open $key: $!";
-	my $key = "";
-	while(<KEY>) { $key .= $_; } close KEY;
-	cmp_ok($output, 'eq', $key);
-    }
-    else {
-	ok(open KEY, ">$key") || diag "Could not open $key: $!";
-	print KEY $output;
-	close KEY; 
-      SKIP: {
-	  skip ("Generating key, no need to run test", 1);
+foreach my $measure (@measures) {
+
+    foreach my $file (@testfiles) {
+	
+	my $configfile = "config.$file";		      
+	my $keyfile = "$measure.$file";
+	
+	my $infile  = File::Spec->catfile('t','tests','long-tests', $file);
+	my $config  = File::Spec->catfile('t','config', $configfile);
+	my $key     = File::Spec->catfile('t', 'key', $version, $keyfile);
+	
+	my $output = `$perl $util_prg --config $config --realtime --vectormatrix $matrix --vectorindex $index --realtime --measure $measure --infile $infile 2>&1`;
+	
+	if(-e $key) {
+	    ok (open KEY, $key) or diag "Could not open $key: $!";
+	    my $key = "";
+	    while(<KEY>) { $key .= $_; } close KEY;
+	    cmp_ok($output, 'eq', $key);
+	}
+	else {
+	    ok(open KEY, ">$key") || diag "Could not open $key: $!";
+	    print KEY $output;
+	    close KEY; 
+	  SKIP: {
+	      skip ("Generating key, no need to run test", 1);
+	    }
 	}
     }
+    
 }
-

@@ -28,6 +28,7 @@ BEGIN
 my %option_hash = ();
 
 #  set the option hash
+$option_hash{"realtime"} = 1;
 $option_hash{"t"} = 1;
 
 #  connect to the UMLS-Interface
@@ -50,11 +51,8 @@ if(! (-e $keydir) ) {
     mkpath($keydir);
 }
 
-
-
-
 #  get the tests
-my $testdir = File::Spec->catdir('t','tests', 'long-tests');
+my $testdir = File::Spec->catdir('t','tests','long-tests');
 opendir(DIR, $testdir) || die "Could not open directory $testdir\n";
 my @testfiles = grep { $_ ne '.' and $_ ne '..' and $_ ne "CVS"} readdir DIR;
 
@@ -71,13 +69,13 @@ foreach my $measure (@measures) {
 	my $keyfile    = "$measure.$file";
 	my $pfile      = "$file.icpropagation";
 
-	my $infile  = File::Spec->catfile('t','tests', 'long-tests', $file);
+	my $infile  = File::Spec->catfile('t','tests','long-tests', $file);
 	my $config  = File::Spec->catfile('t','config', $configfile);
 	my $key     = File::Spec->catfile('t', 'key', $version, $keyfile);
-	
+
 	my $propagationfile = File::Spec->catfile('t','options', $pfile);
-	
-	my $output = `$perl $util_prg --config $config --icpropagation $propagationfile --measure $measure --infile $infile --realtime 2>&1`;
+
+	my $output  = `$perl $util_prg --config $config --realtime --measure $measure --infile $infile --icpropagation $propagationfile 2>&1`;
 	
 	if(-e $key) {
 	    ok (open KEY, $key) or diag "Could not open $key: $!";
@@ -94,5 +92,5 @@ foreach my $measure (@measures) {
 	    }
 	}
     }
-}
     
+}

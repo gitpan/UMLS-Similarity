@@ -17,6 +17,9 @@
 # Ted Pedersen, University of Minnesota, Duluth
 # tpederse at d.umn.edu
 #
+# Ying Liu, University of Minnesota
+# liux0935 at umn.edu
+#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
@@ -161,6 +164,19 @@ UMLS::Similarity::wup - Perl module for computing semantic relatedness
 of concepts in the Unified Medical Language System (UMLS) using the 
 method described by Wu and Palmer (1994).
 
+=head1 CITATION
+
+ @article{WuP94,
+  title={{Verbs semantics and lexical selection}},
+  author={Wu, Z. and Palmer, M.},
+  journal={Proceedings of the 32nd conference on Association 
+           for Computational Linguistics},
+  pages={133--138},
+  year={1994},
+  publisher={Association for Computational Linguistics 
+             Morristown, NJ, USA}
+ }
+
 =head1 SYNOPSIS
 
   use UMLS::Interface;
@@ -262,7 +278,7 @@ perl(1), UMLS::Similarity(3)
 =head1 COPYRIGHT AND LICENSE
 
 Copyright 2004-2010 by Bridget T McInnes, Siddharth Patwardhan, 
-Serguei Pakhomov and Ted Pedersen
+Serguei Pakhomov, Ying Liu and Ted Pedersen
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 

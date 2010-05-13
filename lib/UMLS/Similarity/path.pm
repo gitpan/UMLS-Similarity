@@ -17,6 +17,9 @@
 # Ted Pedersen, University of Minnesota, Duluth
 # tpederse at d.umn.edu
 #
+# Ying Liu, University of Minnesota
+# liux0935 at umn.edu
+#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
@@ -272,8 +275,8 @@ perl(1), UMLS::Similarity(3)
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2004-2009 by Bridget T McInnes, Siddharth Patwardhan, 
-Serguei Pakhomov and Ted Pedersen
+Copyright 2004-2010 by Bridget T McInnes, Siddharth Patwardhan, 
+Serguei Pakhomov, Ying Liu and Ted Pedersen
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 

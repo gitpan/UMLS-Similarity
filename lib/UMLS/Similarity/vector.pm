@@ -1,7 +1,8 @@
 # UMLS::Similarity::vector.pm
 #
 # Module implementing the vector semantic relatedness measure 
-# based on the measure proposed by Patwardhan (2003)
+# based on the measure proposed by Patwardhan and Pedersen 
+# (2006)
 #
 # Copyright (c) 2009-2010,
 #
@@ -40,7 +41,7 @@
 
 package UMLS::Similarity::vector;
 
-
+use strict;
 use warnings;
 
 use UMLS::Similarity;
@@ -53,14 +54,17 @@ my $defraw_option= 0;
 
 my $vectormatrix = "";
 my $vectorindex  = "";
-my $debugfile    = "";
 my $dictfile     = "";
+my $stoplist	 = "";
+my $debugfile    = "";
+my $config       = "";
 
 my %index         = ();
 my %reverse_index = ();
 my %position      = ();
 my %length        = ();
 my %dictionary    = ();
+my %stopwords     = ();
 
 local(*DEBUG);
 
@@ -104,6 +108,7 @@ sub new
     $config       = $params->{'config'};
     $dictfile     = $params->{'dictfile'};
     $debugfile	  = $params->{'debugfile'};
+    $stoplist	  = $params->{'stoplist'};
     
     my $defraw       = $params->{'defraw'};
     
@@ -169,8 +174,20 @@ sub new
 	
 	open(DEBUG, ">$debugfile") || die "Could not open debug file: $debugfile\n";
     }
-    
-    
+  
+ 
+	if (defined $stoplist) {
+
+	open(STOP, "$stoplist")
+	    or die("Error: cannot open stop list file ($stoplist).\n");
+
+	while (<STOP>) {
+	chomp;
+	$stopwords{$_} = 1;
+	}
+	close STOP;
+
+	}
 
     return $self;
 }
@@ -189,18 +206,49 @@ sub getRelatedness
         
     my $d1 = "";
     my $d2 = "";
+    
     if (defined $dictfile)
     {
 	$d1 = $dictionary{$concept1};
 	$d2 = $dictionary{$concept2};
-       
+	
+	# remove stop words
+	if (defined $stoplist) {
+	    my @defs1 = split(" ", $d1);	
+	    my @defs2 = split(" ", $d2);	
+	
+	    my @new_defs1 = (); my @new_defs2 = ();
+	    
+	    foreach my $w (@defs1) {
+		if (defined $stopwords{$w})  {
+		    next; }
+		else {
+		    push (@new_defs1, $w);}
+	    }
+	    
+	    foreach my $w (@defs2) {
+		if (defined $stopwords{$w}) {
+		    next; }
+		else {
+		    push (@new_defs2, $w);}
+	    }
+	    
+	    # new d1 and d2
+	    $d1 = "";
+	    $d2 = "";
+	    $d1 = join(" ", @new_defs1);
+	    $d2 = join(" ", @new_defs2);
+	    
+	}
+	
 	if(defined $debugfile) { 
 	    print DEBUG "DEFINITIONS FOR CUI 1: \n";
 	    print DEBUG "1. $d1\n";
 	    print DEBUG "DEFINITIONS FOR CUI 2: \n";
 	    print DEBUG "1. $d2\n";
 	}
-    }
+
+    } # end of defined $dictfile 
     else
     {
 
@@ -212,13 +260,44 @@ sub getRelatedness
 	if(defined $debugfile) { print DEBUG "DEFINITIONS FOR CUI 1: \n"; }
 	
 	my $i = 1;
-	foreach my $def (@{$defs1}) {
+	foreach my $extendeddef (@{$defs1}) {
+
+	    #  seperate definition from the other information 
+	    #  sent by the getExtendedDefinition function
+	    $extendeddef=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+) ([A-Z]+) \s*\:\s*(.*?)$/;
+	    my $def = $5;
+	    
+	    #  if the --defraw option is not set clean up the defintions
+	    if($defraw_option == 0) { 
+		$def = lc($def);	
+		$def=~s/[\.\,\?\/\'\"\;\:\[\]\{\}\!\@\#\$\%\^\&\*\(\)\-\_\+\-\=]//g;
+	    }
+	    
+	    # if --stopword option is set remove stop words
+	    if (defined $stoplist) {
+		my @def1 = split(" ", $def);	
+		my @new_def1 = ();
+		foreach my $w (@def1) {
+		    if (defined $stopwords{$w}) {
+			next; }
+		    else {
+			push (@new_def1, $w);}
+		}
+		
+		$def = "";
+		@def1 = ();
+		$def = join (" ", @new_def1);	
+	    }
+	    
+            #  if --debugfile option is set print out to the extended
+	    #  definition to the debug file
 	    if(defined $debugfile) { 
-		print DEBUG "$i. $def\n"; 
+		print DEBUG "$i. $extendeddef\n"; 
 		$i++;
 	    }
-	    $def=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+) ([A-Z]+) \s*\:\s*(.*?)$/;
-	    $d1 .= $5 . " "; 
+
+	    #  store the definition in the string d1
+	    $d1 .= $def . " "; 
 	}
 	
 	$d2 = ""; 
@@ -226,24 +305,45 @@ sub getRelatedness
 	if(defined $debugfile) { print DEBUG "DEFINITIONS FOR CUI 2: \n"; }
 
 	my $j = 1;
-	foreach my $def (@{$defs2}) {
+	foreach my $extendeddef (@{$defs2}) {
+
+	    #  seperate definition from the other information 
+	    #  sent by the getExtendedDefinition function
+	    $extendeddef=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+) ([A-Z]+) \s*\:\s*(.*?)$/;
+	    my $def = $5;
+	    
+	    #  if the --defraw option is not set clean up the defintions
+	    if($defraw_option == 0) { 
+		$def = lc($def);	
+		$def=~s/[\.\,\?\/\'\"\;\:\[\]\{\}\!\@\#\$\%\^\&\*\(\)\-\_\+\-\=]//g;
+	    }
+	    
+	    # if --stopword option is set remove stop words
+	    if (defined $stoplist) {
+    		my @def2 = split(" ", $def);	
+		my @new_def2 = ();
+		foreach my $w (@def2) {
+		    if (defined $stopwords{$w}) {
+			next; }
+		    else {
+			push (@new_def2, $w);
+		    }
+		}
+		$def = "";
+		@def2 = ();
+		$def = join (" ", @new_def2);	
+	    }
+
+	    #  if --debugfile option is set print out to the debug file
 	    if(defined $debugfile) { 
-		print DEBUG "$j. $def\n"; 
+		print DEBUG "$j. $extendeddef\n"; 
 		$j++;
 	    }
-	    $def=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+) ([A-Z]+) \s*\:\s*(.*?)$/;
-	    $d2 .= $5 . " "; 
+
+	    #  seperate definition from the other information 
+	    #  sent by the getExtendedDefinition function
+	    $d2 .= $def . " "; 
 	}
-	
-    }
-    
-    #  if the --defraw option is not set clean up the defintions
-    if($defraw_option == 0) { 
-	$d1 = lc($d1); $d2 = lc($d2);
-	
-	$d1=~s/[\.\,\?\/\'\"\;\:\[\]\{\}\!\@\#\$\%\^\&\*\(\)\-\_\+\-\=]//g;
-	$d2=~s/[\.\,\?\/\'\"\;\:\[\]\{\}\!\@\#\$\%\^\&\*\(\)\-\_\+\-\=]//g;
-	
     }
     
     open(MATX, "<$vectormatrix")
@@ -253,7 +353,30 @@ sub getRelatedness
     my %vector2 = ();
     my @defs1 = split(" ", $d1);	
     my @defs2 = split(" ", $d2);	
-        
+    
+    
+	# remove stop words
+	my @new_defs1 = ();
+	my @new_defs2 = ();
+	
+	if (defined $stoplist) {
+
+	foreach my $w (@defs1) {
+		if (defined $stopwords{$w}) {
+			next; }
+		else {
+			push (@new_defs1, $w);}
+	}
+	
+	foreach my $w (@defs2) {
+		if (defined $stopwords{$w}) {
+			next; }
+		else {
+			push (@new_defs2, $w);}
+	}
+	}
+
+ 
     my $def1_length = 0 ;
     
     foreach my $def_term1 (@defs1)
@@ -261,7 +384,7 @@ sub getRelatedness
 	if (defined $index{$def_term1})
 	{
 	    my $index_term = $index{$def_term1};
-            my $p = $position{$index_term};
+        my $p = $position{$index_term};
 	    my $l = $length{$index_term};
 	    
 	    if (($p==0) and (!defined $l))
@@ -359,7 +482,7 @@ sub getRelatedness
 			    $z += 2;
 			    
 			    if (defined $debugfile) {
-				if(defined $wordvector[$z]) {
+				if(defined $word_vector[$z]) {
 				    print DEBUG "$reverse_index{$word_vector[$z]} ";
 				}
 			    } 	
@@ -461,13 +584,31 @@ sub getError
 }
 
 1;
+
 __END__
 
 =head1 NAME
 
 UMLS::Similarity::vector - Perl module for computing semantic relatedness
 of concepts in the Unified Medical Language System (UMLS) using the 
-method described by Patwardhan (2003).
+method described by Patwardhan and Pedersen (2006).
+
+=head1 CITATION
+
+ @inproceedings{PatwardhanP06,
+  title={{Using WordNet-based Context Vectors to Estimate 
+          the Semantic Relatedness of Concepts}},
+  author={Patwardhan, S. and Pedersen, T.},
+  booktitle={Proceedings of the EACL 2006 Workshop Making Sense
+             of Sense - Bringing Computational Linguistics and 
+             Psycholinguistics Together},
+  volume={1501},
+  pages={1-8},
+  year={2006},
+  month={April},
+  address={Trento, Italy}
+ }
+
 =head1 SYNOPSIS
 
   use UMLS::Interface;
@@ -475,7 +616,6 @@ method described by Patwardhan (2003).
 
   my $vectormatrix = "samples/vectormatrix";
   my $vectorindex  = "samples/vectorindex";
-
 
   my $umls = UMLS::Interface->new(); 
   die "Unable to create UMLS::Interface object.\n" if(!$umls);
@@ -512,47 +652,48 @@ the EACL 2006 Workshop Making Sense of Sense - Bringing Computational
 Linguistics and Psycholinguistics Together, pp. 1-8, April 4, 2006, Trento, Italy.
 http://www.d.umn.edu/~tpederse/Pubs/eacl2006-vector.pdf
 
-The co-occurrence matrix and index file used in the vector method are 
-prepared by vector-input.pl method. Index file assigns each term of the
-bigrams a number and also records the vector position and length which 
-starts the term of the co-occrrence matrix. For example, for the following 
-bigrams list which are generated by the text "This is the first line Of a LONG file."
+--indexfile and --matrixfile option. The co-occurrence matrix and index
+file used in the vector method are prepared by vector-input.pl method. 
+Index file assigns each term of the bigrams a number and also records the 
+vector position and length which starts the term of the co-occrrence matrix. 
+For example, for the following bigrams list which are generated by the 
+text "This is the first line Of a LONG file.":
 
-9
-LONG<>file<>1 1 1
-Of<>a<>1 1 1
-This<>is<>1 1 1
-a<>LONG<>1 1 1
-file<>.<>1 1 1
-first<>line<>1 1 1
-is<>the<>1 1 1
-line<>Of<>1 1 1
-the<>first<>1 1 1
+	9
+	LONG<>file<>1 1 1
+	Of<>a<>1 1 1
+	This<>is<>1 1 1
+	a<>LONG<>1 1 1
+	file<>.<>1 1 1
+	first<>line<>1 1 1
+	is<>the<>1 1 1
+	line<>Of<>1 1 1
+	the<>first<>1 1 1
 
 The index file for the terms show up in the above will be:
 
-. 1 0
-LONG 2 0 8
-Of 3 8 8
-This 4 16 8
-a 5 24 8
-file 6 32 8
-first 7 40 8
-is 8 48 9
-line 9 57 8
-the 10 65 9
+	. 1 0
+	LONG 2 0 8
+	Of 3 8 8
+	This 4 16 8
+	a 5 24 8
+	file 6 32 8
+	first 7 40 8
+	is 8 48 9
+	line 9 57 8
+	the 10 65 9
 
 The co-occurrence matrix file will be: 
 
-2: 6 1
-3: 5 1
-4: 8 1
-5: 2 1
-6: 1 1
-7: 9 1
-8: 10 1
-9: 3 1
-10: 7 1
+	2: 6 1
+	3: 5 1
+	4: 8 1
+	5: 2 1
+	6: 1 1
+	7: 9 1
+	8: 10 1
+	9: 3 1
+	10: 7 1
 
 Each index file assigns the term a number and also record the 
 vector start position and length of the vector of the co-occurrence
@@ -564,6 +705,19 @@ the term 'LONG', it use '2' to represent 'LONG' and it starts at the
 vector-input.pl requires the bigrams are sorted, and you could use 
 count2huge.pl method of Text-NSP to convert the output of count.pl 
 to huge-count.pl. 
+
+--defraw option is a flag for the vector measure. The definitions 
+used are 'cleaned'. If the --defraw flag is set they will not be cleaned, 
+and it will leave the definitions in their "raw" form. 
+
+--dictfile option is a dictionary file for the vector measure. It 
+contains the 'definitions' of a concept which would be used rather 
+than the definitions from the UMLS. 
+
+--stoplist option is a word list file for the vector measure. The words
+of these file should be removed from the definition. In the stop list file, 
+each word is a line.  
+
     
 =head1 USAGE
 

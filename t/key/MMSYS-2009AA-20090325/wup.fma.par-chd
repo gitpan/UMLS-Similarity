@@ -8,8 +8,6 @@ User Settings:
   --realtime
 
 
-User Options:
-   --realtime option set
 
 UMLS-Interface Configuration Information
   Sources:
@@ -19,6 +17,11 @@ UMLS-Interface Configuration Information
     PAR
   Database: 
     umls (MMSYS-2009AA-20090325)
+
+
+
+PathFinder User Options:
+   --realtime option set
 
 
 0.5714<>hand(C0018563)<>skull(C0037303)

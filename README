@@ -81,13 +81,13 @@
           create-propagation-file.pl -- create the information content file
                                         required for the information content 
                                         measures
-        
-      SignificanceTesting.r      -- R script to calculate the correlation 
+
+          SignificanceTesting.r      -- R script to calculate the correlation 
                                         between a gold standard and the results 
                                         obtained using the measures in the 
                                         umls-similarity.pl program
-         
-      sim2r.pl                   -- converts umls-similarity.pl output to 
+
+          sim2r.pl                   -- converts umls-similarity.pl output to 
                                         a format that can be read by the R script
 
   INSTALL
@@ -119,12 +119,12 @@
         3. relatedness-long.t
 
         To set the environment variable in c shell:
-        
-       setenv UMLS_SIMILARITY_RUN_ALL 1
-        
-    and in bash shell:
-        
-       export UMLS_SIMILARITY_RUN_ALL=1
+
+          setenv UMLS_SIMILARITY_RUN_ALL 1
+
+        and in bash shell:
+
+          export UMLS_SIMILARITY_RUN_ALL=1
 
   SOFTWARE COPYRIGHT AND LICENSE
         Copyright (C) 2004-2009 Bridget T McInnes, Siddharth Patwardhan, 
@@ -146,6 +146,27 @@
 
         Note: The text of the GNU General Public License is provided in the file
         'GPL.txt' that you should have received with this distribution.
+
+  REFERENCING
+        If you write a paper that has used UMLS-Similarity in some way, we'd 
+        certainly be grateful if you sent us a copy and referenced UMLS-Interface. 
+        We have a published paper that provides a suitable reference:
+
+        @inproceedings{McInnesPP09,
+           title={{UMLS-Interface and UMLS-Similarity : Open Source 
+                   Software for Measuring Paths and Semantic Similarity}}, 
+           author={McInnes, B.T. and Pedersen, T. and Pakhomov, S.V.}, 
+           booktitle={Proceedings of the American Medical Informatics 
+                      Association (AMIA) Symposium},
+           year={2009}, 
+           month={November}, 
+           address={San Fransico, CA}
+        }
+
+        This paper is also found in
+        <http://www-users.cs.umn.edu/~bthomson/publications/pubs.html>
+        or
+        <http://www.d.umn.edu/~tpederse/Pubs/amia09.pdf>
 
   REFERENCES
         1   Wu Z. and Palmer M. 1994. Verb Semantics and Lexical Selection. In
