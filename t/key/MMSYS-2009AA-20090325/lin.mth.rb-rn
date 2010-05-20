@@ -26,6 +26,6 @@ PathFinder User Options:
 
 
 ICFinder User Options:
-  --propagation t/options/mth.rb-rn.icpropagation
+  --icpropagation t/options/mth.rb-rn.icpropagation
 
 Could not open file t/options/mth.rb-rn.icpropagation

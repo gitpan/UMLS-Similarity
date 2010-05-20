@@ -4,11 +4,14 @@
 ##########################################################################
 #
 # This program does the following : 
-#  Takes in a file from similarity2r.pl and calculates the
+#  Takes in a file from sim2r.pl and calculates the
 #  the pearson, spearman and kendall correlations between 
 #  the gold standard and the various measures
 ##########################################################################
-# 
+# This is how I run the program:
+#     
+#     R --slave --args filename <SignificanceTesting.r 
+#
 ##########################################################################
 
 #  get the files from the command line

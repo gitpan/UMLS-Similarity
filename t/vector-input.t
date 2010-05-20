@@ -5,16 +5,22 @@
 use strict;
 use warnings;
 
-use Test::More tests => 8;
+use Test::More tests => 6;
 
-BEGIN{ use_ok ('File::Spec') }
-BEGIN{ use_ok ('File::Path') }                                    
+use File::Spec;
+use File::Path;
+
+if(!(-d "t")) {
+    
+    print STDERR "Error - program must be run from UMLS::Similarity\n";
+    print STDERR "directory as : perl t/vector-input.t \n";
+    exit;  
+}
 
 #  set the key directory (create it if it doesn't exist)
 my $keydir = File::Spec->catfile('t','key');
-if(! (-e $keydir) ) 
-{
-    mkpath($keydir);
+if(! (-e $keydir) )  {
+    File::Path->make_path($keydir);
 }
 
 #  get the tests
@@ -23,62 +29,60 @@ my $output_index = File::Spec->catfile('t', 'key', 'static', 'index');
 my $output_matrix = File::Spec->catfile('t', 'key', 'static', 'matrix');
 
 my $perl     = $^X;
-my $util_prg = File::Spec->catfile('utils','vector-input.pl');
-my $test_index = File::Spec->catfile('t','output','index');
-my $test_matrix = File::Spec->catfile('t','output','matrix');
+my $util_prg = File::Spec->catfile('utils', 'vector-input.pl');
+my $test_index = File::Spec->catfile('utils', 'index');
+my $test_matrix = File::Spec->catfile('utils', 'matrix');
 
 system("$perl $util_prg $test_index $test_matrix $input");
    
 if(-e $output_index) 
 {
-    ok (open KEY1, $output_index) or diag "Could not open $output_index: $!";
-    my $key1 = "";
-    while(<KEY1>) { $key1 .= $_; } close KEY1;
-    
-    ok (open KEY2, $test_index) or diag "Could not open $test_index: $!";
-    my $key2 = "";
-    while(<KEY2>) { $key2 .= $_; } close KEY2;
-    cmp_ok($key1, 'eq', $key2);
+	ok (open KEY1, $output_index) or diag "Could not open $output_index: $!";
+	my $key1 = "";
+	while(<KEY1>) { $key1 .= $_; } close KEY1;
+
+	ok (open KEY2, $test_index) or diag "Could not open $test_index: $!";
+	my $key2 = "";
+	while(<KEY2>) { $key2 .= $_; } close KEY2;
+	cmp_ok($key1, 'eq', $key2);
+
+	File::Path->remove_tree($test_index);
 }
 else 
 {
-    ok(open OUTPUT, "$test_index") || diag "Could not open $test_index: $!";
-    my $out = "";
-    while(<OUTPUT>) { $out .= $_; } close OUTPUT;
-    ok(open KEY, ">$output_index") || diag "Could not open $output_index: $!";
-    print KEY "$out"; 
-    close KEY;
-  
-  SKIP: {
-      skip ("Generating key, no need to run test", 1);
-    }
+	if(-e $test_index) 
+	{	
+		ok(system ("mv $test_index $output_index")) || diag "Could not move the index result. ";
+	}
+    SKIP: 
+	{
+		skip ("Generating key, no need to run test", 1);
+	}
 }
 
 if(-e $output_matrix) 
 {
-    ok (open KEY3, $output_matrix) or diag "Could not open $output_matrix: $!";
-    my $key3 = "";
-    while(<KEY3>) { $key3 .= $_; } close KEY3;
-    
-    ok (open KEY4, $test_matrix) or diag "Could not open $test_matrix: $!";
-    my $key4 = "";
-    while(<KEY4>) { $key4 .= $_; } close KEY4;
-    cmp_ok($key3, 'eq', $key4);
+	ok (open KEY3, $output_matrix) or diag "Could not open $output_matrix: $!";
+	my $key3 = "";
+	while(<KEY3>) { $key3 .= $_; } close KEY3;
+
+	ok (open KEY4, $test_matrix) or diag "Could not open $test_matrix: $!";
+	my $key4 = "";
+	while(<KEY4>) { $key4 .= $_; } close KEY4;
+	cmp_ok($key3, 'eq', $key4);
+
+	File::Path->remove_tree($test_matrix);
 }
 else 
 {
-    ok(open OUTPUT, "$test_matrix") || diag "Could not open $test_matrix: $!";
-    my $out = "";
-    while(<OUTPUT>) { $out .= $_; } close OUTPUT;
-    ok(open KEY, ">$output_matrix") || diag "Could not open $output_matrix: $!";
-    print KEY "$out"; 
-    close KEY;
-  
-  SKIP: {
-      skip ("Generating key, no need to run test", 1);
-    }
+	if(-e $test_matrix) 
+	{	
+		ok(system ("mv $test_matrix $output_matrix")) || diag "Could not move the matrix result. ";
+	}
+    SKIP: 
+	{
+		skip ("Generating key, no need to run test", 2);
+	}
 }
 
-#  remove the index and matrix files
-File::Path->rmtree($test_index);
-File::Path->rmtree($test_matrix);
+

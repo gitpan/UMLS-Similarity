@@ -26,6 +26,6 @@ PathFinder User Options:
 
 
 ICFinder User Options:
-  --propagation t/options/snomedct.par-chd.icpropagation
+  --icpropagation t/options/snomedct.par-chd.icpropagation
 
 Could not open file t/options/snomedct.par-chd.icpropagation

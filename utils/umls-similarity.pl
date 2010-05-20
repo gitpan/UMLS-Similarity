@@ -73,7 +73,7 @@ available measure are:
 
 =head3 --precision N
 
-Displays values upto N places of decimal.
+Displays values up to N places of decimal.
 
 =head3 --allsenses
 
@@ -344,7 +344,7 @@ this program; if not, write to:
 use UMLS::Interface;
 use Getopt::Long;
 
-eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "forcerun", "debug", "verbose", "icfrequency", "icpropagation=s", "realtime", "stoplist=s", "debugfile=s", "vectormatrix=s", "vectorindex=s", "defraw", "dictfile=s", "t")) or die ("Please check the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "forcerun", "debug", "verbose", "icfrequency=s", "icpropagation=s", "realtime", "stoplist=s", "debugfile=s", "vectormatrix=s", "vectorindex=s", "defraw", "dictfile=s", "t")) or die ("Please check the above mentioned option(s).\n");
 
 
 my $debug = 0;
@@ -1194,7 +1194,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.37 2010/05/12 15:15:16 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.39 2010/05/17 12:43:31 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

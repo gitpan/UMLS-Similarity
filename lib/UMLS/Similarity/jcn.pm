@@ -119,7 +119,10 @@ sub getRelatedness
     #  otherwise calculate the distance
     my $distance = $ic1 + $ic2 - (2 * $iclcs);
     
-    my $score = 1 / $distance;
+    my $score = 0;
+    if($distance > 0) { 
+	$score = 1 / $distance;
+    }
 
     return $score;
 }

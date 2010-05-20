@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-vector-input.pl - build the term index file and co-occrrence matrix for umls-similarity.pl to calculate the vector relatedness 
+vector-input.pl - This program builds the term index file and co-occrrence matrix for umls-similarity.pl to calculate the vector relatedness. 
 
 =head1 SYNOPSIS
 
-vector-input.pl takes the bigrams frquency input and build the index and the 
+vector-input.pl takes the bigrams frequency input and build the index and the 
 co-occurrence matrix.
 
 =head1 DESCRIPTION

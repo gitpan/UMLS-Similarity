@@ -23,7 +23,7 @@ File in which the propagation counts for the CUIs will be stored
 
 =head3 INPUTFILE
 
-File containing plain text. One record per line.
+File containing plain text. 
 
 =head2 Optional Arguments:
 
@@ -43,7 +43,13 @@ L<http://mmtx.nlm.nih.gov/>
 The input file contains frequency counts for CUIs in the following 
 format: 
 
-These frequency counts are used to obtain the propagation counts
+    CUI<>freq
+    CUI<>freq
+    ...
+
+These frequency counts are used to obtain the propagation counts.
+The format is similar to the output of count.pl from Text::NSP
+using the unigram option.
 
 =head3 --config FILE
 
@@ -68,6 +74,10 @@ REL :: exclude PAR, CHD
 If you go to the configuration file directory, there will 
 be example configuration files for the different runs that 
 you have performed.
+
+=head3 --precision N
+
+Displays values upto N places of decimal.
 
 =head3 --username STRING
 
@@ -185,8 +195,9 @@ this program; if not, write to:
 
 use UMLS::Interface;
 use Getopt::Long;
+use File::Path;
 
-eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "config=s", "debug", "t", "metamap", "term", "icfrequency")) or die ("Please check the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "config=s", "debug", "t", "metamap", "term", "icfrequency", "precision=s")) or die ("Please check the above mentioned option(s).\n");
 
 
 my $debug = 0;
@@ -231,6 +242,7 @@ my $database    = "";
 my $hostname    = "";
 my $socket      = "";    
 my $umls        = "";
+my $floatformat = "";
 
 #  check the options 
 &checkOptions       ();
@@ -258,6 +270,12 @@ my $propagationHash = $umls->propagateCounts($cuiHash);
 open(OUTPUT, ">$outputfile") || die "Could not open $outputfile\n";
 foreach my $cui (sort keys %{$propagationHash}) {
     my $freq = ${$propagationHash}{$cui};
+
+    #  check if precision needs to be set
+    if(defined $opt_precision) {
+	$freq = sprintf $floatformat, $freq;
+    }
+    
     print OUTPUT "$cui<>$freq\n";
 }
 close OUTPUT;
@@ -271,7 +289,7 @@ sub getFileCounts {
     my %hash = ();
     while(<FILE>) {
 	chomp;
-	my ($freq, $cui, $str) = split/\|/;
+	my ($cui, $freq) = split/<>/;
 	if(exists $cuiHash{$cui}) { 
 	    $hash{$cui} += $freq; 
 	}
@@ -312,8 +330,8 @@ sub getTermCounts {
     }
     close COUNT;
 
-    system "rm tmp.count";
-    
+    File::Path->remove_tree("tmp.count");
+    	
     return \%hash;
 }
 
@@ -350,8 +368,8 @@ sub callMetaMap
     my $output = "";
 	
     my $timestamp = &timeStamp();
-    my $metamapInput  = "log/tmp1.metamap.input.$timestamp";
-    my $metamapOutput = "log/tmp1.metamap.output.$timestamp";
+    my $metamapInput  = "tmp.metamap.input.$timestamp";
+    my $metamapOutput = "tmp.metamap.output.$timestamp";
     
     open(METAMAP_INPUT, ">$metamapInput") || die "Could not open file: $metamapInput\n";
     
@@ -370,7 +388,8 @@ sub callMetaMap
     }
     close METAMAP_OUTPUT;
     
-    system "rm $metamapInput $metamapOutput";
+    File::Path->remove_tree($metamapInput);
+    File::Path->remove_tree($metamapOutput);
 
     return $output;
 }
@@ -462,6 +481,20 @@ sub setOptions {
 	    $default .= "  --socket $socket\n";
 	}
     }
+    
+    if(defined $opt_precision) {
+	if ($opt_precision !~ /^\d+$/) {
+	    print STDERR "Value for switch --precision should be integer >= 0\n";
+	    &minimalUsageNotes();
+	    exit;
+	}
+	# create the floating point conversion format as required by sprintf!
+	$floatformat = join '', '%', '.', $opt_precision, 'f';
+       
+	#  set the output information
+	$set .= "  --precision $opt_precision";	
+    } 
+    
         
     if(defined $opt_debug) { 
 	$set .= "  --debug\n";
@@ -552,6 +585,11 @@ sub showHelp() {
     print "--metamap                Calculates the frequency counts using\n";
     print "                         the CUIs assigned to terms by MetaMap.\n\n";
 
+    print "--precision N            Displays values upto N places of decimal.\n\n";
+
+    print "--icfrequency            The input file contains frequency counts\n";
+    print "                         for CUIs rather than plain text\n\n";
+
     print "--username STRING        Username required to access mysql\n\n";
 
     print "--password STRING        Password required to access mysql\n\n";
@@ -572,7 +610,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: create-propagation-file.pl,v 1.7 2010/05/12 15:15:16 btmcinnes Exp $';
+    print '$Id: create-propagation-file.pl,v 1.10 2010/05/17 12:43:31 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

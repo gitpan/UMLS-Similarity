@@ -38,7 +38,7 @@
 
 package UMLS::Similarity;
 
-$VERSION = '0.49';
+$VERSION = '0.51';
 
 sub new
 {
@@ -97,9 +97,9 @@ __END__
 =head1 NAME
 
 UMLS::Similarity - A suite of Perl modules that implement a number 
-of semantic similarity measures. The measures use the UMLS-Interface 
-module to access the UMLS to generate similarity scores between 
-concepts.
+of semantic similarity measures in order to calculate the similarity 
+between two concepts in the UMLS. The measures use the UMLS-Interface 
+module to access the UMLS present in a mysql database.
 
 =head1 SYNOPSIS
 

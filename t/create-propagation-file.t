@@ -5,11 +5,18 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 7;
 
-BEGIN {use_ok 'UMLS::Interface'}
-BEGIN{ use_ok ('File::Spec') }
-BEGIN{ use_ok ('File::Path') }                                    
+use UMLS::Interface;
+use File::Spec;
+use File::Path;
+
+if(!(-d "t")) {
+    
+    print STDERR "Error - program must be run from UMLS::Similarity\n";
+    print STDERR "directory as : perl t/create-propagation-file.t \n";
+    exit;  
+}
 
 #  initialize option hash
 my %option_hash = ();
@@ -34,7 +41,7 @@ ok(!($errCode));
 #  set the key directory (create it if it doesn't exist)
 my $keydir = File::Spec->catfile('t','key', $version);
 if(! (-e $keydir) ) {
-    mkpath($keydir);
+    File::Path->make_path($keydir);
 }
 
 #  set the tests
@@ -44,6 +51,9 @@ my $util_prg   = File::Spec->catfile('utils', 'create-propagation-file.pl');
 #  set the input/outputfile
 my $inputfile  = File::Spec->catfile('t','options','plain_text');
 my $outputfile = File::Spec->catfile('t','output', 'create-propagation-file.output');
+
+#  remove the output file if it exists
+File::Path->remove_tree($outputfile);
 
 #  set the key files
 my $filekey    = File::Spec->catfile('t', 'key', $version, 'create-propagation-file.key');
@@ -88,4 +98,5 @@ else {
     }
 }    
 
-File::Path->rmtree($outputfile);
+#  remove output file
+File::Path->remove_tree($outputfile);

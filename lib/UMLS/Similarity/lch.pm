@@ -104,7 +104,7 @@ sub getRelatedness
 
     #  get the depth of the taxonomy
     my $depth = $interface->depth();
-
+    
     my $score = 0;
 
     #  calculate lch

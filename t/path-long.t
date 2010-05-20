@@ -6,24 +6,31 @@ use strict;
 use warnings;
 
 use Test::More;
-#use CompTestUtils;
+
+use UMLS::Interface;
+use File::Spec;
+use File::Path;
 
 BEGIN 
 { 
     plan skip_all => "Lengthy Tests Disabled\n" .
-                     "set UMLS_SIMILARITY_RUN_ALL to run this test suite" 
-        unless defined $ENV{UMLS_SIMILARITY_RUN_ALL} ;
-
+	"set UMLS_SIMILARITY_RUN_ALL to run this test suite" 
+	unless defined $ENV{UMLS_SIMILARITY_RUN_ALL} and 
+	$ENV{UMLS_SIMILARITY_RUN_ALL}==1;
+    
     # use Test::NoWarnings, if available
     my $extra = 0 ;
     $extra = 1
         if eval { require Test::NoWarnings ;  import Test::NoWarnings; 1 };
 
     plan tests => 33;
+}
 
-    BEGIN {use_ok 'UMLS::Interface'}
-    BEGIN{ use_ok ('File::Spec') }
-    BEGIN{ use_ok ('File::Path') }                                    
+if(!(-d "t")) {
+    
+    print STDERR "Error - program must be run from UMLS::Similarity\n";
+    print STDERR "directory as : perl t/ic-long.t \n";
+    exit;  
 }
 
 #  initialize option hash
@@ -50,7 +57,7 @@ ok(!($errCode));
 #  set the key directory (create it if it doesn't exist)
 my $keydir = File::Spec->catfile('t','key', $version);
 if(! (-e $keydir) ) {
-    mkpath($keydir);
+    File::Path->make_path($keydir);
 }
 
 #  get the tests

@@ -26,7 +26,7 @@ PathFinder User Options:
 
 
 ICFinder User Options:
-  --propagation t/options/fma.par-chd.icpropagation
+  --icpropagation t/options/fma.par-chd.icpropagation
 
 0.0218<>hand(C0018563)<>skull(C0037303)
 0.0206<>skull(C0037303)<>neck(C0027530)

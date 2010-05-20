@@ -2,8 +2,8 @@
 
 =head1 NAME
 
-sim2r.pl - converts a series of umls-similarity output to R format
-    in order to run the SignificanceTesting.r program 
+sim2r.pl - This program converts a series of umls-similarity output to 
+    R format in order to run the SignificanceTesting.r program. 
 
 =head1 SYNOPSIS
 
@@ -156,7 +156,7 @@ if( !(defined $opt_infile) and (scalar(@ARGV) < 2) ) {
 
 
 my $goldfile = shift;
-open(GOLD, $goldfile) || die "GOLD\n";
+open(GOLD, $goldfile) || die "Could not open file: $goldfile\n";
 
 my %gold = ();
 while(<GOLD>) { 
@@ -253,7 +253,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: sim2r.pl,v 1.1 2010/04/19 20:45:10 btmcinnes Exp $';
+    print '$Id: sim2r.pl,v 1.3 2010/05/18 16:59:58 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 
