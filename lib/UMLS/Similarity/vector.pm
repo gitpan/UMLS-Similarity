@@ -39,15 +39,17 @@
 # Boston, MA  02111-1307, USA.
 
 
+
 package UMLS::Similarity::vector;
 
 use strict;
 use warnings;
 
 use UMLS::Similarity;
+use Lingua::Stem::En;
 
 use vars qw($VERSION);
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 my $debug        = 0;
 my $defraw_option= 0;
@@ -56,6 +58,8 @@ my $vectormatrix = "";
 my $vectorindex  = "";
 my $dictfile     = "";
 my $stoplist	 = "";
+my $stem         = "";
+my $stopregex	 = "";
 my $debugfile    = "";
 my $config       = "";
 
@@ -81,26 +85,19 @@ sub new
 
     my $self = {};
     
-    # Initialize the error string and the error level.
-    $self->{'errorString'} = "";
-    $self->{'error'} = 0;
-    
     # Bless the object.
     bless($self, $className);
     
     # The backend interface object.
     $self->{'interface'} = $interface;
     
-    if(!$interface)
-    {
-	$self->{'errorString'} .= "\nError (UMLS::Similarity::vector->new()) - ";
-	$self->{'errorString'} .= "An interface object is required.";
-	$self->{'error'} = 2;
+    #  check the configuration file if defined
+    my $errorhandler = UMLS::Similarity::ErrorHandler->new("vector",  $interface);
+    if(!$errorhandler) {
+	print STDERR "The UMLS::Similarity::ErrorHandler did not load properly\n";
+	exit;
     }
     
-    # The backend interface object.
-    $self->{'interface'} = $interface;
-
     $params = {} if(!defined $params);
 
     $vectorindex  = $params->{'vectorindex'};
@@ -109,6 +106,7 @@ sub new
     $dictfile     = $params->{'dictfile'};
     $debugfile	  = $params->{'debugfile'};
     $stoplist	  = $params->{'stoplist'};
+    $stem         = $params->{'stem'};
     
     my $defraw       = $params->{'defraw'};
     
@@ -178,14 +176,18 @@ sub new
  
 	if (defined $stoplist) {
 
-	open(STOP, "$stoplist")
+	open(STP, "$stoplist")
 	    or die("Error: cannot open stop list file ($stoplist).\n");
 
-	while (<STOP>) {
-	chomp;
-	$stopwords{$_} = 1;
-	}
-	close STOP;
+	$stopregex  = "(";
+    while(<STP>) {
+        chomp;
+        if($_=~/\@stop\.mode/) { next; }
+        $_=~s/\///g;
+        $stopregex .= "$_|";
+    }   
+    chop $stopregex; $stopregex .= ")";
+    close STP;
 
 	}
 
@@ -220,16 +222,12 @@ sub getRelatedness
 	    my @new_defs1 = (); my @new_defs2 = ();
 	    
 	    foreach my $w (@defs1) {
-		if (defined $stopwords{$w})  {
-		    next; }
-		else {
+		if (!($w=~/$stopregex/))  {
 		    push (@new_defs1, $w);}
 	    }
 	    
 	    foreach my $w (@defs2) {
-		if (defined $stopwords{$w}) {
-		    next; }
-		else {
+		if (!($w=~/$stopregex/))  {
 		    push (@new_defs2, $w);}
 	    }
 	    
@@ -241,6 +239,16 @@ sub getRelatedness
 	    
 	}
 	
+	if(defined $stem) {
+		my @def1_words = split(/\s/, $d1);
+        my @def2_words = split(/\s/, $d2);
+        my $stemmed_words1 = Lingua::Stem::En::stem({ -words => \@def1_words, -locale => 'en'});
+        my $stemmed_words2 = Lingua::Stem::En::stem({ -words => \@def2_words, -locale => 'en'});
+
+        $d1 = join(" ", @{$stemmed_words1});
+        $d2 = join(" ", @{$stemmed_words2});
+	}
+
 	if(defined $debugfile) { 
 	    print DEBUG "DEFINITIONS FOR CUI 1: \n";
 	    print DEBUG "1. $d1\n";
@@ -252,15 +260,15 @@ sub getRelatedness
     else
     {
 
-	my $defs1 = $interface->getExtendedDefinition($concept1);
-	my $defs2 = $interface->getExtendedDefinition($concept2);
-	
-	$d1 = ""; 
+		my $defs1 = $interface->getExtendedDefinition($concept1);
+		my $defs2 = $interface->getExtendedDefinition($concept2);
+		
+		$d1 = ""; 
 
-	if(defined $debugfile) { print DEBUG "DEFINITIONS FOR CUI 1: \n"; }
-	
-	my $i = 1;
-	foreach my $extendeddef (@{$defs1}) {
+		if(defined $debugfile) { print DEBUG "DEFINITIONS FOR CUI 1: \n"; }
+		
+		my $i = 1;
+		foreach my $extendeddef (@{$defs1}) {
 
 	    #  seperate definition from the other information 
 	    #  sent by the getExtendedDefinition function
@@ -278,9 +286,7 @@ sub getRelatedness
 		my @def1 = split(" ", $def);	
 		my @new_def1 = ();
 		foreach my $w (@def1) {
-		    if (defined $stopwords{$w}) {
-			next; }
-		    else {
+		    if (!($w =~ /$stopregex/)) {
 			push (@new_def1, $w);}
 		}
 		
@@ -289,7 +295,13 @@ sub getRelatedness
 		$def = join (" ", @new_def1);	
 	    }
 	    
-            #  if --debugfile option is set print out to the extended
+		if(defined $stem) {
+			my @def_words = split(/\s/, $def);
+        	my $stemmed_words = Lingua::Stem::En::stem({ -words => \@def_words, -locale => 'en'});
+        	$def = join(" ", @{$stemmed_words});
+		}
+
+        #  if --debugfile option is set print out to the extended
 	    #  definition to the debug file
 	    if(defined $debugfile) { 
 		print DEBUG "$i. $extendeddef\n"; 
@@ -298,14 +310,14 @@ sub getRelatedness
 
 	    #  store the definition in the string d1
 	    $d1 .= $def . " "; 
-	}
+		
+		}
 	
-	$d2 = ""; 
-	
-	if(defined $debugfile) { print DEBUG "DEFINITIONS FOR CUI 2: \n"; }
+		$d2 = ""; 
+		if(defined $debugfile) { print DEBUG "DEFINITIONS FOR CUI 2: \n"; }
 
-	my $j = 1;
-	foreach my $extendeddef (@{$defs2}) {
+		my $j = 1;
+		foreach my $extendeddef (@{$defs2}) {
 
 	    #  seperate definition from the other information 
 	    #  sent by the getExtendedDefinition function
@@ -320,19 +332,23 @@ sub getRelatedness
 	    
 	    # if --stopword option is set remove stop words
 	    if (defined $stoplist) {
-    		my @def2 = split(" ", $def);	
+		my @def2 = split(" ", $def);	
 		my @new_def2 = ();
 		foreach my $w (@def2) {
-		    if (defined $stopwords{$w}) {
-			next; }
-		    else {
-			push (@new_def2, $w);
-		    }
+			if (!($w =~ /$stopregex/)) {
+				push (@new_def2, $w);}
 		}
+
 		$def = "";
 		@def2 = ();
 		$def = join (" ", @new_def2);	
 	    }
+
+		if(defined $stem) {
+			my @def_words = split(/\s/, $def);
+        	my $stemmed_words = Lingua::Stem::En::stem({ -words => \@def_words, -locale => 'en'});
+        	$def = join(" ", @{$stemmed_words});
+		}		
 
 	    #  if --debugfile option is set print out to the debug file
 	    if(defined $debugfile) { 
@@ -343,7 +359,7 @@ sub getRelatedness
 	    #  seperate definition from the other information 
 	    #  sent by the getExtendedDefinition function
 	    $d2 .= $def . " "; 
-	}
+		}
     }
     
     open(MATX, "<$vectormatrix")
@@ -562,27 +578,6 @@ sub _inner
     return $dotProduct;
 }
 
-# Method to return recent error/warning condition
-sub getError
-{
-    my $self = shift;
-    return (2, "") if(!defined $self || !ref $self);
-
-    if($debug) { print STDERR "In UMLS::Similarity::vector->getError()\n"; }
-
-    my $dontClear = shift;
-    my $error = $self->{'error'};
-    my $errorString = $self->{'errorString'};
-
-    if(!(defined $dontClear && $dontClear)) {
-	$self->{'error'} = 0;
-	$self->{'errorString'} = "";
-    }
-    $errorString =~ s/^\n//;
-
-    return ($error, $errorString);
-}
-
 1;
 
 __END__
@@ -619,18 +614,16 @@ method described by Patwardhan and Pedersen (2006).
 
   my $umls = UMLS::Interface->new(); 
   die "Unable to create UMLS::Interface object.\n" if(!$umls);
-  ($errCode, $errString) = $umls->getError();
-  die "$errString\n" if($errCode);
 
   $vectoroptions{"vectormatrix"} = $vectormatrix;
   $vectoroptions{"vectorindex"} = $vectorindex;
-  
+
   my $vector = UMLS::Similarity::vector->new($umls, \%vectoroptions);
   die "Unable to create measure object.\n" if(!$vector);
-  
+
   my $cui1 = "C0005767";
   my $cui2 = "C0007634";
-	
+
   @ts1 = $umls->getTermList($cui1);
   my $term1 = pop @ts1;
 
@@ -715,17 +708,20 @@ contains the 'definitions' of a concept which would be used rather
 than the definitions from the UMLS. 
 
 --stoplist option is a word list file for the vector measure. The words
-of these file should be removed from the definition. In the stop list file, 
-each word is a line.  
+in the file should be removed from the definition. In the stop list file, 
+each word is in the regular expression format. A stop word sample file 
+is under the samples folder which is called toplist-nsp.regex.
 
-    
+--stem option is a flag for the vector measure. If we the --stem flag
+is set, the words of the definition are stemmed by the the Porter Stemming
+algorithm.  
+
 =head1 USAGE
 
 The semantic relatedness modules in this distribution are built as classes
 that expose the following methods:
   new()
   getRelatedness()
-  getError()
 
 =head1 TYPICAL USAGE EXAMPLES
 
@@ -740,18 +736,14 @@ variable '$measure'. '$interface' contains an interface object that
 should have been created earlier in the program (UMLS-Interface). 
 
 If the 'new' method is unable to create the object, '$measure' would 
-be undefined. This, as well as any other error/warning may be tested.
-
-   die "Unable to create object.\n" if(!defined $measure);
-   ($err, $errString) = $measure->getError();
-   die $errString."\n" if($err);
+be undefined. 
 
 To find the semantic relatedness of the concept 'blood' (C0005767) and
 the concept 'cell' (C0007634) using the measure, we would write
 the following piece of code:
 
    $relatedness = $measure->getRelatedness('C0005767', 'C0007634');
-  
+
 =head1 SEE ALSO
 
 perl(1), UMLS::Interface
@@ -759,18 +751,18 @@ perl(1), UMLS::Interface
 perl(1), UMLS::Similarity(3)
 
 =head1 CONTACT US
-   
+
   If you have any trouble installing and using UMLS-Similarity, 
   please contact us via the users mailing list :
-    
+
       umls-similarity@yahoogroups.com
-     
+
   You can join this group by going to:
-    
+
       http://tech.groups.yahoo.com/group/umls-similarity/
-     
+
   You may also contact us directly if you prefer :
-    
+
       Bridget T. McInnes: bthomson at cs.umn.edu 
 
       Ted Pedersen : tpederse at d.umn.edu

@@ -13,8 +13,7 @@ use File::Path;
 
 BEGIN 
 { 
-    plan skip_all => "Lengthy Tests Disabled\n" .
-	"set UMLS_SIMILARITY_RUN_ALL to run this test suite" 
+    plan skip_all => "Lengthy Tests Disabled - set UMLS_SIMILARITY_RUN_ALL to run this test suite" 
 	unless defined $ENV{UMLS_SIMILARITY_RUN_ALL} and 
 	$ENV{UMLS_SIMILARITY_RUN_ALL}==1;
     
@@ -23,7 +22,7 @@ BEGIN
     $extra = 1
         if eval { require Test::NoWarnings ;  import Test::NoWarnings; 1 };
 
-    plan tests => 33;
+    plan tests => 31;
 }
 
 if(!(-d "t")) {
@@ -44,15 +43,8 @@ $option_hash{"t"} = 1;
 my $umls = UMLS::Interface->new(\%option_hash);
 ok($umls);
 
-my ($errCode, $errString) = $umls->getError();
-ok(!($errCode));
-
 #  get the version of umls that is being used
 my $version = $umls->version();
-
-#  check that no errors occured while obtaining the version
-($errCode, $errString) = $umls->getError();
-ok(!($errCode));
 
 #  set the key directory (create it if it doesn't exist)
 my $keydir = File::Spec->catfile('t','key', $version);

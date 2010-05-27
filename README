@@ -1,13 +1,11 @@
-
-    UMLS::Similarity
-
-  SYNOPSIS
+UMLS::Similarity             
+=head2 SYNOPSIS
       This package consists of Perl modules along with supporting Perl
       programs that implement the semantic similarity and relatedness 
       measures described by Leacock & Chodorow (1998), Wu & Palmer (1994), 
-      Nguyen and Al-Mubaid  (2006), Rada, et. al. 1989, Patwardhan (2003), 
-      Jiang & Conrath (1997), Resnik (1995), Lin (1998), Patwardhan and 
-      Pedersen (2006) and a simple path  based measure.
+      Nguyen and Al-Mubaid  (2006), Rada, et. al. 1989, Jiang & Conrath 
+      (1997), Resnik (1995), Lin (1998), Banerjee and Pedersen(2002), 
+      Patwardhan and Pedersen (2006) and a simple path  based measure.
 
       UMLS::Similarity requires the UMLS::Interface module to access 
       the Unified Medical Language System (UMLS) in order to determine 
@@ -60,6 +58,7 @@
           UMLS/Similarity/jcn.pm
           UMLS/Similarity/random.pm
           UMLS/Similarity/vector.pm (beta)
+          UMLS/Similarity/lesk.pm (beta)
 
         -- present in the lib/ subdirectory. All these modules, once installed
         in the Perl system directory, can be directly used by Perl programs.
@@ -78,10 +77,6 @@
           vector-input.pl            -- creates the matrix and index files 
                                         required for the vector measure
 
-          create-propagation-file.pl -- create the information content file
-                                        required for the information content 
-                                        measures
-
           SignificanceTesting.r      -- R script to calculate the correlation 
                                         between a gold standard and the results 
                                         obtained using the measures in the 
@@ -89,6 +84,11 @@
 
           sim2r.pl                   -- converts umls-similarity.pl output to 
                                         a format that can be read by the R script
+          create-icfrequency.pl      -- create the frequency file required for 
+                                        information content measures
+
+          create-icpropagation.pl    -- create the probability file required for 
+                                        information content measures
 
   INSTALL
         To install these modules run:
@@ -127,7 +127,7 @@
           export UMLS_SIMILARITY_RUN_ALL=1
 
   SOFTWARE COPYRIGHT AND LICENSE
-        Copyright (C) 2004-2009 Bridget T McInnes, Siddharth Patwardhan, 
+        Copyright (C) 2004-2010 Bridget T McInnes, Siddharth Patwardhan, 
         Serguei Pakhomov and Ted Pedersen
 
         This suite of programs is free software; you can redistribute it and/or
@@ -281,7 +281,7 @@
      liux0395 at umn.edu
 
   DOCUMENTATION COPYRIGHT AND LICENSE
-    Copyright (C) 2003-2009 Bridget T. McInnes, Siddharth Patwardhan,
+    Copyright (C) 2003-2010 Bridget T. McInnes, Siddharth Patwardhan,
     Serguei Pakhomov and Ted Pedersen.
 
     Permission is granted to copy, distribute and/or modify this document

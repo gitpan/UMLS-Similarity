@@ -45,7 +45,7 @@ use warnings;
 use UMLS::Similarity;
 
 use vars qw($VERSION);
-$VERSION = '0.03';
+$VERSION = '0.07';
 
 my $debug = 0;
 
@@ -59,26 +59,19 @@ sub new
     my $interface = shift;
 
     my $self = {};
-    
-    # Initialize the error string and the error level.
-    $self->{'errorString'} = "";
-    $self->{'error'} = 0;
- 
-   # Bless the object.
+     
+    # Bless the object.
     bless($self, $className);
     
     # The backend interface object.
     $self->{'interface'} = $interface;
-
-    if(!$interface)
-    {
-	$self->{'errorString'} .= "\nError (UMLS::Similarity::wup->new()) - ";
-	$self->{'errorString'} .= "An interface object is required.";
-	$self->{'error'} = 2;
+    
+    #  check the configuration file if defined
+    my $errorhandler = UMLS::Similarity::ErrorHandler->new("wup",  $interface);
+    if(!$errorhandler) {
+	print STDERR "The UMLS::Similarity::ErrorHandler did not load properly\n";
+	exit;
     }
-
-    # The backend interface object.
-    $self->{'interface'} = $interface;
     
     return $self;
 }
@@ -105,9 +98,11 @@ sub getRelatedness
     my $lcs_depth = 0; my $lcs = "";
     foreach my $l (@lcses) {
 	my $depth  = $interface->findMaximumDepth($l);
-	if(defined $depth and $lcs_depth < $depth) { $lcs_depth = $depth; $lcs = $l}
+	if(defined $depth and $lcs_depth < $depth) { 
+	    $lcs_depth = $depth; $lcs = $l;
+	}
     }
-
+    
     #  find the shortestpath between the concept and the lcses
     my @c1_paths = $interface->findShortestPath($lcs, $concept1);
     my @c2_paths = $interface->findShortestPath($lcs, $concept2);
@@ -128,33 +123,6 @@ sub getRelatedness
     return $score;
 }
 
-sub errorCheck {
-    my $obj = shift;
-    my ($errCode, $errString) = $obj->getError();                         
-    print STDERR "$errString\n" if($errCode);                          
-    exit if($errCode > 1);                                             
-}  
-
-# Method to return recent error/warning condition
-sub getError
-{
-    my $self = shift;
-    return (2, "") if(!defined $self || !ref $self);
-
-    if($debug) { print STDERR "In UMLS::Similarity::wup->getError()\n"; }
-
-    my $dontClear = shift;
-    my $error = $self->{'error'};
-    my $errorString = $self->{'errorString'};
-
-    if(!(defined $dontClear && $dontClear)) {
-	$self->{'error'} = 0;
-	$self->{'errorString'} = "";
-    }
-    $errorString =~ s/^\n//;
-
-    return ($error, $errorString);
-}
 1;
 __END__
 
@@ -180,23 +148,27 @@ method described by Wu and Palmer (1994).
 =head1 SYNOPSIS
 
   use UMLS::Interface;
+
   use UMLS::Similarity::wup;
 
   my $umls = UMLS::Interface->new(); 
+
   die "Unable to create UMLS::Interface object.\n" if(!$umls);
-  ($errCode, $errString) = $umls->getError();
-  die "$errString\n" if($errCode);
 
   my $wup = UMLS::Similarity::wup->new($umls);
+
   die "Unable to create measure object.\n" if(!$wup);
-  
+
   my $cui1 = "C0005767";
+
   my $cui2 = "C0007634";
-	
+
   @ts1 = $umls->getTermList($cui1);
+
   my $term1 = pop @ts1;
 
   @ts2 = $umls->getTermList($cui2);
+
   my $term2 = pop @ts2;
 
   my $value = $wup->getRelatedness($cui1, $cui2);
@@ -218,7 +190,6 @@ The semantic relatedness modules in this distribution are built as classes
 that expose the following methods:
   new()
   getRelatedness()
-  getError()
 
 =head1 TYPICAL USAGE EXAMPLES
 
@@ -233,11 +204,7 @@ variable '$measure'. '$interface' contains an interface object that
 should have been created earlier in the program (UMLS-Interface). 
 
 If the 'new' method is unable to create the object, '$measure' would 
-be undefined. This, as well as any other error/warning may be tested.
-
-   die "Unable to create object.\n" if(!defined $measure);
-   ($err, $errString) = $measure->getError();
-   die $errString."\n" if($err);
+be undefined. 
 
 To find the semantic relatedness of the concept 'blood' (C0005767) and
 the concept 'cell' (C0007634) using the measure, we would write
@@ -252,18 +219,18 @@ perl(1), UMLS::Interface
 perl(1), UMLS::Similarity(3)
 
 =head1 CONTACT US
-   
+
   If you have any trouble installing and using UMLS-Similarity, 
   please contact us via the users mailing list :
-    
+
       umls-similarity@yahoogroups.com
-     
+
   You can join this group by going to:
-    
+
       http://tech.groups.yahoo.com/group/umls-similarity/
-     
+
   You may also contact us directly if you prefer :
-    
+
       Bridget T. McInnes: bthomson at cs.umn.edu 
 
       Ted Pedersen : tpederse at d.umn.edu

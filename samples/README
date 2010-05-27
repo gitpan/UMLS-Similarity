@@ -39,3 +39,11 @@ vector measure.
 dictfile: is a sample of the dictionary file that can be used instead 
 of having the definitions be obtained from the UMLS.
 
+
+stoplist-nsp.regex
+==================
+ 
+stoplist-nsp.regex file is a sample of the stop words for lesk and vector method. 
+stop words are in the regular expression format. 
+
+

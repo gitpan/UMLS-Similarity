@@ -4,7 +4,7 @@ Default Settings:
 User Settings:
   --vectormatrix t/options/vectormatrix
   --vectorindex t/options/vectorindex
-  --config t/config/config.mth.rb-rn
+  --config t/config/rel-config.mth.rb-rn
   --infile t/tests/long-tests/mth.rb-rn
   --measure vector
   --realtime
@@ -26,4 +26,4 @@ PathFinder User Options:
    --realtime option set
 
 
-0.4987<>C0038454(cerebrovascular accident)<>C0021308(infarction)
+0.0000<>C0038454(cerebrovascular accident)<>C0021308(infarction)

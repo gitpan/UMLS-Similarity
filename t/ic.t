@@ -5,7 +5,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 15;
+use Test::More tests => 13;
 
 use UMLS::Interface;
 use File::Spec;
@@ -28,15 +28,8 @@ $option_hash{"t"} = 1;
 my $umls = UMLS::Interface->new(\%option_hash);
 ok($umls);
 
-my ($errCode, $errString) = $umls->getError();
-ok(!($errCode));
-
 #  get the version of umls that is being used
 my $version = $umls->version();
-
-#  check that no errors occured while obtaining the version
-($errCode, $errString) = $umls->getError();
-ok(!($errCode));
 
 #  set the key directory (create it if it doesn't exist)
 my $keydir = File::Spec->catfile('t','key', $version);
@@ -66,9 +59,9 @@ foreach my $measure (@measures) {
 	my $config  = File::Spec->catfile('t','config', $configfile);
 	my $key     = File::Spec->catfile('t', 'key', $version, $keyfile);
 	
-	my $propagationfile = File::Spec->catfile('t','options', $pfile);
+	my $icpropagation = File::Spec->catfile('t','options', $pfile);
 	
-	my $output = `$perl $util_prg --config $config --icpropagation $propagationfile --measure $measure --infile $infile --realtime 2>&1`;
+	my $output = `$perl $util_prg --config $config --icpropagation $icpropagation --measure $measure --infile $infile --realtime 2>&1`;
 	
 	if(-e $key) {
 	    ok (open KEY, $key) or diag "Could not open $key: $!";

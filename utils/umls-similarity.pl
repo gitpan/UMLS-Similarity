@@ -86,6 +86,11 @@ one CUI. Right now we just return the CUIs that are the most similar.
 Displays the quick summary of program options.
 
 =head3 --version
+S/Similarity/ErrorHandler.pm (unchanged)
+Manifying blib/man3/UMLS::Similarity::path.3pm
+Installing /usr/local/share/perl/5.10.1/UMLS/Similarity/path.pm
+Appending installation info to /usr/local/lib/perl/5.10.1/perllocal.pod
+bridget@jabberwocky:~/work/UMLS-Similarity$ 
 
 Displays the version information.
 
@@ -344,7 +349,7 @@ this program; if not, write to:
 use UMLS::Interface;
 use Getopt::Long;
 
-eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "forcerun", "debug", "verbose", "icfrequency=s", "icpropagation=s", "realtime", "stoplist=s", "debugfile=s", "vectormatrix=s", "vectorindex=s", "defraw", "dictfile=s", "t")) or die ("Please check the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "forcerun", "debug", "verbose", "icfrequency=s", "icpropagation=s", "realtime", "stoplist=s", "stem", "debugfile=s", "vectormatrix=s", "vectorindex=s", "defraw", "dictfile=s", "t")) or die ("Please check the above mentioned option(s).\n");
 
 
 my $debug = 0;
@@ -435,8 +440,6 @@ sub calculateSimilarity {
 	    }
 	    else {
 		@c1 = $umls->getConceptList($input1); 
-		&errorCheck($umls);
-		
 	    }
 	    if($input2=~/C[0-9]+/) {
 		if($umls->exists($input2)) {
@@ -446,23 +449,19 @@ sub calculateSimilarity {
 	    }
 	    else {
 		@c2 = $umls->getConceptList($input2); 
-		&errorCheck($umls);
 	    }
 	    
 	    my $t1 = $input1; my $t2 = $input2;
 	    
 	    if($cui_flag1) {
 		my @ts1 = $umls->getTermList($input1);
-		&errorCheck($umls);			
 		($t1) = @ts1;
 	    }
 	    if($cui_flag2) {
 		my @ts2 = $umls->getTermList($input2);
-		&errorCheck($umls);
 		($t2) = @ts2;
 	    }
-	    
-	    
+
 	    if($debug) {
 		print STDERR "$input1:$t1 (@c1)\n";
 		print STDERR "$input2:$t2 (@c2)\n";
@@ -480,9 +479,7 @@ sub calculateSimilarity {
 		    
 		    my $score = "";
 		    $value = $meas->getRelatedness($cc1, $cc2, $t1, $t2);
-		    &errorCheck($meas);
 		    $score = sprintf $floatformat, $value;
-		    
 		    $similarityHash{$cc1}{$cc2} = $score;
 		}
 	    }
@@ -661,6 +658,9 @@ sub loadMeasures {
 	if(defined $opt_stoplist) {
 	    $vectoroptions{"stoplist"} = $opt_stoplist;
 	}
+	if(defined $opt_stem) {
+	    $vectoroptions{"stem"} = $opt_stem;
+	}
 
 	$meas = UMLS::Similarity::vector->new($umls,\%vectoroptions);
     }
@@ -716,32 +716,35 @@ sub loadMeasures {
 	$meas = UMLS::Similarity::random->new($umls);
     }
     
-#    #  load the module implementing the lesk measure
-#    if($measure eq "lesk") {
-#	use UMLS::Similarity::lesk;
-#	my %leskoptions = ();
-#	
-#	if(defined $opt_stoplist) {
-#	    $leskoptions{"stoplist"} = $opt_stoplist;
-#	}
-#	if(defined $opt_debugfile) {
-#	    $leskoptions{"debugfile"} = $opt_debugfile;
-#	}
-#	
-#	if(defined $opt_defraw) { 
-#	    $leskoptions{"defraw"} = $opt_defraw;
-#	}
-#	if(defined $opt_dictfile) {
-#	    $leskoptions{"dictfile"} = $opt_dictfile;
-#	}
-#	
-#        $meas = UMLS::Similarity::lesk->new($umls,\%leskoptions);  
-#    }
-    
+    #  load the module implementing the lesk measure
+
+    if($measure eq "lesk") {
+	use UMLS::Similarity::lesk;
+	my %leskoptions = ();
+	
+	if(defined $opt_stoplist) {
+	    $leskoptions{"stoplist"} = $opt_stoplist;
+	}
+	if(defined $opt_stem) {
+	    $leskoptions{"stem"} = $opt_stem;
+	}
+	if(defined $opt_debugfile) {
+	    $leskoptions{"debugfile"} = $opt_debugfile;
+	}
+	
+	if(defined $opt_defraw) { 
+	    $leskoptions{"defraw"} = $opt_defraw;
+	}
+	if(defined $opt_dictfile) {
+	    $leskoptions{"dictfile"} = $opt_dictfile;
+	}
+	
+        $meas = UMLS::Similarity::lesk->new($umls,\%leskoptions);  
+    }
+
+
     die "Unable to create measure object.\n" if(!$meas);
-    ($errCode, $errString) = $meas->getError();
-    die "$errString\n" if($errCode);
-    
+
     return $meas;
 }
 
@@ -783,10 +786,6 @@ sub loadUMLS {
     
     $umls = UMLS::Interface->new(\%option_hash); 
     die "Unable to create UMLS::Interface object.\n" if(!$umls);
-    ($errCode, $errString) = $umls->getError();
-    die "$errString\n" if($errCode);
-    
-    &errorCheck($umls);
 }
 
 #  checks the user input options
@@ -799,7 +798,7 @@ sub checkOptions {
     }
 
     if(defined $opt_measure) {
-	if($opt_measure=~/\b(path|wup|lch|cdist|nam|vector|res|lin|random|jcn)\b/) {
+	if($opt_measure=~/\b(path|wup|lch|cdist|nam|vector|res|lin|random|jcn|lesk)\b/) {
 	    #  good to go
 	}
 	else {
@@ -809,6 +808,17 @@ sub checkOptions {
 	    exit;
 	}   
     }
+	
+    #  the random measure does not require the configuration file
+    #  if it is set exit since it could mean they don't know what
+    #  the random measure is
+    if( (defined $opt_config) && ($opt_measure=~/random/) ) {
+	print STDERR "The --config option is not required for the random\n";
+	print STDERR "measure. The random measure just assigns a random\n";
+	print STDERR "number as the similarity score.\n\n";
+	&minimalUsageNotes();
+	exit;
+    }   
 	
     # make certain the db file is specified if the vector measure 
     # is being used
@@ -832,19 +842,37 @@ sub checkOptions {
 	}
     }
  
+    if(defined $opt_stoplist) { 
+	if(! ($opt_measure=~/vector|lesk/) ) {
+	    print STDERR "The --stoplist option is only available\n";
+	    print STDERR "when using the lesk or vector measure.\n\n";
+	    &minimalUsageNotes();
+	    exit;
+	}
+    }    
+
+    if(defined $opt_stem) { 
+	if(! ($opt_measure=~/vector|lesk/) ) {
+	    print STDERR "The --stem option is only available\n";
+	    print STDERR "when using the lesk or vector measure.\n\n";
+	    &minimalUsageNotes();
+	    exit;
+	}
+    }    
+
     if(defined $opt_dictfile) { 
-	if(! ($opt_measure=~/vector/) ) {
+	if(! ($opt_measure=~/vector|lesk/) ) {
 	    print STDERR "The --dictfile option is only available\n";
-	    print STDERR "when using the vector measure.\n\n";
+	    print STDERR "when using the lesk or vector measure.\n\n";
 	    &minimalUsageNotes();
 	    exit;
 	}
     }    
 
     if(defined $opt_debugfile) { 
-	if(! ($opt_measure=~/(vector)/) ) {
+	if(! ($opt_measure=~/(vector|lesk)/) ) {
 	    print STDERR "The --debugfile option is only available\n";
-	    print STDERR "when using the vector measure.\n\n";
+	    print STDERR "when using the lesk or vector measure.\n\n";
 	    &minimalUsageNotes();
 	    exit;
 	}
@@ -1068,14 +1096,6 @@ sub setOptions {
     print STDERR "$set\n";
 }
 
-sub errorCheck {
-    my $obj = shift;
-    ($errCode, $errString) = $obj->getError();
-    print STDERR "$errString\n" if($errCode);
-    exit if($errCode > 1);
-}
-
-
 ##############################################################################
 #  function to output minimal usage notes
 ##############################################################################
@@ -1165,7 +1185,7 @@ sub showHelp() {
     print "--icfrequency FILE       File containing the frequency counts\n";
     print "                         of the CUIs.\n\n";
     
-    print "\n\nVector Measure Options:\n\n";
+    print "\n\nVector and Lesk Measure Options:\n\n";
 
     print "--vectormatrix FILE        The matrix file containing the vector\n";
     print "                         information for the vector measure.\n\n";
@@ -1173,28 +1193,35 @@ sub showHelp() {
     print "--vectorindex FILE         The index file containing the vector\n";
     print "                         information for the vector measure.\n\n";
 
-    print "--debugfile FILE         This prints the vector information to file,\n";
+    print "--debugfile FILE         This prints the vector or lesk information to file,\n";
     print "                         FILE, for debugging purposes.\n\n";
 
-    print "--dictfile FILE          This is a dictionary file for the vector measure.\n";
-    print "                         It contains the 'definitions' of a concept which\n";
-    print "                         would be used rather than the definitions from the\n";
-    print "                         UMLS\n\n";
+    print "--dictfile FILE          This is a dictionary file for the vector and lesk\n";
+    print "                         measure. It contains the 'definitions' of a concept\n";
+    print "                         which would be used rather than the definitions from\n";
+    print "                         the UMLS\n\n";
 
     print "--stoplist FILE          A file containing a list of words to be excluded\n";
-    print "                         from the features in the vector method.\n\n";
+    print "                         from the features in the vector and lesk method.\n\n";
 
-    print "--defraw                 This is a flag for the vector measure. The \n";
+    print "--stem                   This is a flag for the vector and lesk method. \n";
+    print "                         If the --stem flag is set, words are stemmed. \n\n";
+
+    print "--defraw                 This is a flag for the vector or lesk measure. The \n";
     print "                         definitions used are 'cleaned'. If the --defraw\n";
     print "                         flag is set they will not be cleaned. \n\n";
 
-}
+    print "\n\nLesk Measure Options:\n\n";
 
+
+
+
+}
 ##############################################################################
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.39 2010/05/17 12:43:31 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.44 2010/05/26 17:41:25 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

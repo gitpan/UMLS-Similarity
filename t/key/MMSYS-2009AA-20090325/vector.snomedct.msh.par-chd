@@ -4,7 +4,7 @@ Default Settings:
 User Settings:
   --vectormatrix t/options/vectormatrix
   --vectorindex t/options/vectorindex
-  --config t/config/config.snomedct.msh.par-chd
+  --config t/config/rel-config.snomedct.msh.par-chd
   --infile t/tests/long-tests/snomedct.msh.par-chd
   --measure vector
   --realtime
@@ -27,5 +27,5 @@ PathFinder User Options:
    --realtime option set
 
 
-0.2687<>C0459385(brain tissue structure)<>C0228067(infratentorial brain structure)
-0.0159<>C0175895(calcification)<>C0009814(stenosis)
+0.1310<>C0459385(brain tissue structure)<>C0228067(infratentorial brain structure)
+0.0000<>C0175895(calcification)<>C0009814(stenosis)

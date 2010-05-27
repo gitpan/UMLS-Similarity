@@ -45,7 +45,7 @@ use warnings;
 use UMLS::Similarity;
 
 use vars qw($VERSION);
-$VERSION = '0.03';
+$VERSION = '0.07';
 
 my $debug = 0;
 
@@ -59,26 +59,19 @@ sub new
     my $interface = shift;
 
     my $self = {};
-    
-    # Initialize the error string and the error level.
-    $self->{'errorString'} = "";
-    $self->{'error'} = 0;
- 
-   # Bless the object.
+     
+    # Bless the object.
     bless($self, $className);
     
     # The backend interface object.
     $self->{'interface'} = $interface;
-
-    if(!$interface)
-    {
-	$self->{'errorString'} .= "\nError (UMLS::Similarity::res->new()) - ";
-	$self->{'errorString'} .= "An interface object is required.";
-	$self->{'error'} = 2;
+    
+    #  check the configuration file if defined
+    my $errorhandler = UMLS::Similarity::ErrorHandler->new("res",  $interface);
+    if(!$errorhandler) {
+	print STDERR "The UMLS::Similarity::ErrorHandler did not load properly\n";
+	exit;
     }
-
-    # The backend interface object.
-    $self->{'interface'} = $interface;
     
     return $self;
 }
@@ -108,26 +101,6 @@ sub getRelatedness
     return $score
 }
 
-# Method to return recent error/warning condition
-sub getError
-{
-    my $self = shift;
-    return (2, "") if(!defined $self || !ref $self);
-
-    if($debug) { print STDERR "In UMLS::Similarity::res->getError()\n"; }
-
-    my $dontClear = shift;
-    my $error = $self->{'error'};
-    my $errorString = $self->{'errorString'};
-
-    if(!(defined $dontClear && $dontClear)) {
-	$self->{'error'} = 0;
-	$self->{'errorString'} = "";
-    }
-    $errorString =~ s/^\n//;
-
-    return ($error, $errorString);
-}
 
 1;
 __END__
@@ -154,28 +127,33 @@ relatednessof concepts in the Unified Medical Language System
 =head1 SYNOPSIS
 
   use UMLS::Interface;
+
   use UMLS::Similarity::res;
 
-  my $propagation_file = "samples/icpropagation";
+  my $icpropagation = "samples/icpropagation";
 
   my %option_hash = ();
-  $option_hash{"propagation"} = $propagation_file;
+
+  $option_hash{"icpropagation"} = $icpropagation;
 
   my $umls = UMLS::Interface->new(\%option_hash); 
+
   die "Unable to create UMLS::Interface object.\n" if(!$umls);
-  ($errCode, $errString) = $umls->getError();
-  die "$errString\n" if($errCode);
 
   my $res = UMLS::Similarity::res->new($umls);
+
   die "Unable to create measure object.\n" if(!$res);
-  
+
   my $cui1 = "C0005767";
+
   my $cui2 = "C0007634";
-	
+
   @ts1 = $umls->getTermList($cui1);
+
   my $term1 = pop @ts1;
 
   @ts2 = $umls->getTermList($cui2);
+
   my $term2 = pop @ts2;
 
   my $value = $res->getRelatedness($cui1, $cui2);
@@ -184,7 +162,7 @@ relatednessof concepts in the Unified Medical Language System
 
 =head1 DESCRIPTION
 
-This module computes the semantic relatedness of two concepts in 
+This module computes the semantic similarity of two concepts in 
 the UMLS according to a method described by Resnik (1995). The 
 relatedness measure proposed by Resnik is the information content 
 (IC) of the least common subsumer of the two concepts. 
@@ -202,13 +180,44 @@ configuration file. The format for this file is as follows:
  C0000096<>0.00003951
 
 A larger of example of this file can be found in the icpropagation file 
-in the samples/ directory. In order to create a propagation file given 
+in the samples/ directory. 
 
-A propagation file can be created using the create-propagation-file.pl
-program in the utils/ directory. This file will take either a list 
-of CUIs with their frequency counts or a raw text file and compute the 
-probability of each of the CUIs using the set of source(s) and relations 
-specified in the configuration file.
+A propagation file can be created using the create-icfrequency.pl and 
+the create-icpropagation.pl programs in the utils/ directory. The 
+create-icfrequency.pl program takes plain text and returns a list of 
+CUIs that are mapped to the text and the CUIs frequency counts. This 
+file can then be used by the create-icpropagation.pl program to create 
+a file containing a list of CUIs and their probability, or used 
+directly by the umls-similarity.pl program which will calculate the 
+probability of a concept on the fly. 
+
+The probability of each of the CUIs is dependendent on the set of 
+source(s) and relations specified in the configuration file - You 
+can not mix and match.
+
+=head1 PROPAGATION
+
+The Information Content (IC) is  defined as the negative log 
+of the probability of a concept. The probability of a concept, 
+c, is determine by summing the probability of the concept 
+(P(c)) ocurring in some text plus the probability its decendants 
+(P(d)) occuring in some text:
+
+P(c*) = P(c) + \sum_{d\exists decendant(c)} P(d)
+
+The initial probability of a concept (P(c)) and its decendants 
+(P(d)) is obtained by dividing the number of times a concept is 
+seen in the corpus (freq(d)) by the total number of concepts (N):
+
+P(d) = freq(d) / N
+
+Not all of the concepts in the taxonomy will be seen in the corpus. 
+We have the option to use Laplace smoothing, where the frequency 
+count of each of the concepts in the taxonomy is incremented by one. 
+The advantage of doing this is that it avoides having a concept that 
+has a probability of zero. The disadvantage is that it can shift the 
+overall probability mass of the concepts from what is actually seen 
+in the corpus. 
 
 =head1 USAGE
 
@@ -242,7 +251,7 @@ the concept 'cell' (C0007634) using the measure, we would write
 the following piece of code:
 
    $relatedness = $measure->getRelatedness('C0005767', 'C0007634');
-  
+
 =head1 SEE ALSO
 
 perl(1), UMLS::Interface
@@ -250,18 +259,18 @@ perl(1), UMLS::Interface
 perl(1), UMLS::Similarity(3)
 
 =head1 CONTACT US
-   
+
   If you have any trouble installing and using UMLS-Similarity, 
   please contact us via the users mailing list :
-    
+
       umls-similarity@yahoogroups.com
-     
+
   You can join this group by going to:
-    
+
       http://tech.groups.yahoo.com/group/umls-similarity/
-     
+
   You may also contact us directly if you prefer :
-    
+
       Bridget T. McInnes: bthomson at cs.umn.edu 
 
       Ted Pedersen : tpederse at d.umn.edu

@@ -1,0 +1,29 @@
+Default Settings:
+  --precision 4
+
+User Settings:
+  --config t/config/rel-config.fma.par-chd
+  --infile t/tests/measures/fma.par-chd
+  --measure lesk
+  --realtime
+
+
+
+UMLS-Interface Configuration Information
+  Sources:
+    FMA
+  Relations:
+    CHD
+    PAR
+  Database: 
+    umls (MMSYS-2009AA-20090325)
+
+
+
+PathFinder User Options:
+   --realtime option set
+
+
+0.0000<>hand(C0018563)<>skull(C0037303)
+0.0000<>skull(C0037303)<>neck(C0027530)
+0.0000<>hand(C0018563)<>neck(C0027530)

@@ -305,8 +305,8 @@ sub showHelp
 
     print "build the index file for each term of the bigrams file and\n";
     print "create the co-occurence matrix.INDEX is the output index file.\n";
-    print "MATRIX is the output matrix file. SOURCE is the input bigrams.\n";
-    print "file. SOURCE is the output of huge-count.pl of Text-NSP. \n\n";
+    print "MATRIX is the output matrix file. SOURCE is the output of\n"; 
+	print "huge-count.pl of Text-NSP. \n\n";
     
     print "OPTIONS:\n\n";
 

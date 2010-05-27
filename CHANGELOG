@@ -1,7 +1,45 @@
 NAME
     UMLS::Similarity CHANGES
 
-   Changes from version 0.49 to 0.51
+  Changes from version 0.51 to 0.53
+    1. add configuration checking for the modules
+
+    2. check the number of tests planned for the long tests. It looks like
+    they didn't get updated
+
+    3. increment the modules by 2
+
+    4. fix long tests
+
+        plan skip_all => "Lengthy Tests Disabled - set UMLS_SIMILARITY_RUN_ALL
+        to run this test suite\n"
+        unless defined $ENV{UMLS_SIMILARITY_RUN_ALL} and
+        $ENV{UMLS_SIMILARITY_RUN_ALL}==1;
+
+        rather than what I have.
+
+    5. add --smooth option
+
+    6. document how the smoothing is done in the perldoc
+
+    7. create-icfrequency.pl [PLAINTEXT|DIRECTORY] ICFREQUENCY_FILE Options:
+    --term --metamap
+
+    8. create-icpropagation.pl ICFREQUENCY_FILE ICPROPAGATION_FILE Options:
+    --smooth --config CONFIGURATION_FILE
+
+    9. Note: add time stamp to count.pl output for default output file name
+    in create-propagation-count.pl
+
+    10. released the lesk measure!!!
+
+    11. added the --stem option in the vector measure - this option is also
+    available in lesk
+
+    12. add regular expression stoplist support to vector - this option is
+    also available in lesk
+
+  Changes from version 0.49 to 0.51
      1. modified the create-propagation-file.pl to be a bit
         more robust in order for it to accepting a file with 
         spaces when using the --icfrequency option.
@@ -28,7 +66,7 @@ NAME
      9. change mkpath and rmtree to make_path() and remove_tree() in the 
         .t files
 
-   Changes from version 0.47 to 0.49
+  Changes from version 0.47 to 0.49
     Note: the make test longs are not working properly on all of the
     systems.
 
@@ -45,13 +83,13 @@ NAME
         package. The package is now not back compatible with 
         older versions of the UMLS-Interface package.
 
-   Changes from version 0.45 to 0.47
+  Changes from version 0.45 to 0.47
     1. updated documentation
 
     2. added to the --dictfile option the ability to have TERMS not just
     CUIs as input.
 
-   Changes from version 0.43 to 0.45
+  Changes from version 0.43 to 0.45
     1. Fixed some small errors that went out due to lesk
 
     2. Updated pod documentation
@@ -78,7 +116,7 @@ NAME
 
     9. Created testing file create-propagation-file.t
 
-   Changes from version 0.41 to 0.43
+  Changes from version 0.41 to 0.43
     Modified documentation and cleaned up the package
 
     Updated the vector.pm that the vector method read the index file and
@@ -99,20 +137,20 @@ NAME
 
     Added a samples/ directory which contains examples of the configuration
     file, matrix and index files for the vector measure, and propagation
-    file for the information content meausres.
+    file for the information content measures.
 
-   Changes from version 0.39 to 0.41
+  Changes from version 0.39 to 0.41
         Modified documentation and cleaned up the package
 
-   Changes from version 0.37 to 0.39
+  Changes from version 0.37 to 0.39
     Updated the way that the lcs and shortestpath was being done in
     UMLS-Interface. There were some complications.
 
     Added the vector.pm module and the def.pm module
 
-    Added the --measure vector option to umls-similarity
+    Added the --measure vector option to umls-similarity.
 
-   Changes from version 0.35 to 0.37
+  Changes from version 0.35 to 0.37
     I messed up when modifying the way the lcs and shortestpath information
     was obtained in UMLS-Similarity after I had changed it in
     UMLS-Interface. It should all be fixed now.
@@ -124,7 +162,7 @@ NAME
     I changed the Jiang and Conrath measure from jnc to jcn like it is
     suppose to be
 
-   Changes from version 0.33 to 0.35
+  Changes from version 0.33 to 0.35
     1. Modified the way lcs and shortestpath information is returned by the
     UMLS-Interface. Needed to modify the UMLS-Similarity to reflect these
     changes

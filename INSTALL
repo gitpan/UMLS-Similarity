@@ -1,12 +1,17 @@
-
-    UMLS-Similarity
+UMLS-Similarity
+    This package consists of Perl modules along with supporting Perl
+    programs that implement the semantic similarity and relatedness measures
+    described by Leacock & Chodorow (1998), Wu & Palmer (1994), Nguyen and
+    Al-Mubaid (2006), Rada, et. al. 1989, Patwardhan (2003), Jiang & Conrath
+    (1997), Resnik (1995), Lin (1998), Patwardhan and Pedersen (2006) and a
+    simple path based measure.
 
 TESTING PLATFORMS
-    UMLS-Interface has been developed and tested on Linux and Solaris,
+    UMLS-Similarity has been developed and tested on Linux and Solaris,
     primarily using Perl and the C shell (csh).
 
 REQUIREMENTS
-    UMLS-Interface REQUIRES that the following software be installed. More
+    UMLS-Similarity REQUIRES that the following software be installed. More
     details on how to obtain and install appear below.
 
     --Programming Languages Perl (version 5.8.5 or better)
@@ -48,12 +53,8 @@ INSTALLATION
     access this module when running.
 
     If you have the super-user access, then you can install UMLS-Similarity
-    into system directories via :
-
-                    perl Makefile.PL
-                    make
-                    make install
-                    make clean
+    into system directories via : perl Makefile.PL make make install make
+    clean
 
     The exact location of where UMLS-Similarity will be installed depends on
     your system configuration. A message will be printed out after 'make
@@ -113,7 +114,6 @@ USING vector.pm
     where the libdb is installed. For example:
 
             LIB     = /home/bridget/programs/db-4.7.25.NC/build_unix
-
     Then continue on with the typical perl module install:
 
            % perl Makefile.PL

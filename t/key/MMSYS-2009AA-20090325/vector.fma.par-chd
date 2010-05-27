@@ -4,7 +4,7 @@ Default Settings:
 User Settings:
   --vectormatrix t/options/vectormatrix
   --vectorindex t/options/vectorindex
-  --config t/config/config.fma.par-chd
+  --config t/config/rel-config.fma.par-chd
   --infile t/tests/measures/fma.par-chd
   --measure vector
   --realtime
@@ -26,6 +26,6 @@ PathFinder User Options:
    --realtime option set
 
 
-0.2994<>hand(C0018563)<>skull(C0037303)
-0.2138<>skull(C0037303)<>neck(C0027530)
-0.0293<>hand(C0018563)<>neck(C0027530)
+0.0000<>hand(C0018563)<>skull(C0037303)
+0.0000<>skull(C0037303)<>neck(C0027530)
+0.0000<>hand(C0018563)<>neck(C0027530)

@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                UMLS-Similarity
-version:             0.51
+version:             0.53
 abstract:            A suite of Perl modules that implement a number 
 license:             ~
 author:              
@@ -10,8 +10,10 @@ distribution_type:   module
 requires:     
     File::Path:                    2.08
     File::Spec:                    3.31
-    Text::NSP:                     0
-    UMLS::Interface:               0.55
+    Lingua::Stem:                  0.84
+    Text::NSP:                     1.17
+    Text::OverlapFinder:           0.02
+    UMLS::Interface:               0.61
 meta-spec:
     url:     http://module-build.sourceforge.net/META-spec-v1.3.html
     version: 1.3

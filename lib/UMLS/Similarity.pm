@@ -38,7 +38,7 @@
 
 package UMLS::Similarity;
 
-$VERSION = '0.51';
+$VERSION = '0.53';
 
 sub new
 {
@@ -48,47 +48,17 @@ sub new
     my $interface = shift;
 
     my $self = {};
-
-    # Initialize the error string and the error level.
-    $self->{'errorString'} = "";
-    $self->{'error'} = 0;
     
     # The backend interface object.
     $self->{'interface'} = $interface;
-    if(!$interface)
-    {
-	$self->{'errorString'} .= "\nError (UMLS::Similarity->new()) - ";
-	$self->{'errorString'} .= "An interface object is required.";
-	$self->{'error'} = 2;
-    }
-
-    # Test the interface for required methods...
-    if(!(defined $interface->can("exists") && 
-	 defined $interface->can("pathsToRoot") &&
-	 defined $interface->can("depth")))
-    {
-	$self->{'errorString'} .= "\nError (UMLS::Similarity->new()) - ";
-	$self->{'errorString'} .= "Interface does not provide the required methods.";
-	$self->{'error'} = 2;
-    }
 
     # Bless object, initialize it and return it.
     bless($self, $className);
-    $self->_initialize(shift) if($self->{'error'} < 2);
 
     return $self;
 }
 
-sub _initialize
-{
-    my $self = shift;
-    return if(!defined $self || !ref $self);
 
-    # Initialize the cache
-    $self->{'doCache'}      = 1;
-    $self->{'pathCache'}    = ();
-    $self->{'lcsCache'}     = ();
-}
 
 1;
 __END__
@@ -104,34 +74,41 @@ module to access the UMLS present in a mysql database.
 =head1 SYNOPSIS
 
  use UMLS::Interface;
-  
+
  use UMLS::Similarity::lch;
+
  use UMLS::Similarity::path;
 
  my $umls = UMLS::Interface->new(); 
+
  die "Unable to create UMLS::Interface object.\n" if(!$umls);
- ($errCode, $errString) = $umls->getError();
- die "$errString\n" if($errCode);
 
  my $lch = UMLS::Similarity::lch->new($umls);
+
  die "Unable to create measure object.\n" if(!$lch);
-   
+
  my $path = UMLS::Similarity::path->new($umls);
+
  die "Unable to create measure object.\n" if(!$path);
 
  my $cui1 = "C0005767";
+
  my $cui2 = "C0007634";
 
  @ts1 = $umls->getTermList($cui1);
+
  my $term1 = pop @ts1;
 
  @ts2 = $umls->getTermList($cui2);
+
  my $term2 = pop @ts2;
 
  my $lvalue = $lch->getRelatedness($cui1, $cui2);
+
  my $pvalue = $path->getRelatedness($cui1, $cui2);
 
  print "The lch similarity between $cui1 ($term1) and $cui2 ($term2) is $lvalue\n";
+
  print "The path similarity between $cui1 ($term1) and $cui2 ($term2) is $pvalue\n";
 
 =head1 DESCRIPTION
@@ -183,18 +160,18 @@ utilities.
     <http://www.d.umn.edu/~tpederse/Pubs/amia09.pdf>
 
 =head1 CONTACT US
-   
+
   If you have any trouble installing and using UMLS-Similarity, 
   please contact us via the users mailing list :
-    
+
       umls-similarity@yahoogroups.com
-     
+
   You can join this group by going to:
-    
+
       http://tech.groups.yahoo.com/group/umls-similarity/
-     
+
   You may also contact us directly if you prefer :
-    
+
       Bridget T. McInnes: bthomson at cs.umn.edu 
 
       Ted Pedersen : tpederse at d.umn.edu
@@ -215,7 +192,7 @@ UMLS::Similarity::vector(3)
 UMLS::Similarity::random(3)
 
 =head1 AUTHORS
-    
+
   Bridget McInnes <bthomson at umn.edu>
   Siddharth Patwardhan <sidd at cs.utah.edu>
   Serguei Pakhomov <pakh0002 at umn.edu>
