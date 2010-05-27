@@ -1,5 +1,5 @@
 # UMLS::Similarity::ErrorHandler
-# (Last Updated $Id: ErrorHandler.pm,v 1.4 2010/05/26 21:56:23 btmcinnes Exp $)
+# (Last Updated $Id: ErrorHandler.pm,v 1.5 2010/05/27 19:32:29 btmcinnes Exp $)
 #
 # Perl module that provides a perl interface to the
 # Unified Medical Language System (UMLS)
@@ -105,7 +105,9 @@ sub   checkPathBasedMeasures {
     $options{"REL"} = 0;
    
    #  get the config options
+    my $check = 0;
     foreach my $param (sort keys %{$hash}) {
+	$check++;
 	if(exists $options{$param}) { $options{$param}++; }
 	else {
 	    my $string = "Option: ($param).\n";
@@ -113,17 +115,22 @@ sub   checkPathBasedMeasures {
 	}
     }
     
-    foreach my $param (sort keys %options) {
-	if($options{$param} == 0) {
-	    my $string = "Option Missing : $param\n";
-	    $self->_error($measure, $string, 2);
+    #  if the check is zero there are no parameters so
+    #  it is using defaults which is good otherewise 
+    #  check to make certain nothing is mising
+    if($check != 0) {
+	foreach my $param (sort keys %options) {
+	    if($options{$param} == 0) {
+		my $string = "Option Missing : $param\n";
+		$self->_error($measure, $string, 2);
+	    }
+	    if($options{$param} > 1)  {  
+		my $string = "Duplicate Options : $param\n";
+		$self->_error($measure, $string, 3);
+	    }
 	}
-	if($options{$param} > 1)  {  
-	    my $string = "Duplicate Options : $param\n";
-	    $self->_error($measure, $string, 3);
-	}
-    }
- }   
+    }   
+}
 
 
 #  check the config file with the relatedness measures
@@ -144,25 +151,32 @@ sub   checkRelatednessMeasures {
     $options{"RELDEF"} = 0;
    
    #  get the config options
+    my $check = 0;
     foreach my $param (sort keys %{$hash}) {
+	$check++;
 	if(exists $options{$param}) { $options{$param}++; }
 	else {
 	    my $string = "Option: ($param).\n";
 	    $self->_error($measure, $string, 1);
 	}
     }
-    
-    foreach my $param (sort keys %options) {
-	if($options{$param} == 0) {
-	    my $string = "Option Missing : $param\n";
-	    $self->_error($measure, $string, 2);
+
+    #  if the check is zero there are no parameters so
+    #  it is using defaults which is good otherewise 
+    #  check to make certain nothing is mising
+    if($check != 0) {
+ 	foreach my $param (sort keys %options) {
+	    if($options{$param} == 0) {
+		my $string = "Option Missing : $param\n";
+		$self->_error($measure, $string, 2);
+	    }
+	    if($options{$param} > 1)  {  
+		my $string = "Duplicate Options : $param\n";
+		$self->_error($measure, $string, 3);
+	    }
 	}
-	if($options{$param} > 1)  {  
-	    my $string = "Duplicate Options : $param\n";
-	    $self->_error($measure, $string, 3);
-	}
-    }
- }   
+    }   
+}
 
 #  sets up the error handler module
 #  input : $parameters <- reference to a hash
