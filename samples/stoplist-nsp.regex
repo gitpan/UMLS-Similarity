@@ -1,4 +1,3 @@
-@stop.mode=OR
 /\b[a-zA-Z]\b/
 /\b[aA]board\b/
 /\b[aA]bout\b/

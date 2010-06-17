@@ -188,7 +188,15 @@ where freq   = the frequency of the concept
 
 See example in samples/ directory called icfrequency. 
 
+=head3 --smooth
 
+Incorporate Laplace smoothing, where the frequency count of each of the 
+concepts in the taxonomy is incremented by one. The advantage of 
+doing this is that it avoides having a concept that has a probability 
+of zero. The disadvantage is that it can shift the overall probability 
+mass of the concepts from what is actually seen in the corpus. 
+
+This can only be used in conjunction with the --icfrequency options
 
 =head2 Vector Measure Options:
 
@@ -252,16 +260,25 @@ cleaned.
 =head3 --stoplist FILE
 
 A file containing a list of words to be excluded from the features 
-in the vector method. The format required is one stopword per line. 
+in the vector method. The format required is one stopword per line, 
+words are in the regular expression format. 
 For example:
 
-the
-a
-and
-for
+/\b[a-zA-Z]\b/
+/\b[aA]board\b/
+/\b[aA]bout\b/
+/\b[aA]bove\b/
+/\b[aA]cross\b/
+/\b[aA]fter\b/
+/\b[aA]gain\b/
 
+The sample file, stoplist-nsp.regex, is under the samples directory.
 ...
 
+=head3 --stem 
+
+This is a flag for the vector and lesk method. If the --stem flag is set, 
+words are stemmed. 
 
 =head1 OUTPUT
 
@@ -349,7 +366,7 @@ this program; if not, write to:
 use UMLS::Interface;
 use Getopt::Long;
 
-eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "forcerun", "debug", "verbose", "icfrequency=s", "icpropagation=s", "realtime", "stoplist=s", "stem", "debugfile=s", "vectormatrix=s", "vectorindex=s", "defraw", "dictfile=s", "t")) or die ("Please check the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "forcerun", "debug", "verbose", "icfrequency=s", "smooth", "icpropagation=s", "realtime", "stoplist=s", "stem", "debugfile=s", "vectormatrix=s", "vectorindex=s", "defraw", "dictfile=s", "t")) or die ("Please check the above mentioned option(s).\n");
 
 
 my $debug = 0;
@@ -775,6 +792,9 @@ sub loadUMLS {
     if(defined $opt_icfrequency) { 
 	$option_hash{"icfrequency"} = $opt_icfrequency;
     }
+    if(defined $opt_smooth) { 
+	$option_hash{"smooth"} = $opt_smooth;
+    }
     if(defined $opt_username and defined $opt_password) {
 	$option_hash{"driver"}   = "mysql";
 	$option_hash{"database"} = $database;
@@ -920,6 +940,18 @@ sub checkOptions {
 	}
     } 
 
+    #  the --smooth option can only be used with the icfrequency options
+    if(defined $opt_smooth) {
+	if(!defined $opt_icfrequency) {
+	    print STDERR "The --smooth option can only be used with the\n";
+	    print STDERR "--icfrequency option.\n\n";
+	    &minimalUsageNotes();
+	    exit;
+	}
+    }
+    
+    #  the icpropagation and icfrequency options can only be used 
+    #  with specific measures
     if(defined $opt_icpropagation || defined $opt_icfrequency) { 
 	if( !($opt_measure=~/(res|lin|jcn)/) ) {
 	    print STDERR "The --icpropagation or --icfrequency options\n";
@@ -961,6 +993,10 @@ sub setOptions {
 
     if(defined $opt_icfrequency) {
 	$set .= "  --icfrequency $opt_icfrequency\n";
+    }
+    
+    if(defined $opt_smooth) {
+	$set .= "  --smooth\n";
     }
 
     if(defined $opt_debugfile) { 
@@ -1184,6 +1220,9 @@ sub showHelp() {
 
     print "--icfrequency FILE       File containing the frequency counts\n";
     print "                         of the CUIs.\n\n";
+
+    print "--smooth                 Incorporate LaPlace smoothing. Can only\n";
+    print "                         be used with the --icfrequency option\n\n";
     
     print "\n\nVector and Lesk Measure Options:\n\n";
 
@@ -1221,7 +1260,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.44 2010/05/26 17:41:25 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.46 2010/06/08 15:36:02 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

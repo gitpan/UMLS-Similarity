@@ -12,9 +12,9 @@ User Settings:
 
 
 UMLS-Interface Configuration Information
-  Sources:
+  Sources (SABDEF):
     MSH
-  Relations:
+  Relations (RELDEF):
     CHD
     PAR
   Database: 

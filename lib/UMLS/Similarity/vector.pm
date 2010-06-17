@@ -182,9 +182,10 @@ sub new
 	$stopregex  = "(";
     while(<STP>) {
         chomp;
-        if($_=~/\@stop\.mode/) { next; }
-        $_=~s/\///g;
-        $stopregex .= "$_|";
+		if($_ ne ""){
+        	$_=~s/\///g;
+        	$stopregex .= "$_|";
+		}
     }   
     chop $stopregex; $stopregex .= ")";
     close STP;

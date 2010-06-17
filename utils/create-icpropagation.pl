@@ -280,7 +280,7 @@ my $relstring = $umls->getRelString();
 my $relastring = $umls->getRelaString();
 
 #  get the frequency counts
-my $cuiHash = &getTermCounts($inputfile);
+my $cuiHash = &getFileCounts($inputfile);
 
 #  propagate the counts
 my $propagationHash = $umls->propagateCounts($cuiHash);
@@ -322,6 +322,7 @@ sub getFileCounts {
 	}
     }
     
+    #  get the frequency counts
     my %hash = ();
     while(<FILE>) {
 	chomp;
@@ -338,97 +339,6 @@ sub getFileCounts {
     return \%hash;
 }
 
-sub getTermCounts {
-
-    my $text = shift;
-    
-    my $countfile = "tmp.count";
-    
-    system "count.pl --ngram 1 $countfile $text";
-    
-    open(COUNT, $countfile) || die "Could not open the count file : $countfile\n";
-    my %hash = ();
-
-    my $header = <COUNT>;
-    while(<COUNT>) {
-	chomp;
-	my ($term, $freq) = split/<>/;
-	
-	my @cuis = $umls->getConceptList($term); 
-
-	foreach my $cui (@cuis) {
-	    if(exists $hash{$cui}) {
-		$hash{$cui} += $freq;
-	    }
-	    else { $hash{$cui} = $freq; }
-	    
-	}
-    }
-    close COUNT;
-
-    File::Path->remove_tree("tmp.count");
-    	
-    return \%hash;
-}
-
-
-sub getMetaMapCounts {
-
-    my $text = shift;
-    open(TEXT, $text) || die "Could not open $text for processing\n";
-    
-    my %hash = ();
-    while(<TEXT>) {
-	chomp;
-	my $output = &callMetaMap($_);
-	
-	my %temp = ();
-	while($output=~/\'(C[0-9]+)\'\,(.*?)\,(.*?)\,/g) {
-	    my $cui = $1; my $str = $3;
-	    $str=~s/[\'\"]//g;
-	    $temp{$cui}++;
-	    $strings{$cui} = $str;
-	}
-	foreach my $cui (sort keys %temp) {
-	    $hash{$cui}++;			
-	}
-    }
-    
-    return \%hash;
-}
-
-sub callMetaMap 
-{
-    my $line = shift;
-    
-    my $output = "";
-	
-    my $timestamp = &timeStamp();
-    my $metamapInput  = "tmp.metamap.input.$timestamp";
-    my $metamapOutput = "tmp.metamap.output.$timestamp";
-    
-    open(METAMAP_INPUT, ">$metamapInput") || die "Could not open file: $metamapInput\n";
-    
-    print METAMAP_INPUT "$line\n"; 
-    close METAMAP_INPUT;
-    
-    print "metamap09 -q $metamapInput $metamapOutput\n";
-    system("metamap09 -q $metamapInput $metamapOutput");
-
-    open(METAMAP_OUTPUT, $metamapOutput) || die "Could not open file: $metamapOutput\n";
-    
-    while(<METAMAP_OUTPUT>) { 
-	if($_=~/mappings\(/) {
-	    $output .= $_; 
-	}
-    }
-    close METAMAP_OUTPUT;
-    
-    File::Path->remove_tree($metamapInput);
-    File::Path->remove_tree($metamapOutput);
-
-    return $output;
-}
 sub timeStamp {
     my ($stamp);
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
@@ -586,7 +496,7 @@ sub loadUMLS {
 ##############################################################################
 sub minimalUsageNotes {
     
-    print "Usage: create-icpropagation.pl [OPTIONS] OUTPUTFILE INPUTFILE\n";
+    print "Usage: create-icpropagation.pl [OPTIONS] OUTPUTFILE ICFREQUENCY_FILE\n";
     &askHelp();
     exit;
 }
@@ -640,7 +550,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: create-icpropagation.pl,v 1.2 2010/05/26 21:56:24 btmcinnes Exp $';
+    print '$Id: create-icpropagation.pl,v 1.3 2010/06/08 15:36:02 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

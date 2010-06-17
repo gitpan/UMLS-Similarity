@@ -130,9 +130,10 @@ sub new
 	$stopregex  = "(";
 	while(<STP>) {
 	    chomp;
-	    if($_=~/\@stop\.mode/) { next; }
-	    $_=~s/\///g;
-	    $stopregex .= "$_|";
+		if ($_ ne ""){
+	    	$_=~s/\///g;
+	    	$stopregex .= "$_|";
+		}
 	}
 	chop $stopregex; $stopregex .= ")";
 	close STP;
@@ -220,7 +221,8 @@ sub getRelatedness
 		$i++;
 	    }
 	    $def=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+) ([A-Z]+) \s*\:\s*(.*?)$/;
-	    $def1 .= $5 . " "; 
+	    #$def1 .= $5 . " "; 
+	    $def1 .= $5 . " " . "<stop>" . " "; 
 	}
 
 	#  if debug setting is on print out definition two information
@@ -235,14 +237,16 @@ sub getRelatedness
 		$j++;
 	    }
 	    $def=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+) ([A-Z]+) \s*\:\s*(.*?)$/;
-	    $def2 .= $5 . " "; 
+	    #$def2 .= $5 . " "; 
+	    $def2 .= $5 . " " . "<stop>" . " "; 
 	}
     }
 
     #  if the --defraw option is not set clean up the defintions
     if($defraw_option == 0) { 
 	$def1 = lc($def1); $def2 = lc($def2);
-	
+
+	# remove punctuation doesn't contain '<' and '>'	
 	$def1=~s/[\.\,\?\/\'\"\;\:\[\]\{\}\!\@\#\$\%\^\&\*\(\)\-\_\+\-\=]//g;
 	$def2=~s/[\.\,\?\/\'\"\;\:\[\]\{\}\!\@\#\$\%\^\&\*\(\)\-\_\+\-\=]//g;
 	
@@ -306,15 +310,17 @@ sub getRelatedness
     #    print "$overlap occurred $overlaps->{$overlap} times.\n";
     #}
  
-    #  calculate lesk on the overlaps 
+    #  calculate lesk on the overlaps which doesn't cross defs 
     my $score = 0;
     foreach my $overlap (keys %{$overlaps}) {
+		if ($overlap !~ /\<stop\>/){ 
 	    my @array = split/\s+/, $overlap;
 	    my $length = $#array + 1;
 	    my $num = $overlaps->{$overlap};
 	    my $value = $num * ($length**2);
 	    $score += $value;
 	#	print "$score\n";
+		}
 	}
 
     return $score;

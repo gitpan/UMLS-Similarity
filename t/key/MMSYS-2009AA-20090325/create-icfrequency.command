@@ -7,9 +7,9 @@ User Settings:
 
 
 UMLS-Interface Configuration Information
-  Sources:
+  Sources (SAB):
     MSH
-  Relations:
+  Relations (REL):
     CHD
     PAR
   Database: 

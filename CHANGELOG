@@ -1,6 +1,11 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 0.55 to 0.57
+    1. added propagation files to the t/options directory
+
+    2. revised errorchecking w.r.t. propagation
+
   Changes from version 0.53 to 0.55
     There was an errorhandler mistake when no config option was defined.
     This has been fixed.

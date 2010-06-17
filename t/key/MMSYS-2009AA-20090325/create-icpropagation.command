@@ -2,13 +2,13 @@ Default Settings:
   No default settings
 
 User Settings:
-  --smooth
+  --smooth  --precision 4
 
 
 UMLS-Interface Configuration Information
-  Sources:
+  Sources (SAB):
     MSH
-  Relations:
+  Relations (REL):
     CHD
     PAR
   Database: 
@@ -21,5 +21,5 @@ PathFinder User Options:
 
 
 ICFinder User Options:
-   --smooth
+  --smooth
 

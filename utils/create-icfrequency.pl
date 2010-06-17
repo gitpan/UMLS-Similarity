@@ -265,7 +265,7 @@ my $relstring = $umls->getRelString();
 my $relastring = $umls->getRelaString();
 
 #  get the frequency counts
-my $cuiHash     = "";
+my $cuiHash = "";
 if(defined $opt_metamap) { 
     $cuiHash = &getMetaMapCounts($inputfile);
 }
@@ -304,7 +304,6 @@ sub getTermCounts {
 		$hash{$cui} += $freq;
 	    }
 	    else { $hash{$cui} = $freq; }
-	    
 	}
     }
     close COUNT;
@@ -334,7 +333,7 @@ sub getMetaMapCounts {
 	    $strings{$cui} = $str;
 	}
 	foreach my $cui (sort keys %temp) {
-	    $hash{$cui}++;			
+	    $hash{$cui}++; 
 	}
     }
     
@@ -564,7 +563,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: create-icfrequency.pl,v 1.2 2010/05/26 21:56:24 btmcinnes Exp $';
+    print '$Id: create-icfrequency.pl,v 1.3 2010/06/08 15:36:02 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

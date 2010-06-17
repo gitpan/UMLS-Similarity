@@ -10,9 +10,9 @@ User Settings:
 
 
 UMLS-Interface Configuration Information
-  Sources:
+  Sources (SABDEF):
     FMA
-  Relations:
+  Relations (RELDEF):
     CHD
     PAR
   Database: 
