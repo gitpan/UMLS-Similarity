@@ -392,7 +392,7 @@ than the definitions from the UMLS.
 --stoplist option is a word list file for the lesk measure. The words
 in the file should be removed from the definition. In the stop list file, 
 each word is in the regular expression format. A stop word sample file 
-is under the samples folder which is called toplist-nsp.regex.
+is under the samples folder which is called stoplist-nsp.regex.
 
 --stem option is a flag for the lesk measure. If we the --stem flag
 is set, the words of the definition are stemmed by the the Porter Stemming
@@ -426,6 +426,40 @@ the concept 'cell' (C0007634) using the measure, we would write
 the following piece of code:
 
    $relatedness = $measure->getRelatedness('C0005767', 'C0007634');
+
+=head1 CONFIGURATION OPTION
+
+The UMLS-Interface package takes a configuration file to determine 
+which sources and relations to use when obtaining the extended 
+definitions. We call the definition used by the measure, the extended 
+definition because this may include definitions from related concepts. 
+
+The format of the configuration file is as follows:
+
+SABDEF :: <include|exclude> <source1, source2, ... sourceN>
+
+RELDEF :: <include|exclude> <relation1, relation2, ... relationN>
+
+For example, if we wanted to use the definitions from MSH vocabulary 
+and we only wanted the definition of the CUI and the definitions of the 
+CUIs SIB relation, the configuration file would be:
+
+SABDEF :: include MSH
+RELDEF :: include CUI, SIB
+
+Note: RELDEF takes any of MRREL relations and two special 'relations':
+
+      1. CUI which refers to the CUIs definition
+
+      2. TERM which refers to the terms associated with the CUI
+
+
+If you go to the configuration file directory, there will 
+be example configuration files for the different runs that 
+you have performed.
+
+For more information about the configuration options please 
+see the README.
 
 =head1 SEE ALSO
 

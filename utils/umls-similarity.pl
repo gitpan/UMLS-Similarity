@@ -23,8 +23,15 @@ The input are two terms or two CUIs associated to concepts in the UMLS.
 
 =head3 --config FILE
 
-This is the configuration file. The format of the configuration 
-file is as follows:
+This is the configuration file. There are six configuration options 
+that can be used depending on which measure you are using. The 
+path, wup, lch, lin, jcn and res measures require the SAB and REL 
+options to be set while the vector and lesk measures require the 
+SABDEF and RELDEF options. 
+
+The SAB and REL options are used to determine which sources and 
+relations the path information is to be obtained from. The format 
+of the configuration file is as follows:
 
 SAB :: <include|exclude> <source1, source2, ... sourceN>
 
@@ -41,9 +48,36 @@ or
 SAB :: include MSH
 REL :: exclude PAR, CHD
 
+The SABDEF and RELDEF options are used to determine the sources 
+and relations the extended definition is to be obtained from. 
+We call the definition used by the measure, the extended definition 
+because this may include definitions from related concepts. 
+
+The format of the configuration file is as follows:
+
+SABDEF :: <include|exclude> <source1, source2, ... sourceN>
+
+RELDEF :: <include|exclude> <relation1, relation2, ... relationN>
+
+For example, if we wanted to use the definitions from MSH vocabulary 
+and we only wanted the definition of the CUI and the definitions of the 
+CUIs SIB relation, the configuration file would be:
+
+SABDEF :: include MSH
+RELDEF :: include CUI, SIB
+
+Note: RELDEF takes any of MRREL relations and two special 'relations':
+
+      1. CUI which refers to the CUIs definition
+
+      2. TERM which refers to the terms associated with the CUI
+
 If you go to the configuration file directory, there will 
 be example configuration files for the different runs that 
 you have performed.
+
+For more information about the configuration options (including the 
+RELA and RELADEF options) please see the README.
 
 =head3 --realtime
 
@@ -61,15 +95,15 @@ if you would like to continue with the index creation.
 
 Use the MEASURE module to calculate the semantic similarity. The 
 available measure are: 
-    1. Leacock and Chodorow (1998) refered to as lch
-    2. Wu and Palmer (1994) refered to as  wup
-    3. The basic path measure refered to as path
-    4. Rada, et. al. (1989) refered to as cdist
-    5. Nguyan and Al-Mubaid (2006) refered to as nam
-    6. Resnik (1996) refered to as res
-    7. Lin (1988) refered to as lin
-    8. Jiang and Conrath (1997) refered to as jcn
-    9. The vector measure refered to as vector
+    1. Leacock and Chodorow (1998) referred to as lch
+    2. Wu and Palmer (1994) referred to as  wup
+    3. The basic path measure referred to as path
+    4. Rada, et. al. (1989) referred to as cdist
+    5. Nguyan and Al-Mubaid (2006) referred to as nam
+    6. Resnik (1996) referred to as res
+    7. Lin (1988) referred to as lin
+    8. Jiang and Conrath (1997) referred to as jcn
+    9. The vector measure referred to as vector
 
 =head3 --precision N
 
@@ -86,11 +120,6 @@ one CUI. Right now we just return the CUIs that are the most similar.
 Displays the quick summary of program options.
 
 =head3 --version
-S/Similarity/ErrorHandler.pm (unchanged)
-Manifying blib/man3/UMLS::Similarity::path.3pm
-Installing /usr/local/share/perl/5.10.1/UMLS/Similarity/path.pm
-Appending installation info to /usr/local/lib/perl/5.10.1/perllocal.pod
-bridget@jabberwocky:~/work/UMLS-Similarity$ 
 
 Displays the version information.
 
@@ -148,11 +177,11 @@ config file that you specified.
 
 =head3 --username STRING
 
-Username is required to access the umls database on MySql
+Username is required to access the umls database on mysql
 
 =head3 --password STRING
 
-Password is required to access the umls database on MySql
+Password is required to access the umls database on mysql
 
 =head3 --hostname STRING
 
@@ -169,12 +198,11 @@ Database contain UMLS DEFAULT: umls
 FILE containing the propagation counts of the CUIs. This file must be 
 in the following format:
 
-    CUI<>ic
+    CUI<>probability
 
-where ci     = the information content of the CUI
-      CUI    = the concept's UMLS CUI
+where probability is the probability of the concept occurring. 
 
-See example in samples/ directory called icpropagation. 
+See create-icpropagation.pl for more information.
 
 =head3 --icfrequency FILE
 
@@ -183,16 +211,15 @@ format:
 
     CUI<>freq
 
-where freq   = the frequency of the concept
-      CUI    = the concept's UMLS CUI
+where freq is the frequency in which the concept occurred in some text. 
 
-See example in samples/ directory called icfrequency. 
+See create-icfrequency.pl for more information.
 
 =head3 --smooth
 
 Incorporate Laplace smoothing, where the frequency count of each of the 
 concepts in the taxonomy is incremented by one. The advantage of 
-doing this is that it avoides having a concept that has a probability 
+doing this is that it avoids having a concept that has a probability 
 of zero. The disadvantage is that it can shift the overall probability 
 mass of the concepts from what is actually seen in the corpus. 
 
@@ -239,7 +266,7 @@ TERM <definition>
 TERM <definition>
 
 If using TERM, the term is mapped to concepts in the UMLS and 
-the terms difinition is used as itheir definitions. If more than 
+the terms definition is used as their definitions. If more than 
 one term in the dictfile maps to a concept, all of the definitions 
 are used. 
 
@@ -280,11 +307,6 @@ The sample file, stoplist-nsp.regex, is under the samples directory.
 This is a flag for the vector and lesk method. If the --stem flag is set, 
 words are stemmed. 
 
-=head1 OUTPUT
-
-disambiguate.pl creates two directories. One containing the arff files
-and the other containing the weka files. In the weka directory, the 
-overall averages are stored in the OverallAverage file.
 
 =head1 SYSTEM REQUIREMENTS
 
@@ -1260,7 +1282,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.46 2010/06/08 15:36:02 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.47 2010/06/25 17:49:54 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

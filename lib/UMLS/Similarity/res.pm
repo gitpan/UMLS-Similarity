@@ -191,33 +191,16 @@ a file containing a list of CUIs and their probability, or used
 directly by the umls-similarity.pl program which will calculate the 
 probability of a concept on the fly. 
 
-The probability of each of the CUIs is dependendent on the set of 
-source(s) and relations specified in the configuration file - You 
-can not mix and match.
-
 =head1 PROPAGATION
 
 The Information Content (IC) is  defined as the negative log 
 of the probability of a concept. The probability of a concept, 
 c, is determine by summing the probability of the concept 
-(P(c)) ocurring in some text plus the probability its decendants 
-(P(d)) occuring in some text:
+ocurring in some text plus the probability its decendants 
+occuring in some text:
 
-P(c*) = P(c) + \sum_{d\exists decendant(c)} P(d)
-
-The initial probability of a concept (P(c)) and its decendants 
-(P(d)) is obtained by dividing the number of times a concept is 
-seen in the corpus (freq(d)) by the total number of concepts (N):
-
-P(d) = freq(d) / N
-
-Not all of the concepts in the taxonomy will be seen in the corpus. 
-We have the option to use Laplace smoothing, where the frequency 
-count of each of the concepts in the taxonomy is incremented by one. 
-The advantage of doing this is that it avoides having a concept that 
-has a probability of zero. The disadvantage is that it can shift the 
-overall probability mass of the concepts from what is actually seen 
-in the corpus. 
+For more information on how this is calculated please see 
+the README file. 
 
 =head1 USAGE
 
@@ -251,6 +234,35 @@ the concept 'cell' (C0007634) using the measure, we would write
 the following piece of code:
 
    $relatedness = $measure->getRelatedness('C0005767', 'C0007634');
+
+=head1 CONFIGURATION OPTION
+
+The UMLS-Interface package takes a configuration file to determine 
+which sources and relations to use when obtaining the path information.
+
+The format of the configuration file is as follows:
+
+SAB :: <include|exclude> <source1, source2, ... sourceN>
+
+REL :: <include|exclude> <relation1, relation2, ... relationN>
+
+For example, if we wanted to use the MSH vocabulary with only 
+the RB/RN relations, the configuration file would be:
+
+SAB :: include MSH
+REL :: include RB, RN
+
+or 
+
+SAB :: include MSH
+REL :: exclude PAR, CHD
+
+If you go to the configuration file directory, there will 
+be example configuration files for the different runs that 
+you have performed.
+
+For more information about the configuration options please 
+see the README.
 
 =head1 SEE ALSO
 

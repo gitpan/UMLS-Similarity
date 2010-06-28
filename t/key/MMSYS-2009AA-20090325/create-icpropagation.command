@@ -2,7 +2,7 @@ Default Settings:
   No default settings
 
 User Settings:
-  --smooth  --precision 4
+  --smooth
 
 
 UMLS-Interface Configuration Information

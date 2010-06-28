@@ -1,6 +1,14 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 0.57 to 0.59
+    1. modified the create-icfrequency to only tag CUIs to the terms/words
+    in the data that exist in the set of sources/ relations in the
+    configuration file
+
+    2. updated documentation - specifically the configuration options and
+    propagation
+
   Changes from version 0.55 to 0.57
     1. added propagation files to the t/options directory
 

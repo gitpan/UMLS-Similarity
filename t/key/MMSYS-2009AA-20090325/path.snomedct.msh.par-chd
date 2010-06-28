@@ -2,9 +2,9 @@ Default Settings:
   --precision 4
 
 User Settings:
-  --config t/config/config.msh.par-chd
-  --infile t/tests/measures/msh.par-chd
-  --measure wup
+  --config t/config/config.snomedct.msh.par-chd
+  --infile t/tests/long-tests/snomedct.msh.par-chd
+  --measure path
   --realtime
 
 
@@ -12,6 +12,7 @@ User Settings:
 UMLS-Interface Configuration Information
   Sources (SAB):
     MSH
+    SNOMEDCT
   Relations (REL):
     CHD
     PAR
@@ -24,6 +25,5 @@ PathFinder User Options:
    --realtime option set
 
 
-0.5556<>hand(C0018563)<>skull(C0037303)
-0.6250<>skull(C0037303)<>neck(C0027530)
-0.6667<>neck(C0027530)<>toe(C0040357)
+0.3333<>C0459385(brain tissue structure)<>C0228067(infratentorial brain structure)
+0.0000<>C0175895(calcification)<>C0009814(stenosis)

@@ -10,30 +10,6 @@ of the CUIs in a specified set of sources and relations.
 This program determines the probability of the CUIs in a 
 specified set of sources and relations.
 
-=head1 PROPAGATION
-
-The Information Content (IC) is  defined as the negative log 
-of the probability of a concept. The probability of a concept, 
-c, is determine by summing the probability of the concept 
-(P(c)) ocurring in some text plus the probability its decendants 
-(P(d)) occuring in some text:
-
-P(c*) = P(c) + \sum_{d\exists decendant(c)} P(d)
-
-The initial probability of a concept (P(c)) and its decendants 
-(P(d)) is obtained by dividing the number of times a concept is 
-seen in the corpus (freq(d)) by the total number of concepts (N):
-
-P(d) = freq(d) / N
-
-Not all of the concepts in the taxonomy will be seen in the corpus. 
-We have the option to use Laplace smoothing, where the frequency 
-count of each of the concepts in the taxonomy is incremented by one. 
-The advantage of doing this is that it avoides having a concept that 
-has a probability of zero. The disadvantage is that it can shift the 
-overall probability mass of the concepts from what is actually seen 
-in the corpus. 
-
 =head1 USAGE
 
 Usage: create-icpropagation.pl [OPTIONS] OUTPUTFILE ICFREQUENCY_FILE
@@ -136,6 +112,17 @@ Displays the quick summary of program options.
 =head3 --version
 
 Displays the version information.
+
+=head1 PROPAGATION
+
+The Information Content (IC) is  defined as the negative log 
+of the probability of a concept. The probability of a concept, 
+c, is determine by summing the probability of the concept 
+ocurring in some text plus the probability its decendants 
+occuring in some text:
+
+For more information on how this is calculated please see 
+the README file. 
 
 =head1 SYSTEM REQUIREMENTS
 
@@ -550,7 +537,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: create-icpropagation.pl,v 1.3 2010/06/08 15:36:02 btmcinnes Exp $';
+    print '$Id: create-icpropagation.pl,v 1.4 2010/06/25 17:49:54 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

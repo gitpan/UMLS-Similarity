@@ -1,0 +1,28 @@
+Default Settings:
+  --precision 4
+
+User Settings:
+  --config t/config/rel-config.snomedct.par-chd
+  --infile t/tests/long-tests/snomedct.par-chd
+  --measure lesk
+  --realtime
+
+
+
+UMLS-Interface Configuration Information
+  Sources (SABDEF):
+    SNOMEDCT
+  Relations (RELDEF):
+    CHD
+    PAR
+  Database: 
+    umls (MMSYS-2009AA-20090325)
+
+
+
+PathFinder User Options:
+   --realtime option set
+
+
+0.0000<>C0459385(brain tissue structure)<>C0228067(infratentorial brain structure)
+0.0000<>C0175895(calcification)<>C0009814(stenosis)

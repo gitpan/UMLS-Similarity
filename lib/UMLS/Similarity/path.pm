@@ -213,6 +213,35 @@ the following piece of code:
 
    $relatedness = $measure->getRelatedness('C0005767', 'C0007634');
 
+=head1 CONFIGURATION OPTION
+
+The UMLS-Interface package takes a configuration file to determine 
+which sources and relations to use when obtaining the path information.
+
+The format of the configuration file is as follows:
+
+SAB :: <include|exclude> <source1, source2, ... sourceN>
+
+REL :: <include|exclude> <relation1, relation2, ... relationN>
+
+For example, if we wanted to use the MSH vocabulary with only 
+the RB/RN relations, the configuration file would be:
+
+SAB :: include MSH
+REL :: include RB, RN
+
+or 
+
+SAB :: include MSH
+REL :: exclude PAR, CHD
+
+If you go to the configuration file directory, there will 
+be example configuration files for the different runs that 
+you have performed.
+
+For more information about the configuration options please 
+see the README.
+
 =head1 SEE ALSO
 
 perl(1), UMLS::Interface

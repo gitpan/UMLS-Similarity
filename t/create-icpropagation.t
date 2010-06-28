@@ -53,8 +53,7 @@ my $filekey    = File::Spec->catfile('t', 'key', $version, 'create-icpropagation
 my $commandkey = File::Spec->catfile('t', 'key', $version, 'create-icpropagation.command');
 
 #  run the pgoram	
-print "perl $util_prg --precision 4 --smooth $outputfile $inputfile\n";
-my $commandline = `$perl $util_prg --precision 4 --smooth $outputfile $inputfile 2>&1`;
+my $commandline = `$perl $util_prg --smooth $outputfile $inputfile 2>&1`;
 
 #  check the output
 my $output = "";

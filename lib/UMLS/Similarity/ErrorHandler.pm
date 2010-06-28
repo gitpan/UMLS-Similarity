@@ -1,5 +1,5 @@
 # UMLS::Similarity::ErrorHandler
-# (Last Updated $Id: ErrorHandler.pm,v 1.5 2010/05/27 19:32:29 btmcinnes Exp $)
+# (Last Updated $Id: ErrorHandler.pm,v 1.6 2010/06/25 19:40:59 btmcinnes Exp $)
 #
 # Perl module that provides a perl interface to the
 # Unified Medical Language System (UMLS)
@@ -101,9 +101,10 @@ sub   checkPathBasedMeasures {
 
     #  set possible options
     my %options = ();
-    $options{"SAB"} = 0;
-    $options{"REL"} = 0;
-   
+    $options{"SAB"}  = 0;
+    $options{"REL"}  = 0;
+    $options{"RELA"} = 0;
+
    #  get the config options
     my $check = 0;
     foreach my $param (sort keys %{$hash}) {
@@ -114,7 +115,10 @@ sub   checkPathBasedMeasures {
 	    $self->_error($measure, $string, 1);
 	}
     }
-    
+
+    #  remove the optional parameters
+    delete $options{"RELA"};
+
     #  if the check is zero there are no parameters so
     #  it is using defaults which is good otherewise 
     #  check to make certain nothing is mising
@@ -147,8 +151,9 @@ sub   checkRelatednessMeasures {
 
     #  set possible options
     my %options = ();
-    $options{"SABDEF"} = 0;
-    $options{"RELDEF"} = 0;
+    $options{"SABDEF"}  = 0;
+    $options{"RELDEF"}  = 0;
+    $options{"RELADEF"} = 0;
    
    #  get the config options
     my $check = 0;
@@ -160,6 +165,9 @@ sub   checkRelatednessMeasures {
 	    $self->_error($measure, $string, 1);
 	}
     }
+    
+    #  remove the optional parameters
+    delete $options{"RELADEF"};
 
     #  if the check is zero there are no parameters so
     #  it is using defaults which is good otherewise 

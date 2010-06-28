@@ -12,30 +12,6 @@ set of sources in plain text. The CUIs are determined by mapping
 the words in the text to CUIs in the UMLS using the strings in 
 the MRCONSO table or MetaMap. 
 
-=head1 PROPAGATION
-
-The Information Content (IC) is  defined as the negative log 
-of the probability of a concept. The probability of a concept, 
-c, is determine by summing the probability of the concept 
-(P(c)) ocurring in some text plus the probability its decendants 
-(P(d)) occuring in some text:
-
-P(c*) = P(c) + \sum_{d\exists decendant(c)} P(d)
-
-The initial probability of a concept (P(c)) and its decendants 
-(P(d)) is obtained by dividing the number of times a concept is 
-seen in the corpus (freq(d)) by the total number of concepts (N):
-
-P(d) = freq(d) / N
-
-Not all of the concepts in the taxonomy will be seen in the corpus. 
-We have the option to use Laplace smoothing, where the frequency 
-count of each of the concepts in the taxonomy is incremented by one. 
-The advantage of doing this is that it avoides having a concept that 
-has a probability of zero. The disadvantage is that it can shift the 
-overall probability mass of the concepts from what is actually seen 
-in the corpus. 
-
 =head1 USAGE
 
 Usage: create-icfrequency.pl.pl [OPTIONS] OUTPUTFILE INPUTFILE
@@ -124,6 +100,17 @@ Displays the quick summary of program options.
 =head3 --version
 
 Displays the version information.
+
+=head1 PROPAGATION
+
+The Information Content (IC) is  defined as the negative log 
+of the probability of a concept. The probability of a concept, 
+c, is determine by summing the probability of the concept 
+ocurring in some text plus the probability its decendants 
+occuring in some text:
+
+For more information on how this is calculated please see 
+the README file. 
 
 =head1 SYSTEM REQUIREMENTS
 
@@ -330,10 +317,23 @@ sub getMetaMapCounts {
 	    my $cui = $1; my $str = $3;
 	    $str=~s/[\'\"]//g;
 	    $temp{$cui}++;
-	    $strings{$cui} = $str;
 	}
 	foreach my $cui (sort keys %temp) {
-	    $hash{$cui}++; 
+	    my @sabs = $umls->getSab($cui);
+	    my @relations = $umls->getRelations($cui);
+	    my $flag = 0;
+	    foreach my $sab (@sabs) { 
+		if($sabstring=~/$sab/) {
+		    foreach my $rel (@relations) { 
+			if($relstring=~/$rel/) { 
+			    print STDERR "$cui : $sab : $rel\n";
+			    $hash{$cui}++; 
+			    last;
+			}
+		    }
+		    last;
+		}
+	    }
 	}
     }
     
@@ -563,7 +563,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: create-icfrequency.pl,v 1.3 2010/06/08 15:36:02 btmcinnes Exp $';
+    print '$Id: create-icfrequency.pl,v 1.5 2010/06/27 15:45:25 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 
