@@ -76,7 +76,7 @@ If you go to the configuration file directory, there will
 be example configuration files for the different runs that 
 you have performed.
 
-=head3 --disregardsab
+=head3 --disregard
 
 This ignores the SAB configuration that the icfrequency 
 file was created with
@@ -209,7 +209,7 @@ use UMLS::Interface;
 use Getopt::Long;
 use File::Path;
 
-eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "config=s", "debug", "t", "precision=s", "smooth", "disregardsab")) or die ("Please check the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "config=s", "debug", "t", "precision=s", "smooth", "disregard")) or die ("Please check the above mentioned option(s).\n");
 
 
 #  if help is defined, print out help
@@ -266,6 +266,9 @@ my $sabstring = $umls->getSabString();
 my $relstring = $umls->getRelString();
 my $relastring = $umls->getRelaString();
 
+#  check parameters
+&checkParameters($inputfile);
+
 #  get the frequency counts
 my $cuiHash = &getFileCounts($inputfile);
 
@@ -290,29 +293,56 @@ foreach my $cui (sort keys %{$propagationHash}) {
 }
 close OUTPUT;
 
-sub getFileCounts {
+sub checkParameters {
+    #  get the frequency file
+    my $file = shift;
+    
+    #  open the file to get the parameters
+    open(FILE, $file) || die "Could not open --icfrequency file : $file\n";
 
+    #  check to make certain the source/relations are correct
+    my $fsabstring  = <FILE>; chomp $fsabstring;
+    my $frelstring  = <FILE>; chomp $frelstring;
+    my $frelastring = <FILE>; chomp $frelastring;
+    if(!$opt_disregard) {
+	#   check the sources
+	if(! ($umls->checkParameters($fsabstring, $sabstring)) ) {
+	    print STDERR "The icfrequency file was created using the following configuration:\n";
+	    print STDERR "    $fsabstring\n";
+	    print STDERR "Please modify your configuration file.\n\n";
+	    exit;
+	}
+	#  check the relations
+	if(! ($umls->checkParameters($frelstring, $relstring)) ) {
+	    print STDERR "The icfrequency file was created using the following configuration:\n";
+	    print STDERR "    $frelstring\n";
+	    print STDERR "Please modify your configuration file.\n\n";
+	    exit;
+	}
+	#  check the relas if we have them - this on is optional
+	if($frelastring=~/(include|exclude)/ || $relastring=~/(include|exclude)/) { 
+	    if(! ($umls->checkParameters($frelastring, $relastring)) ) {
+		print STDERR "The icfrequency file was created using the following configuration:\n";
+		print STDERR "    $frelastring\n";
+		print STDERR "Please modify your configuration file.\n\n";
+		exit;
+	    }
+	}
+    }
+    close FILE;
+}    
+sub getFileCounts {
+    
     my $file = shift;
     
     #  open the file
     open(FILE, $file) || die "Could not open --icfrequency file : $file\n";
 
-    #  check to make certain the source is correct
-    my $fsabstring = <FILE>; chomp $fsabstring;
-    if(!$opt_disregardsab) {
-	if($fsabstring ne $sabstring) {
-	    print STDERR "The icfrequency file was created using the\n";
-	    print STDERR "following configuration:\n";
-	    print STDERR "    $sabstring\n";
-	    print STDERR "Please modify your configuration file\n\n";
-	    exit;
-	}
-    }
-    
     #  get the frequency counts
     my %hash = ();
     while(<FILE>) {
 	chomp;
+	if($_=~/(include|exclude)/) { next; }
 	my ($cui, $freq) = split/<>/;
 	if(exists $cuiHash{$cui}) { 
 	    $hash{$cui} += $freq; 
@@ -376,8 +406,8 @@ sub setOptions {
 	$set .= "  --config $config\n";
     }
 
-    if(defined $opt_disregardsab) { 
-	$set .= "  --disregardsab\n";
+    if(defined $opt_disregard) { 
+	$set .= "  --disregard\n";
     }
 
     if(defined $opt_smooth) {
@@ -537,7 +567,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: create-icpropagation.pl,v 1.4 2010/06/25 17:49:54 btmcinnes Exp $';
+    print '$Id: create-icpropagation.pl,v 1.5 2010/06/29 21:10:25 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

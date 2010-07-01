@@ -19,14 +19,17 @@ Makefile.PL
 MANIFEST			This list of files
 META.yml
 README
-samples/configuration
+samples/pathmeasures.config
 samples/dictfile
 samples/icfrequency
+samples/icmeasures.config
 samples/icpropagation
+samples/leskmeasure.config
 samples/README
 samples/stoplist-nsp.regex
 samples/vectorindex
 samples/vectormatrix
+samples/vectormeasure.config
 t/config/config.fma.par-chd
 t/config/config.icd9cm.par-chd
 t/config/config.msh.par-chd

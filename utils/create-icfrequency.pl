@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-create-icfrequency.pl.pl - This program sums the frequency counts 
+create-icfrequency.pl - This program sums the frequency counts 
 of the CUIs from a specified set of sources in plain text.
 
 =head1 SYNOPSIS
@@ -252,19 +252,22 @@ my $relstring = $umls->getRelString();
 my $relastring = $umls->getRelaString();
 
 #  get the frequency counts
-my $cuiHash = "";
+my $cuilist = $umls->getCuiList();
+
 if(defined $opt_metamap) { 
-    $cuiHash = &getMetaMapCounts($inputfile);
+    &getMetaMapCounts($inputfile);
 }
 else {
-    $cuiHash = &getTermCounts($inputfile);
+    &getTermCounts($inputfile);
 }
 
 #  print out the propagation counts
 open(OUTPUT, ">$outputfile") || die "Could not open $outputfile\n";
 print OUTPUT "$sabstring\n";
-foreach my $cui (sort keys %{$cuiHash}) {
-    my $freq = ${$cuiHash}{$cui};    
+print OUTPUT "$relstring\n";
+print OUTPUT "$relastring\n";
+foreach my $cui (sort keys %{$cuilist}) {
+    my $freq = ${$cuilist}{$cui};    
     print OUTPUT "$cui<>$freq\n";
 }
 close OUTPUT;
@@ -287,10 +290,9 @@ sub getTermCounts {
 	my @cuis = $umls->getConceptList($term); 
 	
 	foreach my $cui (@cuis) {
-	    if(exists $hash{$cui}) {
-		$hash{$cui} += $freq;
+	    if(exists ${$cuilist}{$cui}) {
+		${$cuilist}{$cui} += $freq;
 	    }
-	    else { $hash{$cui} = $freq; }
 	}
     }
     close COUNT;
@@ -319,20 +321,8 @@ sub getMetaMapCounts {
 	    $temp{$cui}++;
 	}
 	foreach my $cui (sort keys %temp) {
-	    my @sabs = $umls->getSab($cui);
-	    my @relations = $umls->getRelations($cui);
-	    my $flag = 0;
-	    foreach my $sab (@sabs) { 
-		if($sabstring=~/$sab/) {
-		    foreach my $rel (@relations) { 
-			if($relstring=~/$rel/) { 
-			    print STDERR "$cui : $sab : $rel\n";
-			    $hash{$cui}++; 
-			    last;
-			}
-		    }
-		    last;
-		}
+	    if(exists ${$cuilist}{$cui}) {
+		${$cuilist}{$cui}++;
 	    }
 	}
     }
@@ -563,7 +553,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: create-icfrequency.pl,v 1.5 2010/06/27 15:45:25 btmcinnes Exp $';
+    print '$Id: create-icfrequency.pl,v 1.8 2010/06/29 21:10:25 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

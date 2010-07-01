@@ -312,14 +312,39 @@ sub getRelatedness
  
     #  calculate lesk on the overlaps which doesn't cross defs 
     my $score = 0;
-    foreach my $overlap (keys %{$overlaps}) {
-		if ($overlap !~ /\<stop\>/){ 
-	    my @array = split/\s+/, $overlap;
-	    my $length = $#array + 1;
-	    my $num = $overlaps->{$overlap};
-	    my $value = $num * ($length**2);
-	    $score += $value;
-	#	print "$score\n";
+    foreach my $overlap (keys %{$overlaps}) 
+	{
+		#my $length = length ($overlap);
+		#print "overlap: $length\n";
+		my $length = 0;
+		my $num = 0;
+		my $value = 0;
+
+		if ($overlap =~ /\<stop\>/)
+		{ 
+	   		my @array = split/\s+/, $overlap;
+			foreach my $s (@array)
+			{
+				if ($s !~ /\<stop\>/)
+				{
+					$length++;			
+				}
+				else
+				{
+					$num = $overlaps->{$overlap};
+					$value = $num * ($length**2);
+					$score += $value;
+					$length = 0;
+				}
+			}
+		}
+		else
+		{
+	   		my @array = split/\s+/, $overlap;
+			$length = $#array + 1;
+			$num = $overlaps->{$overlap};
+			$value = $num * ($length**2);
+			$score += $value;
 		}
 	}
 

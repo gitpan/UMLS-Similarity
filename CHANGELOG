@@ -1,6 +1,10 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 0.59 to 0.61
+    1. modified create-icfrequency to run faster - the new change really
+    slowed things down
+
   Changes from version 0.57 to 0.59
     1. modified the create-icfrequency to only tag CUIs to the terms/words
     in the data that exist in the set of sources/ relations in the
