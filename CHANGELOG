@@ -1,6 +1,31 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 0.61 to 0.63
+    1. Modified the --dictfile option for the lesk and vector measures.
+
+    This is a dictionary file for the vector measure. It contains the
+    'definitions' of a concept or term which would be used rather than the
+    definitions from the UMLS. If you would like to use dictfile as a
+    augmentation of the UMLS definitions, then use the --config option in
+    conjunction with the --dictfile option.
+
+    The expect format for the --dictfile file is:
+
+    CUI: <definition> CUI: <definition> TERM: <definition> TERM:
+    <definition>
+
+    Make certain the : is directory after the term or CUI - please do not
+    leave a space.
+
+    Keep in mind, when using this file with the --config option, if one of
+    the CUIs or terms that you are obtaining the similarity for does not
+    exist in the file the vector will be empty which will lead to strange
+    similarity scores.
+
+    An example of this file can be found in the samples/ directory and is
+    called dictfile.
+
   Changes from version 0.59 to 0.61
     1. modified create-icfrequency to run faster - the new change really
     slowed things down

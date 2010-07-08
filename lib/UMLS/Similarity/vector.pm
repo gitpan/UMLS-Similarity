@@ -124,23 +124,10 @@ sub new
 	    
 	    if($_=~/^\s*$/) { next; }
 	    
-	    my @defs = split/ /;
-	    my $concept = shift @defs; 
-	    my $definition = join (" ", @defs);	
-	    if($concept=~/C[0-9]+/) {
-		$dictionary{$concept} = $definition;	
-	    }
-	    else {
-		my @cuis = $interface->getConceptList($concept);
-		foreach my $cui (@cuis) {
-		    if(exists $dictionary{$cui}) {
-			$dictionary{$cui} .= " " . $definition;
-		    }
-		    else {
-			$dictionary{$cui} = $definition;
-		    }
-		}
-	    }
+		my @defs = split (":", $_);
+	    my $concept = $defs[0]; 
+	    my $definition = $defs[1];	
+		$dictionary{$concept} = $definition;
 	}
 	close DICT;
     }
@@ -160,7 +147,6 @@ sub new
     }
     close INDX;
 
-
     if(defined $debugfile) { 
 	if(-e $debugfile) {
 	    print "Debug file $debugfile already exists! Overwrite (Y/N)? ";
@@ -173,7 +159,6 @@ sub new
 	open(DEBUG, ">$debugfile") || die "Could not open debug file: $debugfile\n";
     }
   
- 
 	if (defined $stoplist) {
 
 	open(STP, "$stoplist")
@@ -204,165 +189,191 @@ sub getRelatedness
     
     my $concept1 = shift;
     my $concept2 = shift;
-    
+
+	if(defined $debugfile) {
+    print DEBUG "$concept1<>$concept2\n";
+    }
+   
     my $interface = $self->{'interface'};
         
     my $d1 = "";
     my $d2 = "";
     
-    if (defined $dictfile)
-    {
-	$d1 = $dictionary{$concept1};
-	$d2 = $dictionary{$concept2};
-	
-	# remove stop words
-	if (defined $stoplist) {
-	    my @defs1 = split(" ", $d1);	
-	    my @defs2 = split(" ", $d2);	
-	
-	    my @new_defs1 = (); my @new_defs2 = ();
-	    
-	    foreach my $w (@defs1) {
-		if (!($w=~/$stopregex/))  {
-		    push (@new_defs1, $w);}
-	    }
-	    
-	    foreach my $w (@defs2) {
-		if (!($w=~/$stopregex/))  {
-		    push (@new_defs2, $w);}
-	    }
-	    
-	    # new d1 and d2
-	    $d1 = "";
-	    $d2 = "";
-	    $d1 = join(" ", @new_defs1);
-	    $d2 = join(" ", @new_defs2);
-	    
-	}
-	
-	if(defined $stem) {
-		my @def1_words = split(/\s/, $d1);
-        my @def2_words = split(/\s/, $d2);
-        my $stemmed_words1 = Lingua::Stem::En::stem({ -words => \@def1_words, -locale => 'en'});
-        my $stemmed_words2 = Lingua::Stem::En::stem({ -words => \@def2_words, -locale => 'en'});
-
-        $d1 = join(" ", @{$stemmed_words1});
-        $d2 = join(" ", @{$stemmed_words2});
-	}
-
-	if(defined $debugfile) { 
-	    print DEBUG "DEFINITIONS FOR CUI 1: \n";
-	    print DEBUG "1. $d1\n";
-	    print DEBUG "DEFINITIONS FOR CUI 2: \n";
-	    print DEBUG "1. $d2\n";
-	}
-
-    } # end of defined $dictfile 
-    else
-    {
-
+    if (!defined $dictfile) {
+	if ($concept1 =~ /C[0-9]+/)
+	{	
 		my $defs1 = $interface->getExtendedDefinition($concept1);
-		my $defs2 = $interface->getExtendedDefinition($concept2);
-		
-		$d1 = ""; 
+        if(defined $debugfile) {
+        print DEBUG "DEFINITIONS FROM DICTFILE FOR $concept1: \n";
+        }
+        my $i = 1;
+        foreach my $def (@{$defs1}) {
+        if(defined $debugfile) {
+        print DEBUG "$i. $def\n";
+        $i++;
+        }
+        $def=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+) ([A-Z]+) \s*\:\s*(.*?)$/;
+        $d1 .= $5 . " ";
+        }
+    }
+    if($concept2 =~ /C[0-9]+/)
+    {
+        my $defs2 = $interface->getExtendedDefinition($concept2);
+        if(defined $debugfile) {
+        print DEBUG "DEFINITIONS FROM DICTFILE FOR $concept2: \n";
+        }
+        my $i = 1;
+        foreach my $def (@{$defs2}) {
+        if(defined $debugfile) {
+        print DEBUG "$i. $def\n";
+        $i++;
+        }
+        $def=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+) ([A-Z]+) \s*\:\s*(.*?)$/;
+        $d2 .= $5 . " ";
+        }
+    }
+    } # end of with --dictfile option 
 
-		if(defined $debugfile) { print DEBUG "DEFINITIONS FOR CUI 1: \n"; }
-		
-		my $i = 1;
-		foreach my $extendeddef (@{$defs1}) {
+	if (defined $dictfile)
+	{ 
+		my $defs1;
+		my $defs2;
+		my $term1;
+		my $term2;
+		my $term1_def = "";
+		my $term2_def = "";
 
-	    #  seperate definition from the other information 
-	    #  sent by the getExtendedDefinition function
-	    $extendeddef=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+) ([A-Z]+) \s*\:\s*(.*?)$/;
-	    my $def = $5;
-	    
-	    #  if the --defraw option is not set clean up the defintions
-	    if($defraw_option == 0) { 
-		$def = lc($def);	
-		$def=~s/[\.\,\?\/\'\"\;\:\[\]\{\}\!\@\#\$\%\^\&\*\(\)\-\_\+\-\=]//g;
-	    }
-	    
-	    # if --stopword option is set remove stop words
-	    if (defined $stoplist) {
-		my @def1 = split(" ", $def);	
+		if(defined $debugfile) { print DEBUG "DEFINITIONS FOR CUI 1: $concept1\n"; }
+
+		if($concept1 =~ /^(C[0-9]+)(\#)(.*?)$/)
+		{
+			my $cui1 = $1;
+			$term1 = $3;
+
+			$defs1 = $interface->getExtendedDefinition($cui1);
+			$term1_def = $dictionary{$term1} if (defined $dictionary{$term1});
+
+			my $i = 1;
+			foreach my $extendeddef (@{$defs1}) {
+			if (defined $debugfile) {
+			print DEBUG "$i. $extendeddef\n";
+			$i++;
+			}
+
+			#  seperate definition from the other information 
+			#  sent by the getExtendedDefinition function
+			$extendeddef=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+) ([A-Z]+) \s*\:\s*(.*?)$/;
+			my $def = $5;
+			
+			#  store the definition in the string d1
+			$d1 .= $def . " "; 
+			}	   
+
+			if(defined $debugfile)
+			{
+				print DEBUG "$i. $term1_def\n" if (defined $term1_def);
+			}
+		}
+		else
+		{
+			if (defined $dictionary{$concept1}) {
+			$d1 = $dictionary{$concept1};
+			if (defined $debugfile) {
+			print DEBUG "$concept1: $d1\n"; }
+			}
+			else{
+			if (defined $debugfile) {
+			print DEBUG "$concept1: not defined\n"; }
+			return -1; }
+		}
+
+		if(defined $debugfile) { print DEBUG "DEFINITIONS FOR CUI 2: $concept2\n"; }
+
+		if($concept2 =~ /^(C[0-9]+)(\#)(.*?)$/)
+		{
+			my $cui2 = $1;
+			$term2 = $3;
+
+			$defs2 = $interface->getExtendedDefinition($cui2);
+			$term2_def = $dictionary{$term2} if (defined $dictionary{$term2});
+
+			my $i = 1;
+			foreach my $extendeddef (@{$defs2}) {
+			if (defined $debugfile) {
+			print DEBUG "$i. $extendeddef\n";
+			$i++;
+			}
+
+			#  seperate definition from the other information 
+			#  sent by the getExtendedDefinition function
+			$extendeddef=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+) ([A-Z]+) \s*\:\s*(.*?)$/;
+			my $def = $5;
+			
+			#  store the definition in the string d1
+			$d2 .= $def . " "; 
+			}	   
+
+			if(defined $debugfile)
+			{
+				print DEBUG "$i. $term2_def\n" if (defined $term2_def);
+			}
+			
+		}
+		else
+		{
+			if (defined $dictionary{$concept2}) {
+			$d2 = $dictionary{$concept2};
+			if (defined $debugfile) {
+			print DEBUG "$concept2: $d2\n"; }
+			}
+			else{
+			if (defined $debugfile) {
+			print DEBUG "$concept2: not defined\n"; }
+			return -1; }
+		}
+
+	} #end of defined --dictfile option
+
+	# if --stopword option is set remove stop words
+	if (defined $stoplist) 
+	{
+		my @def1 = split(/\s/, $d1);	
+		my @def2 = split(/\s/, $d2);	
 		my @new_def1 = ();
+		my @new_def2 = ();
 		foreach my $w (@def1) {
 		    if (!($w =~ /$stopregex/)) {
 			push (@new_def1, $w);}
 		}
-		
-		$def = "";
-		@def1 = ();
-		$def = join (" ", @new_def1);	
-	    }
-	    
-		if(defined $stem) {
-			my @def_words = split(/\s/, $def);
-        	my $stemmed_words = Lingua::Stem::En::stem({ -words => \@def_words, -locale => 'en'});
-        	$def = join(" ", @{$stemmed_words});
-		}
-
-        #  if --debugfile option is set print out to the extended
-	    #  definition to the debug file
-	    if(defined $debugfile) { 
-		print DEBUG "$i. $extendeddef\n"; 
-		$i++;
-	    }
-
-	    #  store the definition in the string d1
-	    $d1 .= $def . " "; 
-		
-		}
-	
-		$d2 = ""; 
-		if(defined $debugfile) { print DEBUG "DEFINITIONS FOR CUI 2: \n"; }
-
-		my $j = 1;
-		foreach my $extendeddef (@{$defs2}) {
-
-	    #  seperate definition from the other information 
-	    #  sent by the getExtendedDefinition function
-	    $extendeddef=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+) ([A-Z]+) \s*\:\s*(.*?)$/;
-	    my $def = $5;
-	    
-	    #  if the --defraw option is not set clean up the defintions
-	    if($defraw_option == 0) { 
-		$def = lc($def);	
-		$def=~s/[\.\,\?\/\'\"\;\:\[\]\{\}\!\@\#\$\%\^\&\*\(\)\-\_\+\-\=]//g;
-	    }
-	    
-	    # if --stopword option is set remove stop words
-	    if (defined $stoplist) {
-		my @def2 = split(" ", $def);	
-		my @new_def2 = ();
 		foreach my $w (@def2) {
-			if (!($w =~ /$stopregex/)) {
-				push (@new_def2, $w);}
+		    if (!($w =~ /$stopregex/)) {
+			push (@new_def2, $w);}
 		}
+		
+		$d1 = join (" ", @new_def1);	
+		$d2 = join (" ", @new_def2);	
+	}
+	    
+	if(defined $stem) 
+	{
+		my @def_words1 = split(/\s/, $d1);
+		my $stemmed_words1 = Lingua::Stem::En::stem({ -words => \@def_words1, -locale => 'en'});
+		$d1 = join(" ", @{$stemmed_words1});
 
-		$def = "";
-		@def2 = ();
-		$def = join (" ", @new_def2);	
-	    }
+		my @def_words2 = split(/\s/, $d2);
+		my $stemmed_words2 = Lingua::Stem::En::stem({ -words => \@def_words2, -locale => 'en'});
+		$d2 = join(" ", @{$stemmed_words2});
+	}
 
-		if(defined $stem) {
-			my @def_words = split(/\s/, $def);
-        	my $stemmed_words = Lingua::Stem::En::stem({ -words => \@def_words, -locale => 'en'});
-        	$def = join(" ", @{$stemmed_words});
-		}		
+ #  if the --defraw option is not set clean up the defintions
+    if($defraw_option == 0) {
+    $d1 = lc($d1); $d2 = lc($d2);
 
-	    #  if --debugfile option is set print out to the debug file
-	    if(defined $debugfile) { 
-		print DEBUG "$j. $extendeddef\n"; 
-		$j++;
-	    }
-
-	    #  seperate definition from the other information 
-	    #  sent by the getExtendedDefinition function
-	    $d2 .= $def . " "; 
-		}
+    # remove punctuation doesn't contain '<' and '>'    
+    $d1=~s/[\.\,\?\/\'\"\;\:\[\]\{\}\!\@\#\$\%\^\&\*\(\)\-\_\+\-\=]//g;
+    $d2=~s/[\.\,\?\/\'\"\;\:\[\]\{\}\!\@\#\$\%\^\&\*\(\)\-\_\+\-\=]//g;
     }
-    
+
     open(MATX, "<$vectormatrix")
         or die("Error: cannot open file '$vectormatrix' for output index.\n");
     
@@ -370,32 +381,9 @@ sub getRelatedness
     my %vector2 = ();
     my @defs1 = split(" ", $d1);	
     my @defs2 = split(" ", $d2);	
-    
-    
-	# remove stop words
-	my @new_defs1 = ();
-	my @new_defs2 = ();
-	
-	if (defined $stoplist) {
-
-	foreach my $w (@defs1) {
-		if (defined $stopwords{$w}) {
-			next; }
-		else {
-			push (@new_defs1, $w);}
-	}
-	
-	foreach my $w (@defs2) {
-		if (defined $stopwords{$w}) {
-			next; }
-		else {
-			push (@new_defs2, $w);}
-	}
-	}
-
- 
+   
     my $def1_length = 0 ;
-    
+
     foreach my $def_term1 (@defs1)
     {
 	if (defined $index{$def_term1})
@@ -427,27 +415,27 @@ sub getRelatedness
 		    
 		    if ($index_term == $1)
 		    {
-			for (my $z=0; $z<@word_vector; )
-			{
-			    $vector1{$word_vector[$z]} += $word_vector[$z+1];
-			    $z += 2;
-			    
-			    if (defined $debugfile) { 
-				if(defined $word_vector[$z]) {
-				    print DEBUG "$reverse_index{$word_vector[$z]} ";
+				for (my $z=0; $z<@word_vector; )
+				{
+					$vector1{$word_vector[$z]} += $word_vector[$z+1];
+					$z += 2;
+					
+					if (defined $debugfile) { 
+					if(defined $word_vector[$z]) {
+						print DEBUG "$reverse_index{$word_vector[$z]} ";
+					}
+					} 	
+					
 				}
-			    } 	
-			    
-			}
-			
-			if (defined $debugfile) {
-			    print DEBUG "\n";
-			} 	
+				
+				if (defined $debugfile) {
+					print DEBUG "\n";
+				} 	
 		    }
 		    else 
 		    {
-			print STDERR "$def_term1 is not a correct word!\n";
-			exit;
+				print STDERR "$def_term1 is not a correct word!\n";
+				exit;
 		    }
 		}	
 	    }
@@ -457,10 +445,6 @@ sub getRelatedness
     if (defined $debugfile) {
 	print DEBUG "def1 length: $def1_length\n";
     } 	
-    
-    if (defined $debugfile) {
-	print DEBUG "def2: $d2\n";
-    }
     
     my $def2_length = 0 ;
     foreach my $def_term2 (@defs2)
@@ -522,7 +506,7 @@ sub getRelatedness
     
     
     if (defined $debugfile) {
-	print DEBUG "def2_length: $def2_length\n";
+	print DEBUG "def2 length: $def2_length\n";
     } 	
     
     
@@ -723,6 +707,29 @@ The semantic relatedness modules in this distribution are built as classes
 that expose the following methods:
   new()
   getRelatedness()
+
+For the getRelatednes() function, it accepts different combinations of CUIs and 
+Terms. The following is the basic logic: 
+
+if(!defined --dictfile)
+{
+    if input two CUIs, use the CUIs definition in UMLS. 
+}
+
+if (defined --dictfile)
+{
+    if input CUI#Term, use the CUI's UMLS definition 
+    and Term's dictionary definition;
+
+    if input Terms, or CUIs, use the dictionary definition; 
+    
+    if the dictionary doesn't have the CUIs or Terms definition 
+    return "-1";        
+}
+
+
+
+
 
 =head1 TYPICAL USAGE EXAMPLES
 

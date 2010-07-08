@@ -255,28 +255,29 @@ purposes.
 =head3 --dictfile FILE
 
 This is a dictionary file for the vector measure. It contains 
-the 'definitions' of a concept (or term) which would be used 
-rather than the definitions from the UMLS. 
+the 'definitions' of a concept or term which would be used 
+rather than the definitions from the UMLS. If you would like 
+to use dictfile as a augmentation of the UMLS definitions, 
+then use the --config option in conjunction with the --dictfile
+option. 
 
-The format of this file is:
+The expect format for the --dictfile file is:
 
-CUI <definition>
-CUI <definition>
-TERM <definition> 
-TERM <definition>
+CUI: <definition>
+CUI: <definition>
+TERM: <definition> 
+TERM: <definition>
 
-If using TERM, the term is mapped to concepts in the UMLS and 
-the terms definition is used as their definitions. If more than 
-one term in the dictfile maps to a concept, all of the definitions 
-are used. 
+Make certain the : is directory after the term or CUI - please 
+do not leave a space.
 
-Keep in mind, when using this file, if one of the CUIs that you 
-are obtaining the similarity for does not exist in the file the 
-vector will be empty which will lead to strange similarity scores.
+Keep in mind, when using this file with the --config option, if 
+one of the CUIs or terms that you are obtaining the similarity 
+for does not exist in the file the vector will be empty which 
+will lead to strange similarity scores.
 
-An example of this file can be found in the samples/ directory and 
-is called dictfile.
-
+An example of this file can be found in the samples/ directory 
+and is called dictfile.
 
 =head3 --defraw
 
@@ -300,13 +301,11 @@ For example:
 /\b[aA]gain\b/
 
 The sample file, stoplist-nsp.regex, is under the samples directory.
-...
 
 =head3 --stem 
 
-This is a flag for the vector and lesk method. If the --stem flag is set, 
-words are stemmed. 
-
+This is a flag for the vector and lesk method. If the --stem flag is 
+set, definition words are stemmed using the Lingua::Stem::En module. 
 
 =head1 SYSTEM REQUIREMENTS
 
@@ -439,15 +438,14 @@ my $meas = &loadMeasures();
 &calculateSimilarity();
 
 sub calculateSimilarity {
-
+    
     if($debug) { print STDERR "In calculateSimilarity\n"; }
     
     if(defined $opt_matrix) { print "@input_array\n"; }
-
+    
     my @secondary_array = @input_array;
     foreach my $input1 (@input_array) {
 	
-
 	if(! (defined $opt_matrix) ) {
 	    my ($i1, $i2) = split/<>/, $input1;
 	    $i1=~s/^\s+//g;	    $i2=~s/\s+$//g;
@@ -460,9 +458,8 @@ sub calculateSimilarity {
 	else {
 	    print "$input1 ";
 	}
-
+	
 	foreach $input2 (@secondary_array) {	
-	    if($debug) { print STDERR "INPUT=> $input1 : $input2\n"; }
 	    
 	    my @c1 = ();
 	    my @c2 = ();
@@ -470,28 +467,53 @@ sub calculateSimilarity {
 	    my $cui_flag1 = 0;
 	    my $cui_flag2 = 0;
 	    
-	    #  check if input contains cuis
-	    if($input1=~/C[0-9]+/) {
-		if($umls->exists($input1)) {
-		    push @c1, $input1;
+	    #  if lesk or vector measures are being used check if the dictfile
+	    #  option is set without the config option - if it is then the measures 
+	    #  will take the terms as input - don't map them to cuis in the umls. 
+	    #  the definitions used by these measures are coming from the dictfile
+	    #  not the umls therefore the actual terms are required by the measures.
+	    if( ($measure=~/(lesk|vector)/) &&
+		(defined $opt_dictfile)     && 
+		(! (defined $opt_config)) ) {
+		push @c1, $input1;
+		push @c2, $input2;
+	    }
+	    #  otherwise get the cuis for the input terms unless they are
+	    #  already cuis then just add them to the mapping arrays
+	    else {	    
+		if($input1=~/C[0-9]+/) {
+		    if($umls->exists($input1)) {
+			push @c1, $input1;
+		    }
+		    $cui_flag1 = 1;
 		}
-		$cui_flag1 = 1;
-	    }
-	    else {
-		@c1 = $umls->getConceptList($input1); 
-	    }
-	    if($input2=~/C[0-9]+/) {
-		if($umls->exists($input2)) {
-		    push @c2, $input2;
+		else {
+		    @c1 = $umls->getConceptList($input1); 
 		}
-		$cui_flag2 = 1;
+		
+		#  check if input2 contains cuis
+		if($input2=~/C[0-9]+/) {
+		    if($umls->exists($input2)) {
+			push @c2, $input2;
+		    }
+		    $cui_flag2 = 1;
+		}
+		else {
+		    @c2 = $umls->getConceptList($input2); 
+		}
 	    }
-	    else {
-		@c2 = $umls->getConceptList($input2); 
+
+	    #  if again the vector or lesk measures are used check if the dictfile 
+	    #  and the config file are set then the definitions of the cuis as well 
+	    #  as the input term from the dictfile are going to be used
+	    if( ($measure=~/(vector|lesk)/) &&
+		(defined $opt_dictfile)     && 
+		(defined $opt_config) ) { 
+		for my $i (0..$#c1) { $c1[$i] .= "#$input1"; }
+		for my $i (0..$#c2) { $c2[$i] .= "#$input2"; }
 	    }
-	    
-	    my $t1 = $input1; my $t2 = $input2;
-	    
+
+	    my $t1 = $input1; my $t2 = $input2;	    
 	    if($cui_flag1) {
 		my @ts1 = $umls->getTermList($input1);
 		($t1) = @ts1;
@@ -500,24 +522,14 @@ sub calculateSimilarity {
 		my @ts2 = $umls->getTermList($input2);
 		($t2) = @ts2;
 	    }
-
-	    if($debug) {
-		print STDERR "$input1:$t1 (@c1)\n";
-		print STDERR "$input2:$t2 (@c2)\n";
-	    }
 	    
 	    my %similarityHash = ();
 	    
 	    #  get the similarity between the concepts
 	    foreach my $cc1 (@c1) {
 		foreach my $cc2 (@c2) {
-		    
-		    if($debug) { 
-			print STDERR "Obtaining similarity for $cc1 and $cc2\n";
-		    }
-		    
 		    my $score = "";
-		    $value = $meas->getRelatedness($cc1, $cc2, $t1, $t2);
+		    $value = $meas->getRelatedness($cc1, $cc2);
 		    $score = sprintf $floatformat, $value;
 		    $similarityHash{$cc1}{$cc2} = $score;
 		}
@@ -560,38 +572,68 @@ sub calculateSimilarity {
 	    elsif(defined $opt_allsenses) {
 		foreach my $cc1 (sort keys %similarityHash) {
 		    foreach my $cc2 (sort keys %{$similarityHash{$cc1}}) {
-			if($cui_flag1 and $cui_flag2) { print "$score<>$cc1($t1)<>$cc2($t2)\n";     }
-			elsif($cui_flag1)             { print "$score<>$t1($cc1)<>$input2($cc2)\n"; }
-			elsif($cui_flag2)             { print "$score<>$input1($cc1)<>$t2($cc2)\n"; }
-			else      		      { print "$score<>$input1($cc1)<>$input2($cc2)\n"; }
+			if(defined $opt_dictfile)       { 
+			    if(defined $opt_config) {
+				$cc1=~/(C[0-9]+)\#/;
+				my $a1 = $1; my $a2 = $'; 
+			        $cc2=~/(C[0-9]+)\#/; 
+			        my $b1 = $1; my $b2 = $'; 
+				if($a2=~/C[0-9]+/) { $a2 = $t1; }
+				if($b2=~/C[0-9]+/) { $b2 = $t2; }
+				print "$score<>$a2($a1)<>$b2($b1)\n";
+			    }
+			    else {
+				print "$score<>$cc1<>$cc2\n";     
+			    }
+			}
+			elsif($cui_flag1 and $cui_flag2){ print "$score<>$cc1($t1)<>$cc2($t2)\n";     }
+			elsif($cui_flag1)               { print "$score<>$t1($cc1)<>$input2($cc2)\n"; }
+			elsif($cui_flag2)               { print "$score<>$input1($cc1)<>$t2($cc2)\n"; }
+			else      		        { print "$score<>$input1($cc1)<>$input2($cc2)\n"; }
 		    }
 		}
 	    }
 	    #  print the most similar concepts and the score
 	    elsif($cc1 ne "" or $cc2 ne "") {
-		if($cui_flag1 and $cui_flag2) { print "$score<>$cc1($t1)<>$cc2($t2)\n";     }
-		elsif($cui_flag1)             { print "$score<>$t1($cc1)<>$input2($cc2)\n"; }
-		elsif($cui_flag2)             { print "$score<>$input1($cc1)<>$t2($cc2)\n"; }
-		else   			  { print "$score<>$input1($cc1)<>$input2($cc2)\n"; }
+		if(defined $opt_dictfile)       { 
+		    if(defined $opt_config) { 
+			$cc1=~/(C[0-9]+)\#/;
+			my $a1 = $1; my $a2 = $';
+			$cc2=~/(C[0-9]+)\#/; 
+			my $b1 = $1; my $b2 = $';
+			if($a2=~/C[0-9]+/) { $a2 = $t1; }
+			if($b2=~/C[0-9]+/) { $b2 = $t2; }
+			print "$score<>$a2($a1)<>$b2($b1)\n";
+		    }
+		    else {
+			print "$score<>$cc1<>$cc2\n"; 
+		    }
+		}
+		elsif($cui_flag1 and $cui_flag2){ print "$score<>$cc1($t1)<>$cc2($t2)\n";     }
+		elsif($cui_flag1)               { print "$score<>$t1($cc1)<>$input2($cc2)\n"; }
+		elsif($cui_flag2)               { print "$score<>$input1($cc1)<>$t2($cc2)\n"; }
+		else   			        { print "$score<>$input1($cc1)<>$input2($cc2)\n"; }
 	    }
 	    #  there were no concepts to print - one of them was missing a similarity score
 	    else {
 		if($#c1 > -1) {
 		    foreach my $cc1 (@c1) {
-			if($cuiflag1) { print "$noscore<>$cc1($t1)<>$input2\n"; }
-			else          { print "$noscore<>$t1($cc1)<>$input2\n"; }
-			if($opt_info) { print "    => $input2 does not exist\n"; }
+			if(defined $opt_dictfile){ print "$noscore<>$input1<>$input2\n"; }
+			elsif($cuiflag1)         { print "$noscore<>$cc1($t1)<>$input2\n"; }
+			else                     { print "$noscore<>$t1($cc1)<>$input2\n"; }
+			if($opt_info)            { print "    => $input2 does not exist\n"; }
 		    }
 		}
 		elsif($#c2 > -1) {
 		    foreach my $cc2 (@c2) {
-			if($cuiflag1) { print "$noscore<>$input1<>$cc2($t2)\n"; }
-			else          { print "$noscore<>$input1<>$t2($cc2)\n"; }
-			if($opt_info) { print "    => $input1 does not exist\n"; }
+			if(defined $opt_dictfile){ print "$noscore<>$input1<>$input2\n"; }
+			elsif($cuiflag1)         { print "$noscore<>$input1<>$cc2($t2)\n"; }
+			else                     { print "$noscore<>$input1<>$t2($cc2)\n"; }
+			if($opt_info)            { print "    => $input1 does not exist\n"; }
 		    }
 		}
 		else {
-		    print "$noscore<>$input1<>$input2\n";
+		    print "$noscore<>$input1<>$input2 17\n";
 		    if($opt_info) { print "    => $input2 nor $input1 exist\n"; }
 		}		
 	    }
@@ -679,6 +721,12 @@ sub loadMeasures {
 	if(defined $opt_dictfile) {
 	    $vectoroptions{"dictfile"} = $opt_dictfile;
 	}
+	if(defined $opt_config) {
+	    $vectoroptions{"config"} = $opt_config;
+	}
+	if(defined $opt_smooth) {
+	    $vectoroptions{"smooth"} = $opt_smooth;
+	}
 	if(defined $opt_vectorindex) {
 	    $vectoroptions{"vectorindex"} = $opt_vectorindex;
 	}
@@ -761,6 +809,12 @@ sub loadMeasures {
 	use UMLS::Similarity::lesk;
 	my %leskoptions = ();
 	
+	if(defined $opt_config) {
+	    $leskoptions{"config"} = $opt_config;
+	}
+	if(defined $opt_smooth) {
+	    $leskoptions{"smooth"} = $opt_smooth;
+	}
 	if(defined $opt_stoplist) {
 	    $leskoptions{"stoplist"} = $opt_stoplist;
 	}
@@ -1282,7 +1336,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.47 2010/06/25 17:49:54 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.50 2010/07/08 18:12:37 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

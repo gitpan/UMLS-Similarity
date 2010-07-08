@@ -375,6 +375,7 @@ sub timeStamp {
     return($stamp);
 }
 
+
 #  checks the user input options
 sub checkOptions {
 
@@ -553,7 +554,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: create-icfrequency.pl,v 1.8 2010/06/29 21:10:25 btmcinnes Exp $';
+    print '$Id: create-icfrequency.pl,v 1.9 2010/07/02 13:05:31 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

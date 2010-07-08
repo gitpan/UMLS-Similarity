@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                UMLS-Similarity
-version:             0.61
+version:             0.63
 abstract:            A suite of Perl modules that implement a number 
 license:             ~
 author:              
