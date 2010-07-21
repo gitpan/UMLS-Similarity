@@ -38,7 +38,7 @@
 
 package UMLS::Similarity;
 
-$VERSION = '0.63';
+$VERSION = '0.65';
 
 sub new
 {
@@ -73,34 +73,28 @@ module to access the UMLS present in a mysql database.
 
 =head1 SYNOPSIS
 
+ #!/usr/bin/perl
+
  use UMLS::Interface;
-
  use UMLS::Similarity::lch;
-
  use UMLS::Similarity::path;
 
  my $umls = UMLS::Interface->new(); 
-
  die "Unable to create UMLS::Interface object.\n" if(!$umls);
 
  my $lch = UMLS::Similarity::lch->new($umls);
-
  die "Unable to create measure object.\n" if(!$lch);
 
  my $path = UMLS::Similarity::path->new($umls);
-
  die "Unable to create measure object.\n" if(!$path);
 
  my $cui1 = "C0005767";
-
  my $cui2 = "C0007634";
 
  @ts1 = $umls->getTermList($cui1);
-
  my $term1 = pop @ts1;
 
  @ts2 = $umls->getTermList($cui2);
-
  my $term2 = pop @ts2;
 
  my $lvalue = $lch->getRelatedness($cui1, $cui2);

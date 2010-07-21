@@ -1,6 +1,18 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 0.63 to 0.65
+    1. modified the documentation for the lesk and vector measure
+
+    2. added the ST option to RELDEF
+
+    3. fixed small warnings/errors in the modules
+
+    4. fixed the synopsis code so they should run properly
+
+    6. Added the total number of concepts to the icfrequency and
+    icpropagation files
+
   Changes from version 0.61 to 0.63
     1. Modified the --dictfile option for the lesk and vector measures.
 
@@ -15,16 +27,9 @@ NAME
     CUI: <definition> CUI: <definition> TERM: <definition> TERM:
     <definition>
 
-    Make certain the : is directory after the term or CUI - please do not
-    leave a space.
-
     Keep in mind, when using this file with the --config option, if one of
     the CUIs or terms that you are obtaining the similarity for does not
-    exist in the file the vector will be empty which will lead to strange
-    similarity scores.
-
-    An example of this file can be found in the samples/ directory and is
-    called dictfile.
+    exist in the file the vector or lesk will return -1.
 
   Changes from version 0.59 to 0.61
     1. modified create-icfrequency to run faster - the new change really

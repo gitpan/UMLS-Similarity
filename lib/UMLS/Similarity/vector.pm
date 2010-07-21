@@ -47,9 +47,11 @@ use warnings;
 
 use UMLS::Similarity;
 use Lingua::Stem::En;
+use UMLS::Similarity::ErrorHandler;
+
 
 use vars qw($VERSION);
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 my $debug        = 0;
 my $defraw_option= 0;
@@ -126,6 +128,8 @@ sub new
 	    
 		my @defs = split (":", $_);
 	    my $concept = $defs[0]; 
+		$concept =~ s/^\s+//;
+		$concept =~ s/\s+$//;
 	    my $definition = $defs[1];	
 		$dictionary{$concept} = $definition;
 	}
@@ -204,7 +208,7 @@ sub getRelatedness
 	{	
 		my $defs1 = $interface->getExtendedDefinition($concept1);
         if(defined $debugfile) {
-        print DEBUG "DEFINITIONS FROM DICTFILE FOR $concept1: \n";
+        print DEBUG "DEFINITIONS FOR $concept1: \n";
         }
         my $i = 1;
         foreach my $def (@{$defs1}) {
@@ -212,7 +216,7 @@ sub getRelatedness
         print DEBUG "$i. $def\n";
         $i++;
         }
-        $def=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+) ([A-Z]+) \s*\:\s*(.*?)$/;
+	$def=~/(C[0-9]+) ([A-Za-z]+) ([A-Za-z0-9]+) ([A-Za-z0-9\.]+) \s*\:\s*(.*?)$/;
         $d1 .= $5 . " ";
         }
     }
@@ -220,7 +224,7 @@ sub getRelatedness
     {
         my $defs2 = $interface->getExtendedDefinition($concept2);
         if(defined $debugfile) {
-        print DEBUG "DEFINITIONS FROM DICTFILE FOR $concept2: \n";
+        print DEBUG "DEFINITIONS FOR $concept2: \n";
         }
         my $i = 1;
         foreach my $def (@{$defs2}) {
@@ -228,7 +232,7 @@ sub getRelatedness
         print DEBUG "$i. $def\n";
         $i++;
         }
-        $def=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+) ([A-Z]+) \s*\:\s*(.*?)$/;
+        $def=~/(C[0-9]+) ([A-Za-z]+) ([A-Za-z0-9]+) ([A-Za-z0-9\.]+) \s*\:\s*(.*?)$/;
         $d2 .= $5 . " ";
         }
     }
@@ -262,7 +266,7 @@ sub getRelatedness
 
 			#  seperate definition from the other information 
 			#  sent by the getExtendedDefinition function
-			$extendeddef=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+) ([A-Z]+) \s*\:\s*(.*?)$/;
+			$extendeddef=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+) ([A-Za-z0-9\.]+) \s*\:\s*(.*?)$/;
 			my $def = $5;
 			
 			#  store the definition in the string d1
@@ -306,7 +310,7 @@ sub getRelatedness
 
 			#  seperate definition from the other information 
 			#  sent by the getExtendedDefinition function
-			$extendeddef=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+) ([A-Z]+) \s*\:\s*(.*?)$/;
+			$extendeddef=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+) ([A-Za-z0-9\.]+) \s*\:\s*(.*?)$/;
 			my $def = $5;
 			
 			#  store the definition in the string d1
@@ -590,6 +594,8 @@ method described by Patwardhan and Pedersen (2006).
  }
 
 =head1 SYNOPSIS
+ 
+  #!/usr/bin/perl
 
   use UMLS::Interface;
   use UMLS::Similarity::vector;
@@ -606,8 +612,8 @@ method described by Patwardhan and Pedersen (2006).
   my $vector = UMLS::Similarity::vector->new($umls, \%vectoroptions);
   die "Unable to create measure object.\n" if(!$vector);
 
-  my $cui1 = "C0005767";
-  my $cui2 = "C0007634";
+  my $cui1 = "C0018563";
+  my $cui2 = "C0037303";
 
   @ts1 = $umls->getTermList($cui1);
   my $term1 = pop @ts1;
@@ -618,7 +624,6 @@ method described by Patwardhan and Pedersen (2006).
   my $value = $vector->getRelatedness($cui1, $cui2);
 
   print "The similarity between $cui1 ($term1) and $cui2 ($term2) is $value\n";
-
 
 =head1 DESCRIPTION
 
@@ -684,14 +689,48 @@ vector-input.pl requires the bigrams are sorted, and you could use
 count2huge.pl method of Text-NSP to convert the output of count.pl 
 to huge-count.pl. 
 
+
 --defraw option is a flag for the vector measure. The definitions 
 used are 'cleaned'. If the --defraw flag is set they will not be cleaned, 
 and it will leave the definitions in their "raw" form. 
 
 --dictfile option is a dictionary file for the vector measure. It 
-contains the 'definitions' of a concept which would be used rather 
-than the definitions from the UMLS. 
+contains the 'definitions' of a concept which would be used in the 
+relatedness computation. When this option is set, for the input 
+pair, umls-similarity.pl first find the CUIs or terms definition in 
+the dictfile. If the --config option is set, umls-similarity.pl will
+find the definition in dictfile and in UMLS. And then, the relatedness 
+is computed by the combinition of UMLS and dictfile defintions. 
 
+If the --dictfile option is not set, the definiton will only come from the UMLS 
+defintion by the --config option. 
+
+The input pair could be the following formats.
+1. cui1/term1 cui2/term2 
+   without --dictfile option and without --config option, 
+   use the UMLS definition of the default config file. 
+
+2. cui1/term1 cui2/term2  --dictfile ./sample/dictfile
+   --dictfile option is set and without --config option, 
+   definitions only come from dictfile. 
+
+3. cui1/term1 cui2/term2  --config ./sample/leskmeasure.config
+   without --dictfile option, --config option is set, 
+   definitions only come from UMLS by the config file. 
+
+4. cui1/term1 cui2/term2  --dictfile ./sample/dictfile --config ./sample/leskmeasure.config
+   --dictfile option is set, --config option is set, 
+   definitions come from dictfile and UMLS. 
+
+Terms in the dictionary file use the delimiter : to seperate the terms and
+their definition. It allows multi terms in one concept. Please see the sample 
+file at /sample/dictfile
+
+--config option is configure file for the lesk or vector measure. It defines 
+the relationship, source and rela relationship. When compute the relatedness
+of a pair, umls-similarity.pl find the corresponding relationshps and 
+source by the config file. 
+ 
 --stoplist option is a word list file for the vector measure. The words
 in the file should be removed from the definition. In the stop list file, 
 each word is in the regular expression format. A stop word sample file 
@@ -710,25 +749,6 @@ that expose the following methods:
 
 For the getRelatednes() function, it accepts different combinations of CUIs and 
 Terms. The following is the basic logic: 
-
-if(!defined --dictfile)
-{
-    if input two CUIs, use the CUIs definition in UMLS. 
-}
-
-if (defined --dictfile)
-{
-    if input CUI#Term, use the CUI's UMLS definition 
-    and Term's dictionary definition;
-
-    if input Terms, or CUIs, use the dictionary definition; 
-    
-    if the dictionary doesn't have the CUIs or Terms definition 
-    return "-1";        
-}
-
-
-
 
 
 =head1 TYPICAL USAGE EXAMPLES
@@ -764,6 +784,12 @@ The format of the configuration file is as follows:
 SABDEF :: <include|exclude> <source1, source2, ... sourceN>
 
 RELDEF :: <include|exclude> <relation1, relation2, ... relationN>
+
+The possible relations that can be included in RELDEF are:
+  1. all of the possible relations in MRREL such as PAR, CHD, ...
+  2. CUI which refers the concepts definition
+  3. ST which refers to the concepts semantic types definition
+  4. TERM which refers to the concepts associated terms
 
 For example, if we wanted to use the definitions from MSH vocabulary 
 and we only wanted the definition of the CUI and the definitions of the 

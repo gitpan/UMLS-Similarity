@@ -76,6 +76,11 @@ If you go to the configuration file directory, there will
 be example configuration files for the different runs that 
 you have performed.
 
+Note: You can use relations other than PAR/CHD and RB/RN for propagation 
+but we do not recommend it. The PAR/CHD and RB/RN relations are considered 
+the heirarchical relations in the UMLS which is required for propagation to 
+perform correctly.
+
 =head3 --disregard
 
 This ignores the SAB configuration that the icfrequency 
@@ -262,8 +267,8 @@ my $smooth      = 0;
 #  load the UMLS
 &loadUMLS           ();
 
-my $sabstring = $umls->getSabString();
-my $relstring = $umls->getRelString();
+my $sabstring  = $umls->getSabString();
+my $relstring  = $umls->getRelString();
 my $relastring = $umls->getRelaString();
 
 #  check parameters
@@ -275,12 +280,18 @@ my $cuiHash = &getFileCounts($inputfile);
 #  propagate the counts
 my $propagationHash = $umls->propagateCounts($cuiHash);
 
+#  get the total number of CUIs in the frequency file
+my $N          = $umls->getN();
+
 #  print out the propagation counts
 open(OUTPUT, ">$outputfile") || die "Could not open $outputfile\n";
 print OUTPUT "SMOOTH: $smooth\n";
 print OUTPUT "$sabstring\n";
 print OUTPUT "$relstring\n";
-print OUTPUT "$relastring\n";
+if($relastring ne "") { 
+    print OUTPUT "$relastring\n";
+}
+print OUTPUT "N :: $N\n";
 foreach my $cui (sort keys %{$propagationHash}) {
     my $freq = ${$propagationHash}{$cui};
 
@@ -304,6 +315,10 @@ sub checkParameters {
     my $fsabstring  = <FILE>; chomp $fsabstring;
     my $frelstring  = <FILE>; chomp $frelstring;
     my $frelastring = <FILE>; chomp $frelastring;
+
+    #  check if rela is actually specified
+    if($frelastring=~/N\s*\:\:/) { $frelastring = ""; }
+
     if(!$opt_disregard) {
 	#   check the sources
 	if(! ($umls->checkParameters($fsabstring, $sabstring)) ) {
@@ -322,13 +337,29 @@ sub checkParameters {
 	#  check the relas if we have them - this on is optional
 	if($frelastring=~/(include|exclude)/ || $relastring=~/(include|exclude)/) { 
 	    if(! ($umls->checkParameters($frelastring, $relastring)) ) {
-		print STDERR "The icfrequency file was created using the following configuration:\n";
-		print STDERR "    $frelastring\n";
+		if($frelastring ne "") { 
+		    print STDERR "The icfrequency file was created using the following configuration:\n";
+		    print STDERR "    $frelastring\n";
+		}
+		else {
+		    print STDERR "The icfrequency file was not created using the following configuration:\n";
+		    print STDERR "    $relastring\n";
+		}		
 		print STDERR "Please modify your configuration file.\n\n";
 		exit;
 	    }
 	}
     }
+
+    #  check to make certain the relations used are allowed
+    #  propagation is set to only work for the PAR, CHD, RB and RN relations
+    if(! ($umls->checkHierarchicalRelations($frelstring)) ) {
+	print STDERR "The icfrequency file was created using the following configuration:\n";
+	print STDERR "    $frelstring\n";
+	print STDERR "Propagation is set only to work for the PAR, CHD, RB and RN relations.\n\n";
+	exit;
+    }
+    
     close FILE;
 }    
 sub getFileCounts {
@@ -342,8 +373,15 @@ sub getFileCounts {
     my %hash = ();
     while(<FILE>) {
 	chomp;
+	
+        #  remove the headers
 	if($_=~/(include|exclude)/) { next; }
+	if($_=~/N\s*\:\:/) { next; }
+	
+	#  get the cui and the frequency
 	my ($cui, $freq) = split/<>/;
+
+	#  add tot he hash
 	if(exists $cuiHash{$cui}) { 
 	    $hash{$cui} += $freq; 
 	}
@@ -536,17 +574,7 @@ sub showHelp() {
 
     print "--smooth                 Incorporate LaPlace smoothing\n\n";
 
-    print "--term                   Calculates the frequency counts using\n";
-    print "                         the words in the input file. (DEFAULT)\n\n";
-
-    print "--metamap                Calculates the frequency counts using\n";
-    print "                         the CUIs assigned to terms by MetaMap.\n\n";
-
     print "--precision N            Displays values upto N places of decimal.\n\n";
-
-    print "--icfrequency            The input file contains frequency counts\n";
-    print "                         for CUIs rather than plain text\n\n";
-
     print "--username STRING        Username required to access mysql\n\n";
 
     print "--password STRING        Password required to access mysql\n\n";
@@ -567,7 +595,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: create-icpropagation.pl,v 1.5 2010/06/29 21:10:25 btmcinnes Exp $';
+    print '$Id: create-icpropagation.pl,v 1.7 2010/07/15 22:03:56 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

@@ -43,9 +43,10 @@ package UMLS::Similarity::jcn;
 use strict;
 use warnings;
 use UMLS::Similarity;
+use UMLS::Similarity::ErrorHandler;
 
 use vars qw($VERSION);
-$VERSION = '0.07';
+$VERSION = '0.09';
 
 my $debug = 0;
 
@@ -88,37 +89,70 @@ sub getRelatedness
     my $concept2 = shift;
     
     my $interface = $self->{'interface'};
-    
+ 
+
     #  get the IC of each of the concepts
     my $ic1 = $interface->getIC($concept1);
     my $ic2 = $interface->getIC($concept2);
-    
+   
+ 
+ 
     #  Check to make certain that the IC for each of the
     #  concepts is greater than zero otherwise return zero
+    #  for lack of data
     if($ic1 <= 0 or $ic2 <= 0) { return 0; }
 
     #  get the lcses of the concepts
     my @lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
     
-    #  get the IC of the lcs witht he lowest IC 
+    #  get the IC of the lcs with the lowest IC 
     my $iclcs = 0;
     foreach my $lcs (@lcses) {
 	my $value = $interface->getIC($lcs);
 	if($iclcs < $value) { $iclcs = $value; }
     }
-    
-    #  if this is zero just return zero
-    if($iclcs == 0) { return 0; }
-
-    #  otherwise calculate the distance
+ 
+    #  calculate the distance
     my $distance = $ic1 + $ic2 - (2 * $iclcs);
+   
+
+    # if the distance is zero 
+    # implies ic1 == ic2 == ic3 (most probably all three represent
+    # the same concept)... i.e. maximum relatedness... i.e. infinity...
+    # We'll return the maximum possible value ("Our infinity").
+    # Here's how we got our infinity...
+    # distance = ic1 + ic2 - (2 x ic3)
+    # Largest possible value for (1/distance) is infinity, when distance = 0.
+    # That won't work for us... Whats the next value on the list...
+    # the smallest value of distance greater than 0...
+    # Consider the formula again... distance = ic1 + ic2 - (2 x ic3)
+    # We want the value of distance when ic1 or ic2 have information content
+    # slightly more than that of the root (ic3)... (let ic2 == ic3 == 0)
+    # Assume frequency counts of 0.01 less than the frequency count of the
+    # root for computing ic1...
+    # sim = 1/ic1
+    # sim = 1/(-log((freq(root) - 0.01)/freq(root)))
+    if($distance == 0) { 
+	my $root = $interface->root();
+
+	my $rootFreq = $interface->getFrequency($root);
+	
+	#  if the root frequency is greater than zero
+	if ($rootFreq > 0.01) {
+	    $distance = -log (($rootFreq - 0.01) / $rootFreq);
+	}
+	# otherwise the root frequency is 0 so return 0 for lack of data
+	else {
+	    return 0;
+	}
+    }
     
-    #  calculate the similarity score
+    #  now calculate the similarity score
     my $score = 0;
     if($distance > 0) { 
 	$score = 1 / $distance;
     }
-
+    
     return $score;
 }
 
@@ -145,34 +179,29 @@ relatednessof concepts in the Unified Medical Language System
 
 =head1 SYNOPSIS
 
-  use UMLS::Interface;
+  #!/usr/bin/perl
 
+  use UMLS::Interface;
   use UMLS::Similarity::jcn;
 
   my $icpropagation = "samples/icpropagation";
-
-  my %option_hash = ();
+  my %option_hash   = ();
 
   $option_hash{"propagation"} = $icpropagation;
 
   my $umls = UMLS::Interface->new(\%option_hash); 
-
   die "Unable to create UMLS::Interface object.\n" if(!$umls);
 
   my $jcn = UMLS::Similarity::jcn->new($umls);
-
   die "Unable to create measure object.\n" if(!$jcn);
 
   my $cui1 = "C0005767";
-
   my $cui2 = "C0007634";
 
   @ts1 = $umls->getTermList($cui1);
-
   my $term1 = pop @ts1;
 
   @ts2 = $umls->getTermList($cui2);
-
   my $term2 = pop @ts2;
 
   my $value = $jcn->getRelatedness($cui1, $cui2);
@@ -216,6 +245,139 @@ file can then be used by the create-icpropagation.pl program to create
 a file containing a list of CUIs and their probability counts, or used 
 directly by the umls-similarity.pl program which will calculate the 
 probability of a concept on the fly. 
+
+=head1 SELF SIMILARITY
+
+Since the Jiang and Conrath measure was initially calculated as 
+a distance measure and turned into a similarity measure, we need 
+to take care ofthe special cases in which the similarity of the 
+two concepts results in zero but does not mean that the two 
+concepts are not similar. Here is an explaination of how we did 
+and why. This is taken from the discussion about this measure 
+when it was being implemented in WordNet::Similarity. The 
+actual message chain is located here:
+
+L< http://tech.groups.yahoo.com/group/wn-similarity/message/8>
+
+The Jiang and Conrath measure is calculated as follows:
+
+ sim(c1, c2) = 1 / distance(c1, c2)
+
+where
+
+ c1, c2 are the two concepts,
+ distance(c1, c2) = ic(c1) + ic(c2) - (2 * ic(lcs(c1, c2)))
+ ic               = the information content of the concept.
+ lcs(c1, c2)      = the least common subsumer of c1 and c2.
+
+Now, we don't want distance to be 0 (=> similarity will become
+undefined). The distance can be 0 in 2 cases...
+
+(1) ic(c1) = ic(c2) = ic(lcs(c1, c2)) = 0
+
+ic(lcs(c1, c2)) can be 0 if the lcs turns out to be the root
+node (information content of the root node is zero). But since
+c1 and c2 can never be the root node, ic(c1) and ic(c2) would be 0
+only if the 2 concepts have a 0 frequency count, in which case, for
+lack of data, we return a relatedness of 0 (similar to the lin case).
+
+Note that the root node ACTUALLY has an information content of
+zero. Technically, none of the other concepts can have an information
+content value of zero. We assign concepts zero values, when
+in reality their information content is undefined (due to zero
+frequency counts). To see why look at the formula for information
+content: ic(c) = -log(freq(c)/freq(ROOT)) {log(0)? log(1)?}
+
+(2) The second case that distance turns out to be zero is when...
+
+ic(c1) + ic(c2) = 2 * ic(lcs(c1, c2))
+
+(which could have a more likely special case ic(c1) = ic(c2) =
+ic(lcs(c1, c2)) if all three turn out to be the same concept.)
+
+How should one handle this?
+
+Intuitively this is the case of maximum relatedness (zero
+distance). For jcn this relatedness would be infinity... But we
+can't return infinity. And simply returning a 0 wouldn't work...
+since here we have found a pair of concepts with maximum
+relatedness, and returning a 0 would be like saying that they
+aren't related at all.
+
+So what could we return as the maximum relatedness value?
+
+So the way I handled this was to try to find the smallest distance
+greater than 0, so that sim would be a very high value, but not
+infinity. To find this value of distance I consider the formula of
+distance...
+
+ distance = ic(c1) + ic(c2) - (2 * ic(lcs(c1, c2)))
+
+we get distance = 0 if ic(c1) = ic(c2) = ic(lcs(c1, c2))
+So consider the case that ic(c2) = ic(lcs(c1, c2), but ic(c1) is the
+information content value just slightly more than that of ic(c2) (and
+ic(lcs(c1, c2))). We want to find the value of distance corresponding
+to such a case and this would be the next highest value of distance
+after 0.
+
+We could select ic(c2) and ic(lcs(c1, c2)) to represent a highly
+specific concept or a highly general concept for this computation...
+We'll decide which one to select later...
+For now we want a formula to represent a value of
+distance = "almost zero".
+
+ ic(concept) = -log(freq(concept)/freq(root))
+
+For ic(c1) to be just slightly more than ic(c2) (or ic(lcs(c1, c2))),
+what if we just reduced freq(concept) in the above formula by 1. i.e.
+
+ ic(c2) = ic(lcs(c1, c2)) = -log(freq/rootFreq)
+
+ ic(c1) = -log((freq-1)/rootFreq)
+
+Since frequency is counted in whole numbers, this is the closest
+ic(c1) could be to ic(c2) (but not equal to it). With this formula we
+would have
+
+ distance = ic(c1) + ic(c2) - (2 * ic(lcs(c1, c2)))
+          = ic(c1) + ic(c2) - (2 * ic(c2))
+
+... since ic(c2) = ic(lcs(c1, c2))
+
+          = ic(c1) - ic(c2)
+          = -log((freq-1)/rootFreq) + log(freq/rootFreq)
+
+Now comes the part where we want to decide whether to select a
+highly specific concept or a highly general concept for ic2 and
+ic3... I selected them to be the most general concepts for some non
+mathematical reasons (tho' I think I had come up with some
+mathematical ones)...
+
+My reasons...
+
+The most general concept is the root node... we always have the
+frequency count of the root node (non zero)... (if the root node is
+zero then there is something really wrong with the information
+content computed). It would be very difficult to find the most
+specific concept (tho' not impossible).
+
+Somehow, mathematically, I had a feeling that the more general
+ic(c1) and ic(c2) are, they would be closer to each other on the
+log scale than if they were more specific concepts (I could be
+mistaken and it could be the other way around... and I don't have a
+proof right now to support what I'm saying)
+
+anyway, taking the most general concepts (the root concept), we have
+
+distance = -log((rootFreq - 1)/rootFreq) + log(rootFreq/rootFreq)
+         = -log((rootFreq - 1)/rootFreq) + log(1)
+         = -log((rootFreq - 1)/rootFreq)
+
+This is the distance corresponding to "almost zero"... And this is
+what I put in the code for the 0 case (sim = infinity case).
+
+With the hocus pocus above I have made an artificial bound on relatedness
+to "almost infinity".
 
 =head1 PROPAGATION
 

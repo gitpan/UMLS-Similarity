@@ -40,6 +40,7 @@ package UMLS::Similarity::lin;
 use strict;
 use warnings;
 use UMLS::Similarity;
+use UMLS::Similarity::ErrorHandler;
 
 use vars qw($VERSION);
 $VERSION = '0.07';
@@ -134,34 +135,29 @@ relatednessof concepts in the Unified Medical Language System
 
 =head1 SYNOPSIS
 
-  use UMLS::Interface;
+  #!/usr/bin/perl
 
+  use UMLS::Interface;
   use UMLS::Similarity::lin;
 
   my $icpropagation = "samples/icpropagation";
-
-  my %option_hash = ();
+  my %option_hash   = ();
 
   $option_hash{"icpropagation"} = $icpropagation;
 
   my $umls = UMLS::Interface->new(\%option_hash); 
-
   die "Unable to create UMLS::Interface object.\n" if(!$umls);
 
   my $lin = UMLS::Similarity::lin->new($umls);
-
   die "Unable to create measure object.\n" if(!$lin);
 
   my $cui1 = "C0005767";
-
   my $cui2 = "C0007634";
 
   @ts1 = $umls->getTermList($cui1);
-
   my $term1 = pop @ts1;
 
   @ts2 = $umls->getTermList($cui2);
-
   my $term2 = pop @ts2;
 
   my $value = $lin->getRelatedness($cui1, $cui2);

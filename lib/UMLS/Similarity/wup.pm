@@ -43,6 +43,7 @@ package UMLS::Similarity::wup;
 use strict;
 use warnings;
 use UMLS::Similarity;
+use UMLS::Similarity::ErrorHandler;
 
 use vars qw($VERSION);
 $VERSION = '0.07';
@@ -147,28 +148,24 @@ method described by Wu and Palmer (1994).
 
 =head1 SYNOPSIS
 
-  use UMLS::Interface;
+  #!/usr/bin/perl
 
+  use UMLS::Interface;
   use UMLS::Similarity::wup;
 
   my $umls = UMLS::Interface->new(); 
-
   die "Unable to create UMLS::Interface object.\n" if(!$umls);
 
   my $wup = UMLS::Similarity::wup->new($umls);
-
   die "Unable to create measure object.\n" if(!$wup);
 
   my $cui1 = "C0005767";
-
   my $cui2 = "C0007634";
 
   @ts1 = $umls->getTermList($cui1);
-
   my $term1 = pop @ts1;
 
   @ts2 = $umls->getTermList($cui2);
-
   my $term2 = pop @ts2;
 
   my $value = $wup->getRelatedness($cui1, $cui2);

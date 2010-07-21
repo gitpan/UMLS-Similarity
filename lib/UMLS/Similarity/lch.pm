@@ -40,6 +40,7 @@ package UMLS::Similarity::lch;
 use strict;
 use warnings;
 use UMLS::Similarity;
+use UMLS::Similarity::ErrorHandler;
 
 use vars qw($VERSION);
 $VERSION = '0.07';
@@ -129,28 +130,24 @@ method described by Leacock and Chodorow (1998).
 
 =head1 SYNOPSIS
 
-  use UMLS::Interface;
+  #!/usr/bin/perl
 
+  use UMLS::Interface;
   use UMLS::Similarity::lch;
 
   my $umls = UMLS::Interface->new(); 
-
   die "Unable to create UMLS::Interface object.\n" if(!$umls);
 
   my $lch = UMLS::Similarity::lch->new($umls);
-
   die "Unable to create measure object.\n" if(!$lch);
 
-  $cui1 = "C0005767";
-
+  my $cui1 = "C0005767";
   my $cui2 = "C0007634";
 
   @ts1 = $umls->getTermList($cui1);
-
   my $term1 = pop @ts1;
 
   @ts2 = $umls->getTermList($cui2);
-
   my $term2 = pop @ts2;
 
   my $value = $lch->getRelatedness($cui1, $cui2);

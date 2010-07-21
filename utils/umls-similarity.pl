@@ -59,6 +59,13 @@ SABDEF :: <include|exclude> <source1, source2, ... sourceN>
 
 RELDEF :: <include|exclude> <relation1, relation2, ... relationN>
 
+The possible relations that can be included in RELDEF are:
+  1. all of the possible relations in MRREL such as PAR, CHD, ...
+  2. CUI which refers the concepts definition
+  3. ST which refers to the concepts semantic types definition
+  4. TERM which refers to the concepts associated terms
+
+
 For example, if we wanted to use the definitions from MSH vocabulary 
 and we only wanted the definition of the CUI and the definitions of the 
 CUIs SIB relation, the configuration file would be:
@@ -268,8 +275,22 @@ CUI: <definition>
 TERM: <definition> 
 TERM: <definition>
 
-Make certain the : is directory after the term or CUI - please 
-do not leave a space.
+There are three different option configurations that you have with the
+--dictfile.
+
+1. No --dictfile - which will use the UMLS definitions
+
+  umls-similarity.pl --measure lesk hand foot
+
+2. --dictfile - which will just use the dictfile definitions
+
+  umls-similarity.pl --measure lesk --dictfile samples/dictfile hand foot
+
+3. --dictfile + --config - which will use both the UMLS and dictfile 
+definitions
+
+  umls-similarity.pl --measure lesk --dictfile samples/dictfile --config
+  configuration hand foot
 
 Keep in mind, when using this file with the --config option, if 
 one of the CUIs or terms that you are obtaining the similarity 
@@ -472,11 +493,21 @@ sub calculateSimilarity {
 	    #  will take the terms as input - don't map them to cuis in the umls. 
 	    #  the definitions used by these measures are coming from the dictfile
 	    #  not the umls therefore the actual terms are required by the measures.
-	    if( ($measure=~/(lesk|vector)/) &&
-		(defined $opt_dictfile)     && 
-		(! (defined $opt_config)) ) {
-		push @c1, $input1;
-		push @c2, $input2;
+	    if( ($measure=~/(lesk|vector)/) && 
+		(defined $opt_dictfile) ) {
+		if( (defined $opt_dictfile) && (defined $opt_config) ) {
+		    @c1 = $umls->getConceptList($input1);
+		    @c2 = $umls->getConceptList($input2);
+		    if($#c1 < 0) { push @c1, $input1; }
+		    for my $i (0..$#c1) { $c1[$i] .= "#$input1"; } 
+		    if($#c2 < 0) { push @c2, $input2; }
+		    for my $i (0..$#c2) { $c2[$i] .= "#$input2"; } 
+		    
+		}
+		else {
+		    push @c1, $input1;
+		    push @c2, $input2;
+		}
 	    }
 	    #  otherwise get the cuis for the input terms unless they are
 	    #  already cuis then just add them to the mapping arrays
@@ -503,16 +534,7 @@ sub calculateSimilarity {
 		}
 	    }
 
-	    #  if again the vector or lesk measures are used check if the dictfile 
-	    #  and the config file are set then the definitions of the cuis as well 
-	    #  as the input term from the dictfile are going to be used
-	    if( ($measure=~/(vector|lesk)/) &&
-		(defined $opt_dictfile)     && 
-		(defined $opt_config) ) { 
-		for my $i (0..$#c1) { $c1[$i] .= "#$input1"; }
-		for my $i (0..$#c2) { $c2[$i] .= "#$input2"; }
-	    }
-
+	    
 	    my $t1 = $input1; my $t2 = $input2;	    
 	    if($cui_flag1) {
 		my @ts1 = $umls->getTermList($input1);
@@ -596,18 +618,17 @@ sub calculateSimilarity {
 	    #  print the most similar concepts and the score
 	    elsif($cc1 ne "" or $cc2 ne "") {
 		if(defined $opt_dictfile)       { 
-		    if(defined $opt_config) { 
-			$cc1=~/(C[0-9]+)\#/;
-			my $a1 = $1; my $a2 = $';
-			$cc2=~/(C[0-9]+)\#/; 
-			my $b1 = $1; my $b2 = $';
+		    if($cc1=~/(C[0-9]+)\#/) { 
+			my $a1 = $1; my $a2 = $'; #'
 			if($a2=~/C[0-9]+/) { $a2 = $t1; }
+			$cc1 = "$a2($a1)";
+		    }    
+		    if($cc2=~/(C[0-9]+)\#/) { 
+			my $b1 = $1; my $b2 = $'; #'
 			if($b2=~/C[0-9]+/) { $b2 = $t2; }
-			print "$score<>$a2($a1)<>$b2($b1)\n";
+                        $cc2 = "$b2($b1)";
 		    }
-		    else {
-			print "$score<>$cc1<>$cc2\n"; 
-		    }
+		    print "$score<>$cc1<>$cc2\n"; 
 		}
 		elsif($cui_flag1 and $cui_flag2){ print "$score<>$cc1($t1)<>$cc2($t2)\n";     }
 		elsif($cui_flag1)               { print "$score<>$t1($cc1)<>$input2($cc2)\n"; }
@@ -633,7 +654,7 @@ sub calculateSimilarity {
 		    }
 		}
 		else {
-		    print "$noscore<>$input1<>$input2 17\n";
+		    print "$noscore<>$input1<>$input2\n";
 		    if($opt_info) { print "    => $input2 nor $input1 exist\n"; }
 		}		
 	    }
@@ -1336,7 +1357,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.50 2010/07/08 18:12:37 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.54 2010/07/19 14:19:42 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

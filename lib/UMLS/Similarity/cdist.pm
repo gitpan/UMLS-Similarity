@@ -43,6 +43,7 @@ package UMLS::Similarity::cdist;
 use strict;
 use warnings;
 use UMLS::Similarity;
+use UMLS::Similarity::ErrorHandler;
 
 use vars qw($VERSION);
 $VERSION = '0.07';
@@ -124,6 +125,8 @@ of concepts in the UMLS by simple edge counting proposed by Rada, et. al.
  }
 
 =head1 SYNOPSIS
+
+  #!/usr/bin/perl
 
   use UMLS::Interface;
 

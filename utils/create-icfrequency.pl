@@ -240,6 +240,9 @@ my $hostname    = "";
 my $socket      = "";    
 my $umls        = "";
 
+#  initialize the total number of unigrams
+my $N = 0;
+
 #  check the options 
 &checkOptions       ();
 &setOptions         ();
@@ -265,7 +268,10 @@ else {
 open(OUTPUT, ">$outputfile") || die "Could not open $outputfile\n";
 print OUTPUT "$sabstring\n";
 print OUTPUT "$relstring\n";
-print OUTPUT "$relastring\n";
+if($relastring ne "") {
+    print OUTPUT "$relastring\n";
+}
+print OUTPUT "N :: $N\n";
 foreach my $cui (sort keys %{$cuilist}) {
     my $freq = ${$cuilist}{$cui};    
     print OUTPUT "$cui<>$freq\n";
@@ -292,6 +298,7 @@ sub getTermCounts {
 	foreach my $cui (@cuis) {
 	    if(exists ${$cuilist}{$cui}) {
 		${$cuilist}{$cui} += $freq;
+		$N += $freq;
 	    }
 	}
     }
@@ -323,6 +330,7 @@ sub getMetaMapCounts {
 	foreach my $cui (sort keys %temp) {
 	    if(exists ${$cuilist}{$cui}) {
 		${$cuilist}{$cui}++;
+		$N++;
 	    }
 	}
     }
@@ -331,7 +339,7 @@ sub getMetaMapCounts {
 }
 
 sub callMetaMap 
- {
+{
     my $line = shift;
     
     my $output = "";
@@ -554,7 +562,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: create-icfrequency.pl,v 1.9 2010/07/02 13:05:31 btmcinnes Exp $';
+    print '$Id: create-icfrequency.pl,v 1.10 2010/07/15 22:03:56 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 
