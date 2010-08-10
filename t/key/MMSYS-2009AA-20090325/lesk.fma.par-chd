@@ -7,6 +7,7 @@ User Settings:
   --measure lesk
   --realtime
 
+   --config option set
 
 
 UMLS-Interface Configuration Information
@@ -24,6 +25,6 @@ PathFinder User Options:
    --realtime option set
 
 
-0.0000<>hand(C0018563)<>skull(C0037303)
-0.0000<>skull(C0037303)<>neck(C0027530)
-0.0000<>hand(C0018563)<>neck(C0027530)
+-1.0000<>hand(C0018563)<>skull
+-1.0000<>skull(C0037303)<>neck
+-1.0000<>hand(C0018563)<>neck

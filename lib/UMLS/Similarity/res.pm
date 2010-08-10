@@ -97,7 +97,10 @@ sub getRelatedness
 	my $value = $interface->getIC($lcs);
 	if($score < $value) { $score = $value; }
     }
-    
+
+    #  if the information content is less then zero return -1
+    if($score <= 0) { return -1; }
+
     #  return that score
     return $score
 }

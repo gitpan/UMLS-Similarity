@@ -51,7 +51,7 @@ use UMLS::Similarity::ErrorHandler;
 
 
 use vars qw($VERSION);
-$VERSION = '0.03';
+$VERSION = '0.05';
 
 my $debug        = 0;
 my $defraw_option= 0;
@@ -219,6 +219,12 @@ sub getRelatedness
 	$def=~/(C[0-9]+) ([A-Za-z]+) ([A-Za-z0-9]+) ([A-Za-z0-9\.]+) \s*\:\s*(.*?)$/;
         $d1 .= $5 . " ";
         }
+
+		#if the definition is empty, return -1
+		if ($d1 eq "") 
+		{
+			return -1;
+		}
     }
     if($concept2 =~ /C[0-9]+/)
     {
@@ -235,8 +241,14 @@ sub getRelatedness
         $def=~/(C[0-9]+) ([A-Za-z]+) ([A-Za-z0-9]+) ([A-Za-z0-9\.]+) \s*\:\s*(.*?)$/;
         $d2 .= $5 . " ";
         }
+
+		#if the definition is empty, return -1
+		if ($d2 eq "") 
+		{
+			return -1;
+		}
     }
-    } # end of with --dictfile option 
+    } # end of without --dictfile option 
 
 	if (defined $dictfile)
 	{ 
@@ -266,16 +278,24 @@ sub getRelatedness
 
 			#  seperate definition from the other information 
 			#  sent by the getExtendedDefinition function
-			$extendeddef=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+) ([A-Za-z0-9\.]+) \s*\:\s*(.*?)$/;
+			$extendeddef=~/(C[0-9]+) ([A-Za-z]+) ([A-Za-z0-9]+) ([A-Za-z0-9\.]+) \s*\:\s*(.*?)$/;
 			my $def = $5;
 			
 			#  store the definition in the string d1
 			$d1 .= $def . " "; 
 			}	   
 
+			$d1 .= $term1_def . " " if $term1_def ne ""; 
+
 			if(defined $debugfile)
 			{
 				print DEBUG "$i. $term1_def\n" if (defined $term1_def);
+			}
+
+			#if the definition is empty, return -1
+			if ($d1 eq "") 
+			{
+				return -1;
 			}
 		}
 		else
@@ -310,18 +330,25 @@ sub getRelatedness
 
 			#  seperate definition from the other information 
 			#  sent by the getExtendedDefinition function
-			$extendeddef=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+) ([A-Za-z0-9\.]+) \s*\:\s*(.*?)$/;
+			$extendeddef=~/(C[0-9]+) ([A-Za-z]+) ([A-Za-z0-9]+) ([A-Za-z0-9\.]+) \s*\:\s*(.*?)$/;
 			my $def = $5;
 			
 			#  store the definition in the string d1
 			$d2 .= $def . " "; 
 			}	   
 
+			$d2 .= $term2_def . " " if $term2_def ne ""; 
+
 			if(defined $debugfile)
 			{
 				print DEBUG "$i. $term2_def\n" if (defined $term2_def);
 			}
 			
+			#if the definition is empty, return -1
+			if ($d2 eq "") 
+			{
+				return -1;
+			}
 		}
 		else
 		{

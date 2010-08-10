@@ -34,6 +34,12 @@ Displays the quick summary of program options.
 
 Displays the version information.
 
+=head3 --N 
+
+displays N - the number of term pairs the correlation 
+is being calculated over. This would be any term pair 
+that has a score greater than or equal to zero.
+
 =head1 OUTPUT
 
 The Spearman's Rank Correlation between the two files.
@@ -117,7 +123,7 @@ this program; if not, write to:
 
 use Getopt::Long;
 
-eval(GetOptions( "version", "help")) or die ("Please check the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "N")) or die ("Please check the above mentioned option(s).\n");
 
 #  if help is defined, print out help
 if( defined $opt_help ) {
@@ -162,6 +168,11 @@ my %yhash = ();
 
 my %xlist = ();
 my %ylist = ();
+my $xnegative = 0;
+my $ynegative = 0;
+my $xtotal = 0;
+my $ytotal = 0;
+
 while(<X>) {
     chomp;
     my ($score, $t1, $t2) = split/<>/;
@@ -172,12 +183,12 @@ while(<X>) {
     $t2=~/(C[0-9]+)/;
     $c2 = $1;
 
-    if($score < 0) { next; }
+    $xtotal++;
+    if($score < 0) { $xnegative++; next; }
     
     $term = "$c1 $c2";
     push @{$xhash{$score}}, $term;
     $xlist{$term}++;
-
 }
 
 while(<Y>) {
@@ -190,13 +201,13 @@ while(<Y>) {
     $t2=~/(C[0-9]+)/;
     $c2 = $1;
 
-    if($score < 0) { next; }
+    $ytotal++;
+    if($score < 0) { $ynegative++; next; }
     
     $term = "$c1 $c2";
     push @{$yhash{$score}}, $term;
     $ylist{$term}++;
 }
-
 
 my %xrank = ();
 my %yrank = ();
@@ -262,20 +273,28 @@ my $ydenom = 0;
 foreach my $term (sort keys %xrank) {
     my $xi = $xrank{$term};
     my $yi = $yrank{$term};
-        
+            
     $numerator += ( ($xi-$xmean) * ($yi-$ymean) );
     
     $xdenom += ( ($xi - $xmean)**2 );
     $ydenom += ( ($yi - $ymean)**2 );
-    
 }
 
 my $denominator = sqrt($xdenom * $ydenom);
 
 my $pearsons = $numerator / $denominator;
 
-print "Spearman's Rank Correlation: $pearsons\n";
- 
+if(defined $opt_N) { 
+    my $yN= $ytotal - $ynegative;
+    my $xN= $xtotal - $xnegative; 
+    my $N = $yN;
+    if($xN < $yN){ $N = $xN; }
+    print "Spearman's Rank Correlation: $pearsons (N: $N)\n"; 
+}
+else {
+        print "Spearman's Rank Correlation: $pearsons\n"; 
+}
+
 ##############################################################################
 #  function to output minimal usage notes
 ##############################################################################
@@ -298,6 +317,10 @@ sub showHelp() {
 
     print "Options:\n\n";
 
+    print "--N                      Prints the total number of term\n";
+    print "                         pairs the correlation metric is\n";
+    print "                         using.\n\n";
+
     print "--version                Prints the version number\n\n";
     
     print "--help                   Prints this help message.\n\n";
@@ -307,7 +330,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: spearmans.pl,v 1.2 2010/03/22 14:21:57 btmcinnes Exp $';
+    print '$Id: spearmans.pl,v 1.5 2010/07/28 21:34:45 btmcinnes Exp $';
     print "\nCopyright (c) 2010, Ted Pedersen & Bridget McInnes\n";
 }
 

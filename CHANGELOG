@@ -1,6 +1,26 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 0.65 to 0.67
+    1. umls-similarity outputs the preferred term of a CUI rather than
+    randomy picking one of the associated terms
+
+    2. the path measures return 1 if the CUIs are the same prior to going
+    out and finding the shortest path
+
+    3. modified umls-similarity.pl to allow the --config option to be used
+    with the '--measure random' option.
+
+    4. fixed the dictfile errors for lesk and vector
+
+    5. modified the ic measures to return a -1, if the IC of the CUIs (or
+    their LCS) is 0. The idea is that there is not enough information to
+    determine their similarity.
+
+    6. modified vector and lesk to return a -1, if the definition or vector
+    is empty. Again, the idea is that there isnot enought information to
+    determine their similarity.
+
   Changes from version 0.63 to 0.65
     1. modified the documentation for the lesk and vector measure
 

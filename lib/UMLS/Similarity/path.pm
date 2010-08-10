@@ -83,15 +83,15 @@ sub getRelatedness
     my $concept1 = shift;
     my $concept2 = shift;
     
-    #  get the interface
-    my $interface = $self->{'interface'};
-
-    #  find the shortest paths
-    my @paths = $interface->findShortestPath($concept1, $concept2);
-    
     #  if concept 1 and 2 are the same just return 1
     if($concept1 eq $concept2) { return 1; }
 
+    #  get the interface
+    my $interface = $self->{'interface'};
+    
+    #  find the shortest paths
+    my @paths = $interface->findShortestPath($concept1, $concept2);
+    
     #  find the path with the shortest length
     my $length = 0;
     foreach my $pathstring (@paths) {

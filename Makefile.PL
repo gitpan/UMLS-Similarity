@@ -19,7 +19,7 @@ my $author1 = 'Bridget McInnes <bthomson@cs.umn.edu>';
 WriteMakefile(
               'NAME'		  => 'UMLS::Similarity',
               'VERSION_FROM'	  => 'lib/UMLS/Similarity.pm',
-              'PREREQ_PM'         => {'UMLS::Interface' => '0.69',
+              'PREREQ_PM'         => {'UMLS::Interface' => '0.71',
 				      'Text::NSP' => '1.17', 
                                       'File::Spec' => '3.31',
                                       'File::Path' => '2.08', 

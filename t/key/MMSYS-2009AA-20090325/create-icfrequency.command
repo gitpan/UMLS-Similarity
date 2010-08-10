@@ -6,16 +6,19 @@ User Settings:
 
 
 
-UMLS-Interface Configuration Information
+UMLS-Interface Configuration Information:
+(Default Information - no config file)
+
   Sources (SAB):
-    MSH
+     MSH
   Relations (REL):
-    CHD
-    PAR
-  Database: 
-    umls (MMSYS-2009AA-20090325)
+     PAR
+     CHD
 
-
+  Sources (SABDEF):
+     UMLS_ALL
+  Relations (RELDEF):
+     UMLS_ALL
 
 PathFinder User Options:
    --realtime option set

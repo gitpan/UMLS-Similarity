@@ -49,7 +49,7 @@ use Lingua::Stem::En;
 use UMLS::Similarity::ErrorHandler;
 
 use vars qw($VERSION);
-$VERSION = '0.03';
+$VERSION = '0.05';
 
 my $debugfile  = ""; 
 my $stoplist   = "";
@@ -195,6 +195,12 @@ sub getRelatedness
 		$def=~/(C[0-9]+) ([A-Za-z]+) ([A-Za-z0-9]+) ([A-Za-z0-9\.]+) \s*\:\s*(.*?)$/;
 		$def1 .= $5 . " " . "<stop>" . " "; 
 		}
+
+		#if the definition is empty, return -1;
+		if($def1 eq "")
+		{
+			return -1;
+		}
 	}	
 	if($concept2 =~ /C[0-9]+/) 
 	{
@@ -210,6 +216,12 @@ sub getRelatedness
 		}
 		$def=~/(C[0-9]+) ([A-Za-z]+) ([A-Za-z0-9]+) ([A-Za-z0-9\.]+) \s*\:\s*(.*?)$/;
 		$def2 .= $5 . " " . "<stop>" . " "; 
+		}
+
+		#if the definition is empty, return -1;
+		if($def2 eq "")
+		{
+			return -1;
 		}
 	}	
 	} # end of WITHOUT --dictfile option 
@@ -248,6 +260,7 @@ sub getRelatedness
 		$term2 = $3;
 		$defs2 = $interface->getExtendedDefinition($cui2);
 		$term2_def = $dictionary{$term2} if (defined $dictionary{$term2});
+
 	}
 	else
 	{
@@ -273,7 +286,7 @@ sub getRelatedness
 		print DEBUG "$i. $def\n"; 
 		$i++;
 	    }
-	    $def=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+) ([A-Za-z0-9\.]+) \s*\:\s*(.*?)$/;
+	    $def=~/(C[0-9]+) ([A-Za-z]+) ([A-Za-z0-9]+) ([A-Za-z0-9\.]+) \s*\:\s*(.*?)$/;
 	    $def1 .= $5 . " " . "<stop>" . " "; 
 	}
 	if(defined $term1_def)
@@ -283,6 +296,12 @@ sub getRelatedness
 			print DEBUG "$i. $term1_def\n";
 		}
 	    $def1 .= $term1_def; 
+	}
+
+	#if the definition is empty, return -1;
+	if($def1 eq "")
+	{
+		return -1;
 	}
 
 	#  if debug setting is on print out definition two information
@@ -296,7 +315,7 @@ sub getRelatedness
 		print DEBUG "$j. $def\n"; 
 		$j++;
 	    }
-	    $def=~/(C[0-9]+) ([A-Za-z]+) (C[0-9]+) ([A-Za-z0-9\.]+) \s*\:\s*(.*?)$/;
+	    $def=~/(C[0-9]+) ([A-Za-z]+) ([A-Za-z0-9]+) ([A-Za-z0-9\.]+) \s*\:\s*(.*?)$/;
 	    $def2 .= $5 . " " . "<stop>" . " "; 
 	}
 	if(defined $term2_def)
@@ -306,6 +325,12 @@ sub getRelatedness
 			print DEBUG "$j. $term2_def\n";
 		}
 	    $def2 .= $term2_def; 
+	}
+
+	#if the definition is empty, return -1;
+	if($def2 eq "")
+	{
+		return -1;
 	}
 
     } # end of WITH --dictfile option

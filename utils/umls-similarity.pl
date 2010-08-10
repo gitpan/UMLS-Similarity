@@ -465,8 +465,9 @@ sub calculateSimilarity {
     if(defined $opt_matrix) { print "@input_array\n"; }
     
     my @secondary_array = @input_array;
+
     foreach my $input1 (@input_array) {
-	
+
 	if(! (defined $opt_matrix) ) {
 	    my ($i1, $i2) = split/<>/, $input1;
 	    $i1=~s/^\s+//g;	    $i2=~s/\s+$//g;
@@ -481,7 +482,7 @@ sub calculateSimilarity {
 	}
 	
 	foreach $input2 (@secondary_array) {	
-	    
+
 	    my @c1 = ();
 	    my @c2 = ();
 	    
@@ -512,7 +513,7 @@ sub calculateSimilarity {
 	    #  otherwise get the cuis for the input terms unless they are
 	    #  already cuis then just add them to the mapping arrays
 	    else {	    
-		if($input1=~/C[0-9]+/) {
+		if($input1=~/^C[0-9][0-9][0-9][0-9][0-9][0-9][0-9]$/) {
 		    if($umls->exists($input1)) {
 			push @c1, $input1;
 		    }
@@ -523,7 +524,7 @@ sub calculateSimilarity {
 		}
 		
 		#  check if input2 contains cuis
-		if($input2=~/C[0-9]+/) {
+		if($input2=~/^C[0-9][0-9][0-9][0-9][0-9][0-9][0-9]$/) {
 		    if($umls->exists($input2)) {
 			push @c2, $input2;
 		    }
@@ -537,11 +538,11 @@ sub calculateSimilarity {
 	    
 	    my $t1 = $input1; my $t2 = $input2;	    
 	    if($cui_flag1) {
-		my @ts1 = $umls->getTermList($input1);
+		my @ts1 = $umls->getAllPreferredTerm($input1);
 		($t1) = @ts1;
 	    }
 	    if($cui_flag2) {
-		my @ts2 = $umls->getTermList($input2);
+		my @ts2 = $umls->getAllPreferredTerm($input2);
 		($t2) = @ts2;
 	    }
 	    
@@ -550,6 +551,11 @@ sub calculateSimilarity {
 	    #  get the similarity between the concepts
 	    foreach my $cc1 (@c1) {
 		foreach my $cc2 (@c2) {
+		    if(exists $similarityHash{$cc1}{$cc2}) { next; }
+		    if(exists $similarityHash{$cc2}{$cc1}) {
+			$similarityHash{$cc1}{$cc2} = $simialrityHash{$cc2}{$cc1};
+			next;
+		    }
 		    my $score = "";
 		    $value = $meas->getRelatedness($cc1, $cc2);
 		    $score = sprintf $floatformat, $value;
@@ -925,18 +931,7 @@ sub checkOptions {
 	    exit;
 	}   
     }
-	
-    #  the random measure does not require the configuration file
-    #  if it is set exit since it could mean they don't know what
-    #  the random measure is
-    if( (defined $opt_config) && ($opt_measure=~/random/) ) {
-	print STDERR "The --config option is not required for the random\n";
-	print STDERR "measure. The random measure just assigns a random\n";
-	print STDERR "number as the similarity score.\n\n";
-	&minimalUsageNotes();
-	exit;
-    }   
-	
+    
     # make certain the db file is specified if the vector measure 
     # is being used
     if($opt_measure=~/vector/) {
@@ -1357,7 +1352,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.54 2010/07/19 14:19:42 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.58 2010/08/02 13:43:27 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

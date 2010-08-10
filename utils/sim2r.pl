@@ -158,7 +158,7 @@ if( !(defined $opt_infile) and (scalar(@ARGV) < 2) ) {
 my $goldfile = shift;
 open(GOLD, $goldfile) || die "Could not open file: $goldfile\n";
 
-my %gold = ();
+my %gold = (); my $gcounter = 0;
 while(<GOLD>) { 
     chomp;
     my ($score, $t1, $t2) = split/<>/;
@@ -169,7 +169,10 @@ while(<GOLD>) {
     $t2=~/(C[0-9][0-9][0-9][0-9][0-9][0-9][0-9])/;
     $cui2 = $1;
     $gold{"$cui1 $cui2"} = $score;
+    $gcounter++;
 }
+
+print STDERR "TOTAL PAIRS IN GOLD STANDARD: $gcounter\n";
 
 my %remove  = ();
 my %hash    = ();
@@ -183,7 +186,7 @@ foreach my $file (@ARGV) {
     my $header = $1;
 
     push @headers, $header;
-
+    my $counter = 0;
     while(<FILE>) { 
 	chomp;
 	my ($score, $t1, $t2) = split/<>/;
@@ -195,20 +198,27 @@ foreach my $file (@ARGV) {
 	$cui2 = $1;
 	$hash{$header}{"$cui1 $cui2"} = $score;
 
+	$counter++;
+
 	if($score < 0) { $remove{"$cui1 $cui2"}++; }
 	
 	$t1=~s/\,//g; $t2=~s/\,//g;
 	$t1=~s/\'//g; $t2=~s/\'//g;
 	$terms{"$cui1 $cui2"} = "$t1 $t2";
     }
+    print STDERR "TOTAL PAIRS IN $header: $counter\n";
 }
 
 my $str_headers = join ",", @headers;
 print "pair,gold,$str_headers\n";
 
+my $counter = 0; my $discard = 0;
 foreach my $pair (sort keys %gold) {
 
-    if(exists $remove{$pair}) { next; }
+    if(exists $remove{$pair}) { 
+	$discard++; 
+	next; 
+    }
 
     my $output = "$terms{$pair},$gold{$pair},";
     foreach my $header (@headers) {
@@ -216,9 +226,13 @@ foreach my $pair (sort keys %gold) {
     } chop $output;
     
     print "$output\n";
+    $counter++;
+
 }
 
+print STDERR "TOTAL PAIRS BEING PROCESSED: $counter\n";
 
+print STDERR "TOTAL PAIRS IGNORED: $discard\n";
 
 ##############################################################################
 #  function to output minimal usage notes
@@ -253,7 +267,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: sim2r.pl,v 1.3 2010/05/18 16:59:58 btmcinnes Exp $';
+    print '$Id: sim2r.pl,v 1.4 2010/07/24 22:58:06 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

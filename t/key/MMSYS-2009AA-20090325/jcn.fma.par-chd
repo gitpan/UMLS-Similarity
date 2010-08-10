@@ -8,6 +8,7 @@ User Settings:
   --measure jcn
   --realtime
 
+   --config option set
 
 
 UMLS-Interface Configuration Information
@@ -28,6 +29,6 @@ PathFinder User Options:
 ICFinder User Options:
   --icpropagation t/options/fma.par-chd.icpropagation
 
-0.0000<>hand(C0018563)<>skull(C0037303)
-0.0000<>skull(C0037303)<>neck(C0027530)
+-1.0000<>hand(C0018563)<>skull
+-1.0000<>skull(C0037303)<>neck
 0.1885<>hand(C0018563)<>neck(C0027530)

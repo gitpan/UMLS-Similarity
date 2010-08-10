@@ -89,6 +89,8 @@ sub getRelatedness
     my $ic1 = $interface->getIC($concept1);
     my $ic2 = $interface->getIC($concept2);
 
+    #  if any of the concepts have an ic of zero return -1
+    if( ($ic1 <= 0) || ($ic2 <= 0) ) { return -1; }
     #  get the lcses
     my @lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
     
@@ -99,8 +101,9 @@ sub getRelatedness
 	if($iclcs < $value) { $iclcs = $value; $l = $lcs; }
     }
     
-    #  if it is zero just return zero
-    if($iclcs == 0) { return 0; }
+    #  if it is zero just return -1
+    if($iclcs <= 0) { return -1; }
+
 
     #  calculate lin
     my $score = 0;

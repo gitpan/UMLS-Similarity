@@ -100,7 +100,7 @@ sub getRelatedness
     #  Check to make certain that the IC for each of the
     #  concepts is greater than zero otherwise return zero
     #  for lack of data
-    if($ic1 <= 0 or $ic2 <= 0) { return 0; }
+    if($ic1 <= 0 or $ic2 <= 0) { return -1; }
 
     #  get the lcses of the concepts
     my @lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
@@ -111,7 +111,7 @@ sub getRelatedness
 	my $value = $interface->getIC($lcs);
 	if($iclcs < $value) { $iclcs = $value; }
     }
- 
+    
     #  calculate the distance
     my $distance = $ic1 + $ic2 - (2 * $iclcs);
    
