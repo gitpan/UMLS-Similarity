@@ -112,6 +112,11 @@ sub getRelatedness
 	if($iclcs < $value) { $iclcs = $value; }
     }
     
+    #  if there is no lcs or the IC of the lcs is zero then there is 
+    #  not enough information to calculate the information content so
+    #  return -1
+    if($iclcs <= 0) { return -1; }
+
     #  calculate the distance
     my $distance = $ic1 + $ic2 - (2 * $iclcs);
    

@@ -40,6 +40,10 @@ displays N - the number of term pairs the correlation
 is being calculated over. This would be any term pair 
 that has a score greater than or equal to zero.
 
+=head3 --precision NUMBER
+
+Displays values up to NUMBER places of decimal.
+
 =head1 OUTPUT
 
 The Spearman's Rank Correlation between the two files.
@@ -123,7 +127,7 @@ this program; if not, write to:
 
 use Getopt::Long;
 
-eval(GetOptions( "version", "help", "N")) or die ("Please check the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "N", "precision=s")) or die ("Please check the above mentioned option(s).\n");
 
 #  if help is defined, print out help
 if( defined $opt_help ) {
@@ -138,6 +142,18 @@ if( defined $opt_version ) {
     &showVersion();
     exit;
 }
+
+#  check for precision
+my $precision = 4;
+if(defined $opt_precision) {
+    if ($opt_precision !~ /^\d+$/) {
+	print STDERR "Value for switch --precision should be integer >= 0\n";
+	&minimalUsageNotes();
+	exit;
+    }
+    $precision = $opt_precision;
+}
+my $floatformat = join '', '%', '.', $precision, 'f';
 
 # At least 2 terms should be given on the command line.
 if( scalar(@ARGV) < 2 ) {
@@ -284,15 +300,18 @@ my $denominator = sqrt($xdenom * $ydenom);
 
 my $pearsons = $numerator / $denominator;
 
+my $score = sprintf $floatformat, $pearsons;
+
 if(defined $opt_N) { 
     my $yN= $ytotal - $ynegative;
     my $xN= $xtotal - $xnegative; 
     my $N = $yN;
     if($xN < $yN){ $N = $xN; }
-    print "Spearman's Rank Correlation: $pearsons (N: $N)\n"; 
+
+    print "Spearman's Rank Correlation: $score (N: $N)\n"; 
 }
 else {
-        print "Spearman's Rank Correlation: $pearsons\n"; 
+        print "Spearman's Rank Correlation: $score\n"; 
 }
 
 ##############################################################################
@@ -317,6 +336,7 @@ sub showHelp() {
 
     print "Options:\n\n";
 
+    print "--precision NUMBER       Displays values upto NUMBER places of decimal.\n\n";
     print "--N                      Prints the total number of term\n";
     print "                         pairs the correlation metric is\n";
     print "                         using.\n\n";
@@ -330,7 +350,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: spearmans.pl,v 1.5 2010/07/28 21:34:45 btmcinnes Exp $';
+    print '$Id: spearmans.pl,v 1.6 2010/08/10 15:30:26 btmcinnes Exp $';
     print "\nCopyright (c) 2010, Ted Pedersen & Bridget McInnes\n";
 }
 

@@ -7,6 +7,8 @@ User Settings:
   --measure nam
   --realtime
 
+
+CuiFinder User Options: 
    --config option set
 
 
@@ -26,5 +28,5 @@ PathFinder User Options:
 
 
 6.9307<>hand(C0018563)<>skull(C0037303)
-6.5236<>skull(C0037303)<>neck(C0027530)
+0.0000<>skull(C0037303)<>neck(C0027530)
 6.4263<>neck(C0027530)<>toe(C0040357)

@@ -8,6 +8,8 @@ User Settings:
   --measure lin
   --realtime
 
+
+CuiFinder User Options: 
    --config option set
 
 
@@ -30,5 +32,5 @@ ICFinder User Options:
   --icpropagation t/options/msh.par-chd.icpropagation
 
 0.4174<>hand(C0018563)<>skull(C0037303)
-0.3585<>skull(C0037303)<>neck(C0027530)
+-1.0000<>skull(C0037303)<>neck
 0.3552<>neck(C0027530)<>toe(C0040357)

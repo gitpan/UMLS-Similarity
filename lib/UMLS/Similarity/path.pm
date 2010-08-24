@@ -90,19 +90,11 @@ sub getRelatedness
     my $interface = $self->{'interface'};
     
     #  find the shortest paths
-    my @paths = $interface->findShortestPath($concept1, $concept2);
+    my $length = $interface->findShortestPathLength($concept1, $concept2);
     
-    #  find the path with the shortest length
-    my $length = 0;
-    foreach my $pathstring (@paths) {
-	my @path = split/\s/, $pathstring;
-	if($#path > $length) { $length = $#path + 1; }
-
-    }
-
     #  if length is less than zero (this shouldn't happen) 
     #  return a score of zero
-    if($length <= 0) { return 0; }
+    if($length <= 0) { return $length; }
 
     #  otherwise return the reciprocal of the length
     return (1/$length);

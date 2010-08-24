@@ -84,31 +84,26 @@ sub getRelatedness
     my $concept1 = shift;
     my $concept2 = shift;
 
-    #  if concept 1 and 2 are the same just return 1
-    if($concept1 eq $concept2) { return 1; }
-
-    #  get the interface
+        #  get the interfaceg
     my $interface = $self->{'interface'};
 
-    #  find the shortest path
-    my (@paths) = $interface->findShortestPath($concept1, $concept2);
-
-    #  if there are no paths return nothing
-    if($#paths < 0) { return; }
-
-    #  get a path and calculate the number of nodes
-    my $pathstring = shift @paths;
-    my @path = split/\s+/, $pathstring;    
-    my $length = $#path + 1;
+    #  find the length of the shortest path
+    #  if concept 1 and 2 are the same just return 1
+    my $length = 0;
+    if($concept1 eq $concept2) { $length = 1; }
+    else { $length = $interface->findShortestPathLength($concept1, $concept2); }
 
     #  get the depth of the taxonomy
     my $depth = $interface->depth();
     
+    #  if the length of hte path is less than zero return -1
+    if($length < 0) { return -1; }
+
     #  calculate lch
-    my $score = 0;
-    if($length > 0) { $score = log ( 2 * $depth / $length ); }
+    my $score = -1 * log ($length / (2 * $depth));
     
-    return $score
+    return $score;
+
 }
 
 1;

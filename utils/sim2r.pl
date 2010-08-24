@@ -267,7 +267,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: sim2r.pl,v 1.4 2010/07/24 22:58:06 btmcinnes Exp $';
+    print '$Id: sim2r.pl,v 1.5 2010/08/10 11:34:23 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

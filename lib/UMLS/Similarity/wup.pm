@@ -96,7 +96,7 @@ sub getRelatedness
     my @lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
     
     #  if there aren't any return zero
-    if($#lcses < 0) { return 0; }
+    if($#lcses < 0) { return -1; }
     
     #  get the depth of the lowest lcs
     my $lcs_depth = 0; my $lcs = "";
@@ -108,18 +108,15 @@ sub getRelatedness
     }
     
     #  find the shortestpath between the concept and the lcses
-    my @c1_paths = $interface->findShortestPath($lcs, $concept1);
-    my @c2_paths = $interface->findShortestPath($lcs, $concept2);
-
-    my @c1_path = split/\s+/, $c1_paths[0];
-    my @c2_path = split/\s+/, $c2_paths[0];
+    my $c1_length = $interface->findShortestPathLength($lcs, $concept1);
+    my $c2_length = $interface->findShortestPathLength($lcs, $concept2);
     
     #  get the depth of the concepts taking that path
-    my $c1_depth = $lcs_depth + $#c1_path;
-    my $c2_depth = $lcs_depth + $#c2_path;
+    my $c1_depth = $lcs_depth + $c1_length;
+    my $c2_depth = $lcs_depth + $c2_length;
     
     #  if the depth of one of them is less than zero return zero
-    if($c1_depth < 0 or $c2_depth < 0) { return 0; }
+    if($c1_depth < 0 or $c2_depth < 0) { return -1; }
     
     #  otherwise calcualte wup
     my $score = (2 * $lcs_depth) / ($c1_depth + $c2_depth);   
