@@ -488,7 +488,7 @@ sub calculateSimilarity {
 	    
 	    my $cui_flag1 = 0;
 	    my $cui_flag2 = 0;
-	    
+
 	    #  if lesk or vector measures are being used check if the dictfile
 	    #  option is set without the config option - if it is then the measures 
 	    #  will take the terms as input - don't map them to cuis in the umls. 
@@ -497,11 +497,16 @@ sub calculateSimilarity {
 	    if( ($measure=~/(lesk|vector)/) && 
 		(defined $opt_dictfile) ) {
 		if( (defined $opt_dictfile) && (defined $opt_config) ) {
-		    @c1 = $umls->getConceptList($input1);
-		    @c2 = $umls->getConceptList($input2);
-		    if($#c1 < 0) { push @c1, $input1; }
+		    
+		    if($input1=~/C[0-9]+/) { push @c1, $input1; }
+		    else { @c1 = $umls->getConceptList($input1); }
+
+		    if($input2=~/C[0-9]+/) { push @c2, $input2; }
+		    else { @c2 = $umls->getConceptList($input2); }
+
+		    
 		    for my $i (0..$#c1) { $c1[$i] .= "#$input1"; } 
-		    if($#c2 < 0) { push @c2, $input2; }
+		    
 		    for my $i (0..$#c2) { $c2[$i] .= "#$input2"; } 
 		    
 		}
@@ -534,7 +539,6 @@ sub calculateSimilarity {
 		    @c2 = $umls->getConceptList($input2); 
 		}
 	    }
-
 	    
 	    my $t1 = $input1; my $t2 = $input2;	    
 	    if($cui_flag1) {
@@ -548,7 +552,7 @@ sub calculateSimilarity {
 	    
 	    my %similarityHash = ();
 	    
-	    #  get the similarity between the concepts
+	    #  get the similarity between the concepts 
 	    foreach my $cc1 (@c1) {
 		foreach my $cc2 (@c2) {
 		    if(exists $similarityHash{$cc1}{$cc2}) { next; }

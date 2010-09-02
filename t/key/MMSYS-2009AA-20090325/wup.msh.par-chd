@@ -28,5 +28,5 @@ PathFinder User Options:
 
 
 0.5000<>hand(C0018563)<>skull(C0037303)
--1.0000<>skull(C0037303)<>neck
+0.5556<>skull(C0037303)<>neck(C0027530)
 0.6000<>neck(C0027530)<>toe(C0040357)

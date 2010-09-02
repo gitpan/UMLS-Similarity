@@ -92,18 +92,12 @@ sub getRelatedness
     my $interface = $self->{'interface'};
     
     #  get the shortest path between the concepts
-    my (@paths) = $interface->findShortestPath($concept1, $concept2);
+    my $length = $interface->findShortestPathLength($concept1, $concept2);
     
     #  if there are no paths return nothing
-    if($#paths < 0) { return; }
+    if($length < 0) { return 0; }
     
-    #  otherwise get the path length
-    my $pathstring = shift @paths;
-    my @path = split/\s+/, $pathstring;
-
-    #  and return it
-    if($#path < 0 ) { return 0; }
-    return $#path;
+    return $length;
 }
 
 1;

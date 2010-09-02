@@ -112,12 +112,9 @@ sub getRelatedness
     if($lcs_depth < 0) { return 0; }
 
     #  find the shortest path between the concepts
-    my @paths = $interface->findShortestPath($concept1, $concept2);
-    my $pathstring = shift @paths;
-    my @path = split/\s+/, $pathstring;
+    my $l = $interface->findShortestPathLength($concept1, $concept2);
 
     #  calculate nam
-    my $l = $#path;
     my $D = $interface->depth();
     my $score = log( $l * ($D-$lcs_depth) + 2 ) / log(2);    
     
