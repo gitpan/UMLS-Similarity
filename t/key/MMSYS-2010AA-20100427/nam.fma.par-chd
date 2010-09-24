@@ -4,7 +4,7 @@ Default Settings:
 User Settings:
   --config t/config/config.fma.par-chd
   --infile t/tests/measures/fma.par-chd
-  --measure cdist
+  --measure nam
   --realtime
 
 
@@ -19,7 +19,7 @@ UMLS-Interface Configuration Information
     CHD
     PAR
   Database: 
-    umls (MMSYS-2009AA-20090325)
+    umls (MMSYS-2010AA-20100427)
 
 
 
@@ -27,6 +27,6 @@ PathFinder User Options:
    --realtime option set
 
 
-10.0000<>hand(C0018563)<>skull(C0037303)
-7.0000<>skull(C0037303)<>neck(C0027530)
-8.0000<>hand(C0018563)<>neck(C0027530)
+7.2479<>hand(C0018563)<>skull(C0037303)
+6.7415<>skull(C0037303)<>neck(C0027530)
+6.8329<>hand(C0018563)<>neck(C0027530)

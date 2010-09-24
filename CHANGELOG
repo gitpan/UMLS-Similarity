@@ -4,6 +4,8 @@ NAME
   Changes from version 0.69 to 0.71
     1. modified cdist and nam to use findShortestPathLength
 
+    2. added developers-check to t/ directory
+
   Changes from version 0.67 to 0.69
     1. added a --precision option to spearmans.pl and set the default to
     four.

@@ -234,12 +234,25 @@ sub getRelatedness
 	my $term1_def = "";
 	my $term2_def = "";
 
+	my @dictfile_term1;
+	my @dictfile_term2;
+
 	if($concept1 =~ /^(C[0-9]+)(\#)(.*?)$/) 
 	{
 		my $cui1 = $1; 
 		$term1 = $3;
 		$defs1 = $interface->getExtendedDefinition($cui1);
 		$term1_def = $dictionary{$term1} if (defined $dictionary{$term1});
+
+		@dictfile_term1 = $interface->getTermList($cui1);		
+		foreach my $t (@dictfile_term1)
+		{
+			if(defined ($dictionary{$t}))
+			{
+				my $term1_def = $dictionary{$t};
+				$def1 .= "$term1_def" . " ";
+			}	
+		}
 	}
 	else
 	{
@@ -261,6 +274,15 @@ sub getRelatedness
 		$defs2 = $interface->getExtendedDefinition($cui2);
 		$term2_def = $dictionary{$term2} if (defined $dictionary{$term2});
 
+		@dictfile_term2 = $interface->getTermList($cui2);		
+		foreach my $t (@dictfile_term2)
+		{
+			if(defined ($dictionary{$t}))
+			{
+				my $term2_def = $dictionary{$t};
+				$def2 .= "$term2_def" . " ";
+			}	
+		}
 	}
 	else
 	{

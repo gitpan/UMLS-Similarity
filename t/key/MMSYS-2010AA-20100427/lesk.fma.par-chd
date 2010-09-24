@@ -2,9 +2,9 @@ Default Settings:
   --precision 4
 
 User Settings:
-  --config t/config/config.fma.par-chd
+  --config t/config/rel-config.fma.par-chd
   --infile t/tests/measures/fma.par-chd
-  --measure nam
+  --measure lesk
   --realtime
 
 
@@ -13,13 +13,13 @@ CuiFinder User Options:
 
 
 UMLS-Interface Configuration Information
-  Sources (SAB):
+  Sources (SABDEF):
     FMA
-  Relations (REL):
+  Relations (RELDEF):
     CHD
     PAR
   Database: 
-    umls (MMSYS-2009AA-20090325)
+    umls (MMSYS-2010AA-20100427)
 
 
 
@@ -27,6 +27,6 @@ PathFinder User Options:
    --realtime option set
 
 
-7.2479<>hand(C0018563)<>skull(C0037303)
-6.7415<>skull(C0037303)<>neck(C0027530)
-6.8329<>hand(C0018563)<>neck(C0027530)
+-1.0000<>hand(C0018563)<>skull
+-1.0000<>skull(C0037303)<>neck
+-1.0000<>hand(C0018563)<>neck

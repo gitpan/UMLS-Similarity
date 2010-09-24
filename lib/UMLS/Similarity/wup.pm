@@ -118,7 +118,7 @@ sub getRelatedness
     #  if the depth of one of them is less than zero return zero
     if($c1_depth < 0 or $c2_depth < 0) { return -1; }
     
-    #  otherwise calcualte wup
+    #  otherwise calculate wup
     my $score = (2 * $lcs_depth) / ($c1_depth + $c2_depth);   
     
     return $score;

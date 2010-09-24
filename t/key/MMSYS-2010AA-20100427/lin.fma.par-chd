@@ -2,9 +2,10 @@ Default Settings:
   --precision 4
 
 User Settings:
+  --icpropagation t/options/fma.par-chd.icpropagation
   --config t/config/config.fma.par-chd
   --infile t/tests/measures/fma.par-chd
-  --measure lch
+  --measure lin
   --realtime
 
 
@@ -19,7 +20,7 @@ UMLS-Interface Configuration Information
     CHD
     PAR
   Database: 
-    umls (MMSYS-2009AA-20090325)
+    umls (MMSYS-2010AA-20100427)
 
 
 
@@ -27,6 +28,9 @@ PathFinder User Options:
    --realtime option set
 
 
-1.4351<>hand(C0018563)<>skull(C0037303)
-1.7918<>skull(C0037303)<>neck(C0027530)
-1.6582<>hand(C0018563)<>neck(C0027530)
+ICFinder User Options:
+  --icpropagation t/options/fma.par-chd.icpropagation
+
+-1.0000<>hand(C0018563)<>skull
+-1.0000<>skull(C0037303)<>neck
+0.2271<>hand(C0018563)<>neck(C0027530)

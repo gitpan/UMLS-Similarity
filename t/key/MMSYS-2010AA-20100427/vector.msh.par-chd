@@ -4,8 +4,8 @@ Default Settings:
 User Settings:
   --vectormatrix t/options/vectormatrix
   --vectorindex t/options/vectorindex
-  --config t/config/rel-config.fma.par-chd
-  --infile t/tests/measures/fma.par-chd
+  --config t/config/rel-config.msh.par-chd
+  --infile t/tests/measures/msh.par-chd
   --measure vector
   --realtime
 
@@ -16,12 +16,12 @@ CuiFinder User Options:
 
 UMLS-Interface Configuration Information
   Sources (SABDEF):
-    FMA
+    MSH
   Relations (RELDEF):
     CHD
     PAR
   Database: 
-    umls (MMSYS-2009AA-20090325)
+    umls (MMSYS-2010AA-20100427)
 
 
 
@@ -29,6 +29,6 @@ PathFinder User Options:
    --realtime option set
 
 
--1.0000<>hand(C0018563)<>skull
--1.0000<>skull(C0037303)<>neck
--1.0000<>hand(C0018563)<>neck
+0.0800<>hand(C0018563)<>skull(C0037303)
+0.3170<>skull(C0037303)<>neck(C0027530)
+0.0000<>neck(C0027530)<>toe(C0040357)

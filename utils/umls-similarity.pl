@@ -1356,7 +1356,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.58 2010/08/02 13:43:27 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.62 2010/09/02 22:30:56 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

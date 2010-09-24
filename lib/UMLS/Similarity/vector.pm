@@ -258,6 +258,9 @@ sub getRelatedness
 	my $term2;
 	my $term1_def = "";
 	my $term2_def = "";
+
+	my @dictfile_term1;
+	my @dictfile_term2;
 	
 	if(defined $debugfile) { print DEBUG "DEFINITIONS FOR CUI 1: $concept1\n"; }
 	
@@ -286,6 +289,17 @@ sub getRelatedness
 	    }	   
 	    
 	    $d1 .= $term1_def . " " if $term1_def ne ""; 
+
+		@dictfile_term1 = $interface->getTermList($cui1);			
+		foreach my $t (@dictfile_term1)
+		{
+			if (defined $dictionary{$t})
+			{
+				my $term1_def = $dictionary{$t};
+				$d1 .= "$term1_def" . " ";
+			}
+		}
+
 	    
 	    if(defined $debugfile)
 	    {
@@ -341,6 +355,16 @@ sub getRelatedness
 	    
 	    $d2 .= $term2_def . " " if $term2_def ne ""; 
 	    
+		@dictfile_term2 = $interface->getTermList($cui2);			
+		foreach my $t (@dictfile_term2)
+		{
+			if (defined $dictionary{$t})
+			{
+				my $term2_def = $dictionary{$t}; 
+				$d2 .= "$term2_def" . " ";
+			}
+		}
+
 	    if(defined $debugfile)
 	    {
 		print DEBUG "$i. $term2_def\n" if (defined $term2_def);

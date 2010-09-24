@@ -2,9 +2,10 @@ Default Settings:
   --precision 4
 
 User Settings:
+  --icpropagation t/options/msh.par-chd.icpropagation
   --config t/config/config.msh.par-chd
   --infile t/tests/measures/msh.par-chd
-  --measure wup
+  --measure jcn
   --realtime
 
 
@@ -19,7 +20,7 @@ UMLS-Interface Configuration Information
     CHD
     PAR
   Database: 
-    umls (MMSYS-2009AA-20090325)
+    umls (MMSYS-2010AA-20100427)
 
 
 
@@ -27,6 +28,9 @@ PathFinder User Options:
    --realtime option set
 
 
-0.5000<>hand(C0018563)<>skull(C0037303)
-0.5556<>skull(C0037303)<>neck(C0027530)
-0.6000<>neck(C0027530)<>toe(C0040357)
+ICFinder User Options:
+  --icpropagation t/options/msh.par-chd.icpropagation
+
+0.1667<>hand(C0018563)<>skull(C0037303)
+0.1301<>skull(C0037303)<>neck(C0027530)
+0.1176<>neck(C0027530)<>toe(C0040357)
