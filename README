@@ -274,8 +274,9 @@ UMLS::Similarity
     existing in some corpus. For example, our corpus consists of three
     concepts, A B & C, each occurring five times:
 
-     SAB :: <sources>
-     N:15
+     SAB :: (include|exclude) <sources>
+     REL :: (include|exclude) <relations>
+     N :: 15
      A<>5
      B<>5
      C<>5
@@ -315,9 +316,10 @@ UMLS::Similarity
     node in the sources/relations defined in the configuration table.
 
      SMOOTH :: 0 <- or 1 if smoothing was used
-     SAB :: <sources>
-     REL :: <relations>
-     RELA :: <relas>  <- if any are specified in the config
+     SAB :: (include|exclude) <sources>
+     REL :: (include|exclude) <relations>
+     RELA :: (include|exclude) <relas>  <- if any are specified in the config
+     N :: 15
      A<>.33
      B<>.33
      C<>.33

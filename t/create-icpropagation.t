@@ -55,6 +55,7 @@ my $commandkey = File::Spec->catfile('t', 'key', $version, 'create-icpropagation
 #  run the pgoram	
 my $commandline = `$perl $util_prg --smooth $outputfile $inputfile 2>&1`;
 
+
 #  check the output
 my $output = "";
 open(OUT, $outputfile) || die "Could not open outputfile $outputfile\n";

@@ -198,6 +198,13 @@ Hostname where mysql is located. DEFAULT: localhost
 
 Database contain UMLS DEFAULT: umls
 
+=head2 Path-based Options
+
+=head3 --undirected
+
+The shortest path is undirected. This is only available with
+the path measure itself
+
 =head2 IC Measure Options:
 
 =head3 --icpropagation FILE
@@ -268,6 +275,7 @@ to use dictfile as a augmentation of the UMLS definitions,
 then use the --config option in conjunction with the --dictfile
 option. 
 
+
 The expect format for the --dictfile file is:
 
 CUI: <definition>
@@ -323,6 +331,16 @@ For example:
 
 The sample file, stoplist-nsp.regex, is under the samples directory.
 
+=head3 --compoundfile FILE
+
+This is a compound word file for the vector measure. It contains
+the compound words which we want to consider them as one word
+when we compare the relatedness. Each compound word is a line in 
+the file and compound words are seperated by space. When use this 
+option, make sure the vectormatrix and vectorindex file are based 
+on the corpus proprocessed by replacing the compound words in the 
+Text-NSP package. An example is under /sample/compoundword.txt 
+
 =head3 --stem 
 
 This is a flag for the vector and lesk method. If the --stem flag is 
@@ -363,7 +381,7 @@ set, definition words are stemmed using the Lingua::Stem::En module.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2007-2009,
+Copyright (c) 2007-2010,
 
  Bridget T. McInnes, University of Minnesota
  bthomson at cs.umn.edu
@@ -371,12 +389,14 @@ Copyright (c) 2007-2009,
  Ted Pedersen, University of Minnesota Duluth
  tpederse at d.umn.edu
 
-
  Siddharth Patwardhan, University of Utah, Salt Lake City
- sidd@cs.utah.edu
+ sidd at cs.utah.edu
  
  Serguei Pakhomov, University of Minnesota Twin Cities
- pakh0002@umn.edu
+ pakh0002 at umn.edu
+
+ Ying Liu, University of Minnesota Twin Cities
+ liux at umn.edu
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -408,7 +428,7 @@ this program; if not, write to:
 use UMLS::Interface;
 use Getopt::Long;
 
-eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "forcerun", "debug", "verbose", "icfrequency=s", "smooth", "icpropagation=s", "realtime", "stoplist=s", "stem", "debugfile=s", "vectormatrix=s", "vectorindex=s", "defraw", "dictfile=s", "t")) or die ("Please check the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "forcerun", "debug", "verbose", "icfrequency=s", "smooth", "icpropagation=s", "undirected", "realtime", "stoplist=s", "stem", "debugfile=s", "vectormatrix=s", "vectorindex=s", "defraw", "dictfile=s", "compoundfile=s", "t")) or die ("Please check the above mentioned option(s).\n");
 
 
 my $debug = 0;
@@ -569,7 +589,7 @@ sub calculateSimilarity {
 	    
 	    #  find the maximum score
 	    #  find the minimum score
-	    my $max_cc1 = ""; my $max_cc2 = ""; my $max_score = 0;
+	    my $max_cc1 = ""; my $max_cc2 = ""; my $max_score = -1;
 	    my $min_cc1 = ""; my $min_cc2 = ""; my $min_score = 999;
 	    foreach my $concept1 (sort keys %similarityHash) {
 		foreach my $concept2 (sort keys %{$similarityHash{$concept1}}) {
@@ -745,10 +765,13 @@ sub loadMeasures {
     my $meas;
 
     if($measure eq "vector") {
-	require "UMLS/Similarity/vector.pm";
+	require "UMLS/Similarity/cuivector.pm";
 
 	my %vectoroptions = ();
 	
+	if(defined $opt_compoundfile) {
+	    $vectoroptions{"compoundfile"} = $opt_compoundfile;
+	}
 	if(defined $opt_dictfile) {
 	    $vectoroptions{"dictfile"} = $opt_dictfile;
 	}
@@ -780,7 +803,7 @@ sub loadMeasures {
 	    $vectoroptions{"stem"} = $opt_stem;
 	}
 
-	$meas = UMLS::Similarity::vector->new($umls,\%vectoroptions);
+	$meas = UMLS::Similarity::cuivector->new($umls,\%vectoroptions);
     }
     #  load the module implementing the Leacock and 
     #  Chodorow (1998) measure
@@ -840,6 +863,9 @@ sub loadMeasures {
 	use UMLS::Similarity::lesk;
 	my %leskoptions = ();
 	
+	if(defined $opt_compoundfile) {
+	    $leskoptions{"compoundfile"} = $opt_compoundfile;
+	}
 	if(defined $opt_config) {
 	    $leskoptions{"config"} = $opt_config;
 	}
@@ -901,6 +927,9 @@ sub loadUMLS {
     }
     if(defined $opt_smooth) { 
 	$option_hash{"smooth"} = $opt_smooth;
+    }
+    if(defined $opt_undirected) { 
+	$option_hash{"undirected"} = $opt_undirected;
     }
     if(defined $opt_username and defined $opt_password) {
 	$option_hash{"driver"}   = "mysql";
@@ -1012,6 +1041,15 @@ sub checkOptions {
 	}
     }    
 
+    if(defined $opt_compoundfile) { 
+	if(! ($opt_measure=~/vector/) ) {
+	    print STDERR "The --compoundfile option is only available\n";
+	    print STDERR "when using the vector measure. \n\n";
+	    &minimalUsageNotes();
+	    exit;
+	}
+    }    
+
     if(defined $opt_vectorindex) { 
 	if(! ($opt_measure=~/vector/) ) {
 	    print STDERR "The --vectorindex option is only available\n";
@@ -1035,6 +1073,17 @@ sub checkOptions {
 	    exit;
 	}
     } 
+
+    #  make ceratin if the undirected option is specified that
+    #  it is only for hte path option
+    if($opt_undirected) { 
+	if( (defined $opt_measure) && (!($opt_measure=~/path/)) ) { 
+	    print STDERR "The --undirected option can only be used with\n";
+	    print STDERR "the path measure\n";
+	    &minimalUsageNotes();
+	    exit;
+	}
+    }
 
     #  the --smooth option can only be used with the icfrequency options
     if(defined $opt_smooth) {
@@ -1083,6 +1132,10 @@ sub setOptions {
     my $default = "";
     my $set     = "";
 
+    if(defined $opt_undirected) { 
+	$set .= "  --undirected\n";
+    }
+
     if(defined $opt_icpropagation) {
 	$set .= "  --icpropagation $opt_icpropagation\n";
     }
@@ -1110,6 +1163,10 @@ sub setOptions {
 	$set .= "  --dictfile $opt_dictfile\n";
     }
     
+    if(defined $opt_compounfile) {
+	$set .= "  --compoundfile $opt_compoundfile\n";
+    }
+
     if(defined $opt_defraw) { 
 	$set .= "  --defraw\n";
     }
@@ -1153,7 +1210,7 @@ sub setOptions {
     #  set the zero score with appropriate precision
     $noscore = sprintf $floatformat, -1;
 
-    #  set databasee options
+    #  set database options
     if(defined $opt_username) {
 
 	if(defined $opt_username) {
@@ -1309,6 +1366,11 @@ sub showHelp() {
 
     print "--database STRING        Database contain UMLS (DEFAULT: umls)\n\n";
     
+    print "\n\nPath-based Options:\n\n";
+    
+    print "--undirected             The shortest path is undirected. This is\n";
+    print "                         only available for the path measure.\n\n";
+
     print "\n\nIC Measure Options:\n\n";
 
     print "--icpropagation FILE     File containing the information content\n";
@@ -1336,6 +1398,11 @@ sub showHelp() {
     print "                         which would be used rather than the definitions from\n";
     print "                         the UMLS\n\n";
 
+    print "--compoundfile FILE      This is a compound word file for the vector and lesk\n";
+    print "                         measure. It contains the compound word lists. For the\n";
+    print "                         definitions which comtain those compound words, they \n";
+    print "                         are treated as one word.\n\n";
+
     print "--stoplist FILE          A file containing a list of words to be excluded\n";
     print "                         from the features in the vector and lesk method.\n\n";
 
@@ -1356,8 +1423,8 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.62 2010/09/02 22:30:56 btmcinnes Exp $';
-    print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
+    print '$Id: umls-similarity.pl,v 1.66 2010/11/01 15:10:48 btmcinnes Exp $';
+    print "\nCopyright (c) 2008-2010, Ted Pedersen & Bridget McInnes\n";
 }
 
 ##############################################################################

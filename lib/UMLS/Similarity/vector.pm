@@ -51,11 +51,12 @@ use UMLS::Similarity::ErrorHandler;
 
 
 use vars qw($VERSION);
-$VERSION = '0.05';
+$VERSION = '0.07';
 
 my $debug        = 0;
 my $defraw_option= 0;
 
+my $compoundfile = "";
 my $vectormatrix = "";
 my $vectorindex  = "";
 my $dictfile     = "";
@@ -71,6 +72,8 @@ my %position      = ();
 my %length        = ();
 my %dictionary    = ();
 my %stopwords     = ();
+my %complist 	  = ();
+
 
 local(*DEBUG);
 
@@ -106,6 +109,7 @@ sub new
     $vectormatrix = $params->{'vectormatrix'};
     $config       = $params->{'config'};
     $dictfile     = $params->{'dictfile'};
+    $compoundfile = $params->{'compoundfile'};
     $debugfile	  = $params->{'debugfile'};
     $stoplist	  = $params->{'stoplist'};
     $stem         = $params->{'stem'};
@@ -180,7 +184,37 @@ sub new
 	close STP;
 	
     }
+
+	if(defined $compoundfile) {
     
+	#replace the compound words in the definition
+	open(LST, "$compoundfile") or die ("Error: cannot open file $compoundfile for input.\n");
+
+	# read the compound txt and put them in the hash array. 
+	while (my $line = <LST>)
+	{
+		chomp($line);
+		my $lower_case = lc($line);
+		my @string = split(' ', $lower_case);
+		my $head = shift(@string);
+
+		my $rest = join (' ', @string);
+		push (@{$complist{$head}}, $rest);
+	}
+	close LST;
+		
+	# sort the compound txt 
+	foreach my $h (sort (keys (%complist)) )
+	{
+		my @sort_list = sort(@{$complist{$h}});
+		for my $i (0..$#sort_list)
+		{
+			$complist{$h}[$i] = $sort_list[$i];
+		}
+	}
+
+	}
+
     return $self;
 }
 
@@ -390,6 +424,7 @@ sub getRelatedness
 	}
 	
     } #end of defined --dictfile option
+
     
     # if --stopword option is set remove stop words
     if (defined $stoplist) 
@@ -430,7 +465,13 @@ sub getRelatedness
 	$d1=~s/[\.\,\?\/\'\"\;\:\[\]\{\}\!\@\#\$\%\^\&\*\(\)\-\_\+\-\=]//g;
 	$d2=~s/[\.\,\?\/\'\"\;\:\[\]\{\}\!\@\#\$\%\^\&\*\(\)\-\_\+\-\=]//g;
     }
-    
+   
+	if(defined $compoundfile)
+	{
+		$d1 = findCompoundWord($d1, \%complist);
+		$d2 = findCompoundWord($d2, \%complist);
+	}
+
     open(MATX, "<$vectormatrix")
         or die("Error: cannot open file '$vectormatrix' for output index.\n");
     
@@ -514,49 +555,46 @@ sub getRelatedness
 	    
 	    if (($p==0) and (!defined $l))
 	    {
-		next;
+			next;
 	    }
 	    else
 	    {
-		$def2_length++;
+			$def2_length++;
 		
-                my ($data, $n);
-              	seek MATX, $p, 0;
-                if (($n = read MATX, $data, $l) != 0)
-                {
-		    if (defined $debugfile) {
-			print DEBUG "$def_term2: ";
-		    }
-		    chomp($data);
-		    my @word_vector = split (' ', $data);
-		    my $index = shift @word_vector;
-                    $index =~ m/^(\d+)\:$/;
+            my ($data, $n);
+            seek MATX, $p, 0;
+            if (($n = read MATX, $data, $l) != 0)
+            {
+		    	if (defined $debugfile) {
+				print DEBUG "$def_term2: ";
+		    	}
+		    	chomp($data);
+		    	my @word_vector = split (' ', $data);
+		    	my $index = shift @word_vector;
+                $index =~ m/^(\d+)\:$/;
 		    
-                    if ($index_term == $1)
-		    {
-                    	for (my $z=0; $z<@word_vector; )
-                        {
-			    $vector2{$word_vector[$z]} += $word_vector[$z+1];
-			    $z += 2;
-			    
-			    if (defined $debugfile) {
-				if(defined $word_vector[$z]) {
-				    print DEBUG "$reverse_index{$word_vector[$z]} ";
-				}
-			    } 	
-			    
-                       	}
-			
-			if (defined $debugfile) {
-			    print DEBUG "\n";
-			} 	
-                    }
-                    else
+                if ($index_term == $1)
+		    	{
+                  	for (my $z=0; $z<@word_vector; )
                     {
-			print STDERR "$def_term2 is not a correct word!\n";
-			exit;
+			    		$vector2{$word_vector[$z]} += $word_vector[$z+1];
+			    		$z += 2;
+			    
+			    		if (defined $debugfile) {
+						if(defined $word_vector[$z]) {
+				    	print DEBUG "$reverse_index{$word_vector[$z]} "; }
+			    		} 	
                     }
+			
+					if (defined $debugfile) {
+			    	print DEBUG "\n"; } 	
                 }
+                else
+                {
+					print STDERR "$def_term2 is not a correct word!\n";
+					exit;
+                }
+           }
 	    }
 	}
     }
@@ -576,6 +614,82 @@ sub getRelatedness
     
     return $score;
 }
+
+sub findCompoundWord
+{
+	my $def = shift;
+	my $ref_complist = shift;
+	my $new_def = "";
+
+	my @words = split(' ', $def);
+	my $size_line = @words;
+    for (my $i=0; $i<$size_line; $i++)
+    {
+        my $w = $words[$i];
+        my $flag_print_w = 0;
+        my $flag_comp = 0;
+        if(defined $ref_complist->{$w})
+        {
+            # get the compound list start with word $w
+            my @comps = @{$ref_complist->{$w}};
+            foreach my $c (@comps)
+            {
+                #compare the rest of the compound word  
+                my @string = split(' ', $c);
+
+                my $count = 1;
+                foreach my $s (@string)
+                {
+                    if (($i+$count)<$size_line)
+                    {
+                        if ($s eq $words[$i+$count])
+                        {
+                            $flag_comp = 1;
+                            $count++;
+                        }
+                        else
+                        {
+                            $flag_comp = 0;
+                            last;
+                        }
+                    }
+                } # test one compound word start by $w           
+				
+				# connect the compound word     
+                if ($flag_comp==1)
+                {
+                    unshift(@string, "$w");
+                    my $comp = join('_', @string);
+					$new_def .= "$comp ";
+					if (defined $debugfile)
+					{ 
+                    	print DEBUG "$comp\n";
+					}
+                    my $skip = @string-1;
+                    $i = $i + $skip;
+                    last;
+                }
+            } # test all the compound word start by $w  
+
+            # print out the $w if it doesn't match any compound words
+            if (($flag_print_w==0) and ($flag_comp==0))
+            {
+                $new_def .= "$w ";
+                $flag_print_w = 1;
+            }
+
+        } # end of defined compound word start by $w
+
+        if(!defined $ref_complist->{$w})
+        {
+            $new_def .= "$w ";
+        }
+	} # end of one definition 
+
+	return $new_def;
+
+}
+
 
 # Subroutine to normalize a vector.
 sub norm
@@ -742,7 +856,6 @@ vector-input.pl requires the bigrams are sorted, and you could use
 count2huge.pl method of Text-NSP to convert the output of count.pl 
 to huge-count.pl. 
 
-
 --defraw option is a flag for the vector measure. The definitions 
 used are 'cleaned'. If the --defraw flag is set they will not be cleaned, 
 and it will leave the definitions in their "raw" form. 
@@ -778,6 +891,11 @@ The input pair could be the following formats.
 Terms in the dictionary file use the delimiter : to seperate the terms and
 their definition. It allows multi terms in one concept. Please see the sample 
 file at /sample/dictfile
+
+--compoundfile options is a compound word list for the vector measure. It defines
+the compound words which are treated as one word in the definitions. This 
+must be used with the vector method. When use this option, the vectorindex and 
+vectormatrix file must be generated by the corpus which also use compound words.  
 
 --config option is configure file for the lesk or vector measure. It defines 
 the relationship, source and rela relationship. When compute the relatedness

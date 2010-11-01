@@ -101,6 +101,8 @@ sub getRelatedness
     #  if the information content is less then zero return -1
     if($score <= 0) { return -1; }
 
+    my $lprob = $interface->getProbability($l);
+    
     #  return that score
     return $score
 }

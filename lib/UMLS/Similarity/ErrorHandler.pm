@@ -1,5 +1,5 @@
 # UMLS::Similarity::ErrorHandler
-# (Last Updated $Id: ErrorHandler.pm,v 1.6 2010/06/25 19:40:59 btmcinnes Exp $)
+# (Last Updated $Id: ErrorHandler.pm,v 1.7 2010/10/11 22:20:46 btmcinnes Exp $)
 #
 # Perl module that provides a perl interface to the
 # Unified Medical Language System (UMLS)
@@ -80,10 +80,10 @@ sub checkConfig {
     my $interface = shift;
 
     if($measure=~/(path|cdist|nam|wup|lch|jcn|lin|res)/) {
-	$self->checkPathBasedMeasures($measure, $interface);
+    	$self->checkPathBasedMeasures($measure, $interface);
     }
     elsif($measure=~/(vector|lesk)/ ) {
-	$self->checkRelatednessMeasures($measure, $interface);
+    	$self->checkRelatednessMeasures($measure, $interface);
     }
 }
 

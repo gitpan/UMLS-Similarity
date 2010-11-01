@@ -23,7 +23,9 @@ The ouput file containing the probability of the CUIs has the
 following format: 
 
     SMOOTH :: <0|1>
-    SAB :: <sources>
+    SAB :: (include|exclude) <sources>
+    REL :: (include|exclude) <relations>
+    N :: NUMBER
     REL :: <relations>
     RELA :: <relas>  <- if any are specified in the config
     CUI<>probability
@@ -37,10 +39,15 @@ File containing the icfrequency counts
 The input file contains frequency counts for CUIs in the following 
 format: 
 
-    SAB :: <sources>
+    SAB :: (include|exclude) <sources>
+    REL :: (include|exclude) <relations>
+    N :: NUMBER
     CUI<>freq
     CUI<>freq
     ...
+
+N is the total number of ngrams that occurred in the text used to 
+create the icfrequency file. 
 
 =head2 Optional Arguments:
 
@@ -121,10 +128,31 @@ Displays the version information.
 =head1 PROPAGATION
 
 The Information Content (IC) is  defined as the negative log 
-of the probability of a concept. The probability of a concept, 
-c, is determine by summing the probability of the concept 
-ocurring in some text plus the probability its decendants 
-occuring in some text:
+of the probability of a concept. 
+
+The probability of a concept, c, is determine by summing the 
+probability of the concept (P(c)) ocurring in some text plus 
+the probability its decendants (P(d)) occuring in some text 
+as see in below:
+
+  P(c*) = P(c) + \sum_{d\exists decendant(c)} P(d)
+
+
+The initial probability of a concept (P(c)) and its decendants 
+(P(d)) is obtained by dividing the number of times a concept is 
+seen in the corpus (freq(d)) by the total number of concepts (N) 
+as seen below:
+
+  P(d) = freq(d) / N
+
+Not all of the concepts in the taxonomy will be seen in the corpus. 
+The package includes the option of using Laplace smoothing, where the 
+frequency count of each of the concepts in the taxonomy is incremented 
+by one. The advantage of doing this is that it avoides having a concept 
+that has a probability of zero. The disadvantage is that it can shift 
+the overall probability mass of the concepts from what is actually 
+seen in the corpus. 
+
 
 For more information on how this is calculated please see 
 the README file. 
@@ -595,7 +623,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: create-icpropagation.pl,v 1.7 2010/07/15 22:03:56 btmcinnes Exp $';
+    print '$Id: create-icpropagation.pl,v 1.8 2010/11/01 17:20:11 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 

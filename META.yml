@@ -1,19 +1,27 @@
 --- #YAML:1.0
-name:                UMLS-Similarity
-version:             0.73
-abstract:            A suite of Perl modules that implement a number 
-license:             ~
-author:              
+name:               UMLS-Similarity
+version:            0.75
+abstract:           A suite of Perl modules that implement a number 
+author:
     - Bridget McInnes <bthomson@cs.umn.edu>, Ted Pedersen <tpederse@d.umn.edu>, Serguei Pakhomov <pakh0002 at umn.edu>, Siddharth Patwardhan <sidd@cs.utah.edu>
-generated_by:        ExtUtils::MakeMaker version 6.42
-distribution_type:   module
-requires:     
-    File::Path:                    2.08
-    File::Spec:                    3.31
-    Lingua::Stem:                  0.84
-    Text::NSP:                     1.17
-    Text::OverlapFinder:           0.02
-    UMLS::Interface:               0.79
+license:            unknown
+distribution_type:  module
+configure_requires:
+    ExtUtils::MakeMaker:  0
+build_requires:
+    ExtUtils::MakeMaker:  0
+requires:
+    File::Path:           2.08
+    File::Spec:           3.31
+    Lingua::Stem:         0.84
+    Text::NSP:            1.17
+    Text::OverlapFinder:  0.02
+    UMLS::Interface:      0.83
+no_index:
+    directory:
+        - t
+        - inc
+generated_by:       ExtUtils::MakeMaker version 6.55_02
 meta-spec:
-    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
-    version: 1.3
+    url:      http://module-build.sourceforge.net/META-spec-v1.4.html
+    version:  1.4

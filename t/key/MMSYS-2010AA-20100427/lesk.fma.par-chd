@@ -27,6 +27,6 @@ PathFinder User Options:
    --realtime option set
 
 
--1.0000<>hand(C0018563)<>skull
--1.0000<>skull(C0037303)<>neck
--1.0000<>hand(C0018563)<>neck
+-1.0000<>hand(C0018563)<>skull(C0037303)
+-1.0000<>skull(C0037303)<>neck(C0027530)
+-1.0000<>hand(C0018563)<>neck(C0027530)

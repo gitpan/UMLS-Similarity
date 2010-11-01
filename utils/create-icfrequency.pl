@@ -21,7 +21,9 @@ Usage: create-icfrequency.pl.pl [OPTIONS] OUTPUTFILE INPUTFILE
 The output file contains frequency counts for CUIs in the following 
 format: 
 
-    SAB :: <sources>
+    SAB :: (include|exclude) <sources>
+    REL :: (include|exclude) <relations>
+    N :: NUMBER
     CUI<>freq
     CUI<>freq
     ...
@@ -31,6 +33,12 @@ format:
 File containing plain text. 
 
 =head2 Optional Arguments:
+
+=head3 --compoundify
+
+The text contains compounds depicted by an underscore. For example,
+the term blood_pressure would be counted as a single term rather 
+than blood and then pressure. 
 
 =head3 --term
 
@@ -110,7 +118,7 @@ ocurring in some text plus the probability its decendants
 occuring in some text:
 
 For more information on how this is calculated please see 
-the README file. 
+the README file or the perldoc for create-icpropagation.pl
 
 =head1 SYSTEM REQUIREMENTS
 
@@ -197,7 +205,7 @@ use UMLS::Interface;
 use Getopt::Long;
 use File::Path;
 
-eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "config=s", "debug", "t", "metamap", "term")) or die ("Please check the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "config=s", "debug", "t", "metamap", "term", "compoundify")) or die ("Please check the above mentioned option(s).\n");
 
 #  if help is defined, print out help
 if( defined $opt_help ) {
@@ -293,8 +301,13 @@ sub getTermCounts {
     while(<COUNT>) {
 	chomp;
 	my ($term, $freq) = split/<>/;
+
+	if(defined $opt_compoundify) { 
+	    $term=~s/_/ /g;
+	}
+
 	my @cuis = $umls->getConceptList($term); 
-	
+
 	foreach my $cui (@cuis) {
 	    if(exists ${$cuilist}{$cui}) {
 		${$cuilist}{$cui} += $freq;
@@ -427,6 +440,10 @@ sub setOptions {
     else {
 	$default .= "  --term\n";
     }
+    
+    if(defined $opt_compoundify) { 
+	$set .= "  --compoundify\n";
+    }
 
     #  set database options
     if(defined $opt_username) {
@@ -536,6 +553,9 @@ sub showHelp() {
 
     print "--config FILE            Configuration file\n\n";
 
+    print "--compoundify            The input text contains compounds\n";
+    print "                         depicted by an underscore. \n\n";
+
     print "--term                   Calculates the frequency counts using\n";
     print "                         the words in the input file. (DEFAULT)\n\n";
 
@@ -562,7 +582,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: create-icfrequency.pl,v 1.10 2010/07/15 22:03:56 btmcinnes Exp $';
+    print '$Id: create-icfrequency.pl,v 1.11 2010/11/01 18:43:39 btmcinnes Exp $';
     print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
 }
 
