@@ -765,7 +765,7 @@ sub loadMeasures {
     my $meas;
 
     if($measure eq "vector") {
-	require "UMLS/Similarity/cuivector.pm";
+	require "UMLS/Similarity/vector.pm";
 
 	my %vectoroptions = ();
 	
@@ -803,7 +803,7 @@ sub loadMeasures {
 	    $vectoroptions{"stem"} = $opt_stem;
 	}
 
-	$meas = UMLS::Similarity::cuivector->new($umls,\%vectoroptions);
+	$meas = UMLS::Similarity::vector->new($umls,\%vectoroptions);
     }
     #  load the module implementing the Leacock and 
     #  Chodorow (1998) measure
@@ -1210,7 +1210,7 @@ sub setOptions {
     #  set the zero score with appropriate precision
     $noscore = sprintf $floatformat, -1;
 
-    #  set database options
+    #  set databasee options
     if(defined $opt_username) {
 
 	if(defined $opt_username) {
@@ -1423,7 +1423,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.66 2010/11/01 15:10:48 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.67 2010/11/03 15:27:09 btmcinnes Exp $';
     print "\nCopyright (c) 2008-2010, Ted Pedersen & Bridget McInnes\n";
 }
 

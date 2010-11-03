@@ -1,18 +1,25 @@
 NAME
     UMLS::Similarity CHANGES
 
-  Changes from version 0.71 to 0.73
-    1. added the undirected option to umls-similarity for the path measure
+  Changes from version 0.75 to 0.77
+    1. there was an error in the umls-similarity.pl program. I was messing
+    around with a new measure and forgot to remove its reference
 
-    2. modified umls-similarity with the --compoundfile option for lesk and
+    2. updated documentation
+
+  Changes from version 0.73 to 0.75
+    1. modified umls-similarity with the --compoundfile option for lesk and
     vector
 
-    3. modified lesk and vector to accept compound words
+    2. modified lesk and vector to accept compound words
 
-    4. fixed a small output error in umls-similarity when no similarity is
+    3. fixed a small output error in umls-similarity when no similarity is
     found between two concepts
 
-    5. added the --compoundify option to icfrequency
+    4. added the --compoundify option to icfrequency
+
+  Changes from version 0.71 to 0.73
+    1. added the undirected option to umls-similarity for the path measure
 
   Changes from version 0.69 to 0.71
     1. modified cdist and nam to use findShortestPathLength
