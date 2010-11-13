@@ -31,6 +31,6 @@ PathFinder User Options:
 ICFinder User Options:
   --icpropagation t/options/msh.par-chd.icpropagation
 
-2.1486<>hand(C0018563)<>skull(C0037303)
-2.1486<>skull(C0037303)<>neck(C0027530)
-2.3428<>neck(C0027530)<>toe(C0040357)
+0.9331<>hand(C0018563)<>skull(C0037303)
+0.9331<>skull(C0037303)<>neck(C0027530)
+1.0174<>neck(C0027530)<>toe(C0040357)

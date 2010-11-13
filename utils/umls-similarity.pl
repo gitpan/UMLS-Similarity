@@ -823,6 +823,12 @@ sub loadMeasures {
 	use UMLS::Similarity::path;
 	$meas = UMLS::Similarity::path->new($umls);
     }
+    #  loading the module implementing the simple edge counting 
+    #  measure of semantic relatedness.
+    if($measure eq "rank") {
+	use UMLS::Similarity::rank;
+	$meas = UMLS::Similarity::rank->new($umls);
+    }
     #  load the module implementing the Rada, et. al.
     #  (1989) called the Conceptual Distance measure
     if($measure eq "cdist") {
@@ -954,7 +960,7 @@ sub checkOptions {
     }
 
     if(defined $opt_measure) {
-	if($opt_measure=~/\b(path|wup|lch|cdist|nam|vector|res|lin|random|jcn|lesk)\b/) {
+	if($opt_measure=~/\b(rank|path|wup|lch|cdist|nam|vector|res|lin|random|jcn|lesk)\b/) {
 	    #  good to go
 	}
 	else {
@@ -1042,9 +1048,9 @@ sub checkOptions {
     }    
 
     if(defined $opt_compoundfile) { 
-	if(! ($opt_measure=~/vector/) ) {
+	if((!($opt_measure=~/vector/)) and (! ($opt_measure=~/lesk/))) {
 	    print STDERR "The --compoundfile option is only available\n";
-	    print STDERR "when using the vector measure. \n\n";
+	    print STDERR "when using the vector or lesk measure. \n\n";
 	    &minimalUsageNotes();
 	    exit;
 	}
@@ -1075,7 +1081,7 @@ sub checkOptions {
     } 
 
     #  make ceratin if the undirected option is specified that
-    #  it is only for hte path option
+    #  it is only for the path option
     if($opt_undirected) { 
 	if( (defined $opt_measure) && (!($opt_measure=~/path/)) ) { 
 	    print STDERR "The --undirected option can only be used with\n";
@@ -1423,7 +1429,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.67 2010/11/03 15:27:09 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.68 2010/11/04 22:44:18 liux0395 Exp $';
     print "\nCopyright (c) 2008-2010, Ted Pedersen & Bridget McInnes\n";
 }
 

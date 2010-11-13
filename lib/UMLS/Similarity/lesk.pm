@@ -51,6 +51,7 @@ use UMLS::Similarity::ErrorHandler;
 use vars qw($VERSION);
 $VERSION = '0.05';
 
+my $compoundfile = ""; 
 my $debugfile  = ""; 
 my $stoplist   = "";
 my $stopregex  = "";
@@ -61,7 +62,7 @@ my $stem	   = "";
 my $stemmed_words = "";
 my $score 		= 0;
 my %dictionary = ();
-
+my %complist = ();
 
 local(*DEBUG);
 
@@ -80,6 +81,7 @@ sub new
     $debugfile  = $params->{'debugfile'};
     $dictfile   = $params->{'dictfile'};
 	$stem		= $params->{'stem'};	
+	$compoundfile = $params->{'compoundfile'};	
 
     my $defraw     = $params->{'defraw'};
 
@@ -155,9 +157,38 @@ sub new
 		$dictionary{$concept} = $definition;
 	}
 	close DICT;
+    }
 
+	if(defined $compoundfile) {
+
+    #replace the compound words in the definition
+    open(LST, "$compoundfile") or die ("Error: cannot open file $compoundfile for input.\n");
+
+    # read the compound txt and put them in the hash array. 
+    while (my $line = <LST>)
+    {
+        chomp($line);
+        my $lower_case = lc($line);
+        my @string = split(' ', $lower_case);
+        my $head = shift(@string);
+
+        my $rest = join (' ', @string);
+        push (@{$complist{$head}}, $rest);
+    }
+    close LST;
+
+    # sort the compound txt 
+    foreach my $h (sort (keys (%complist)) )
+    {
+        my @sort_list = sort(@{$complist{$h}});
+        for my $i (0..$#sort_list)
+        {
+            $complist{$h}[$i] = $sort_list[$i];
+        }
+    }
 
     }
+
     return $self;
 }
 
@@ -366,7 +397,13 @@ sub getRelatedness
 	$def2=~s/[\.\,\?\/\'\"\;\:\[\]\{\}\!\@\#\$\%\^\&\*\(\)\-\_\+\-\=]//g;
 	
     }
-
+	
+	if(defined $compoundfile)
+    {
+        $def1 = findCompoundWord($def1, \%complist);
+        $def2 = findCompoundWord($def2, \%complist);
+    }
+	
 	# remove stop words
 	my $overlaps = "";
 	my $len1 = 0;
@@ -491,6 +528,80 @@ sub getRelatedness
     return $score;
 }
 
+sub findCompoundWord
+{
+    my $def = shift;
+    my $ref_complist = shift;
+    my $new_def = "";
+
+    my @words = split(' ', $def);
+    my $size_line = @words;
+    for (my $i=0; $i<$size_line; $i++)
+    {
+        my $w = $words[$i];
+        my $flag_print_w = 0;
+        my $flag_comp = 0;
+        if(defined $ref_complist->{$w})
+        {
+            # get the compound list start with word $w
+            my @comps = @{$ref_complist->{$w}};
+            foreach my $c (@comps)
+            {
+                #compare the rest of the compound word  
+                my @string = split(' ', $c);
+
+                my $count = 1;
+                foreach my $s (@string)
+                {
+                    if (($i+$count)<$size_line)
+                    {
+                        if ($s eq $words[$i+$count])
+                        {
+                            $flag_comp = 1;
+                            $count++;
+                        }
+                        else
+                        {
+                            $flag_comp = 0;
+                            last;
+                        }
+                    }
+                } # test one compound word start by $w           
+
+                # connect the compound word     
+                if ($flag_comp==1)
+                {
+                    unshift(@string, "$w");
+                    my $comp = join('_', @string);
+                    $new_def .= "$comp ";
+                    if (defined $debugfile)
+                    {
+                        print DEBUG "$comp\n";
+                    }
+                    my $skip = @string-1;
+                    $i = $i + $skip;
+				    last;
+                }
+            } # test all the compound word start by $w  
+
+            # print out the $w if it doesn't match any compound words
+            if (($flag_print_w==0) and ($flag_comp==0))
+            {
+                $new_def .= "$w ";
+                $flag_print_w = 1;
+            }
+
+        } # end of defined compound word start by $w
+
+        if(!defined $ref_complist->{$w})
+        {
+            $new_def .= "$w ";
+        }
+    } # end of one definition 
+
+    return $new_def;
+
+}
 
 1;
 __END__
