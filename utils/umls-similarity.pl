@@ -428,7 +428,7 @@ this program; if not, write to:
 use UMLS::Interface;
 use Getopt::Long;
 
-eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "forcerun", "debug", "verbose", "icfrequency=s", "smooth", "icpropagation=s", "undirected", "realtime", "stoplist=s", "stem", "debugfile=s", "vectormatrix=s", "vectorindex=s", "defraw", "dictfile=s", "compoundfile=s", "t")) or die ("Please check the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "forcerun", "debug", "verbose", "icfrequency=s", "smooth", "icpropagation=s", "undirected", "realtime", "stoplist=s", "stem", "debugfile=s", "vectormatrix=s", "vectorindex=s", "defraw", "dictfile=s", "doubledef=s", "compoundfile=s", "t")) or die ("Please check the above mentioned option(s).\n");
 
 
 my $debug = 0;
@@ -769,6 +769,9 @@ sub loadMeasures {
 
 	my %vectoroptions = ();
 	
+	if(defined $opt_doubledef) {
+	    $vectoroptions{"doubledef"} = $opt_doubledef;
+	}
 	if(defined $opt_compoundfile) {
 	    $vectoroptions{"compoundfile"} = $opt_compoundfile;
 	}
@@ -822,12 +825,6 @@ sub loadMeasures {
     if($measure eq "path") {
 	use UMLS::Similarity::path;
 	$meas = UMLS::Similarity::path->new($umls);
-    }
-    #  loading the module implementing the simple edge counting 
-    #  measure of semantic relatedness.
-    if($measure eq "rank") {
-	use UMLS::Similarity::rank;
-	$meas = UMLS::Similarity::rank->new($umls);
     }
     #  load the module implementing the Rada, et. al.
     #  (1989) called the Conceptual Distance measure
@@ -893,6 +890,9 @@ sub loadMeasures {
 	}
 	if(defined $opt_dictfile) {
 	    $leskoptions{"dictfile"} = $opt_dictfile;
+	}
+	if(defined $opt_doubledef) {
+	    $leskoptions{"doubledef"} = $opt_doubledef;
 	}
 	
         $meas = UMLS::Similarity::lesk->new($umls,\%leskoptions);  
@@ -960,7 +960,7 @@ sub checkOptions {
     }
 
     if(defined $opt_measure) {
-	if($opt_measure=~/\b(rank|path|wup|lch|cdist|nam|vector|res|lin|random|jcn|lesk)\b/) {
+	if($opt_measure=~/\b(path|wup|lch|cdist|nam|vector|res|lin|random|jcn|lesk)\b/) {
 	    #  good to go
 	}
 	else {
@@ -1014,6 +1014,15 @@ sub checkOptions {
     if(defined $opt_dictfile) { 
 	if(! ($opt_measure=~/vector|lesk/) ) {
 	    print STDERR "The --dictfile option is only available\n";
+	    print STDERR "when using the lesk or vector measure.\n\n";
+	    &minimalUsageNotes();
+	    exit;
+	}
+    }    
+
+    if(defined $opt_doubledef) { 
+	if(! ($opt_measure=~/vector|lesk/) ) {
+	    print STDERR "The --doubledef option is only available\n";
 	    print STDERR "when using the lesk or vector measure.\n\n";
 	    &minimalUsageNotes();
 	    exit;
@@ -1167,6 +1176,10 @@ sub setOptions {
     
     if(defined $opt_dictfile) {
 	$set .= "  --dictfile $opt_dictfile\n";
+    }
+    
+    if(defined $opt_doubledef) {
+	$set .= "  --doubledef $opt_doubledef\n";
     }
     
     if(defined $opt_compounfile) {
@@ -1404,6 +1417,10 @@ sub showHelp() {
     print "                         which would be used rather than the definitions from\n";
     print "                         the UMLS\n\n";
 
+    print "--doubledef FILE         This is a dictionary file for the vector and lesk\n";
+    print "                         measure. sts. It finds the definition of every word\n";
+    print "                         of the concept definiin tions.\n\n";
+
     print "--compoundfile FILE      This is a compound word file for the vector and lesk\n";
     print "                         measure. It contains the compound word lists. For the\n";
     print "                         definitions which comtain those compound words, they \n";
@@ -1429,7 +1446,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.68 2010/11/04 22:44:18 liux0395 Exp $';
+    print '$Id: umls-similarity.pl,v 1.72 2010/11/15 13:48:10 btmcinnes Exp $';
     print "\nCopyright (c) 2008-2010, Ted Pedersen & Bridget McInnes\n";
 }
 
