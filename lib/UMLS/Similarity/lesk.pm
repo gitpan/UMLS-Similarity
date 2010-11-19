@@ -57,11 +57,13 @@ my $stoplist   = "";
 my $stopregex  = "";
 my $finder     = "";
 my $dictfile   = "";
+my $doubledef  = "";
 my $defraw_option = 0;
 my $stem	   = "";
 my $stemmed_words = "";
 my $score 		= 0;
 my %dictionary = ();
+my %ddef       = ();
 my %complist = ();
 
 local(*DEBUG);
@@ -80,6 +82,7 @@ sub new
     $stoplist   = $params->{'stoplist'};
     $debugfile  = $params->{'debugfile'};
     $dictfile   = $params->{'dictfile'};
+    $doubledef  = $params->{'doubledef'};
 	$stem		= $params->{'stem'};	
 	$compoundfile = $params->{'compoundfile'};	
 
@@ -140,6 +143,24 @@ sub new
 
     }
 
+ 	# read in the doubledef for --doubledef option
+    if (defined $doubledef) {
+    open(DDEF, "<$doubledef")
+        or die("Error: cannot open doubledef file ($doubledef).\n");
+
+    while(<DDEF>) {
+        chomp;
+        if($_=~/^\s*$/) { next; }
+
+        my @defs = split (":", $_);
+        my $concept = $defs[0];
+        $concept =~ s/^\s+//;
+        $concept =~ s/\s+$//;
+        my $definition = $defs[1];
+        $ddef{$concept} = $definition;
+    }
+    close DDEF;
+    }
 
     if(defined $dictfile) { 
 	open(DICT, "$dictfile") 
@@ -387,6 +408,43 @@ sub getRelatedness
 	}
 
     } # end of WITH --dictfile option
+
+ 	# if define --doubledef option
+    if (defined $doubledef)
+    {
+        my @def1_array = split(/\s/, $def1);
+        my @def2_array = split(/\s/, $def2);
+
+        my %unique = (); # for every word, only check its definition once
+        foreach my $w (@def1_array)
+        {
+            $unique{$w}++;
+            if ((defined $ddef{$w}) and ($unique{$w}==1))
+            {
+                my $def = $ddef{$w};
+                if (defined $debugfile)
+                {
+                    print DEBUG "ddef1 $w: $def\n";
+                }
+                $def1 .= "$def" . " ";
+            }
+        }
+
+        %unique = ();
+        foreach my $w (@def2_array)
+        {
+            $unique{$w}++;
+            if ((defined $ddef{$w}) and ($unique{$w}==1))
+            {
+                my $def = $ddef{$w};
+                if (defined $debugfile)
+                {
+                    print DEBUG "ddef2 $w: $def\n";
+                }
+                $def2 .= "$def" . " ";
+            }
+        }
+    } #end of defined --doubledef option
 
     #  if the --defraw option is not set clean up the defintions
     if($defraw_option == 0) { 

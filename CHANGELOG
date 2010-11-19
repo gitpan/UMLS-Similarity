@@ -1,6 +1,9 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 0.81 to 0.83
+    1. added the --doubledef option for vector and lesk
+
   Changes from version 0.79 to 0.81
     1. I am not certain why but the rank.pm problem didn't get fixed in the
     last release.

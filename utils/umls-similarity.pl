@@ -826,6 +826,7 @@ sub loadMeasures {
 	use UMLS::Similarity::path;
 	$meas = UMLS::Similarity::path->new($umls);
     }
+
     #  load the module implementing the Rada, et. al.
     #  (1989) called the Conceptual Distance measure
     if($measure eq "cdist") {
@@ -1446,7 +1447,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.72 2010/11/15 13:48:10 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.73 2010/11/19 15:09:17 liux0395 Exp $';
     print "\nCopyright (c) 2008-2010, Ted Pedersen & Bridget McInnes\n";
 }
 
