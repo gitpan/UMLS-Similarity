@@ -228,10 +228,12 @@ while (my $line = <BIGM>)
 	my @terms = split('<>', $line);
 	my @freqs = split (' ', $terms[2]);	
 
+	print "terms: @terms\n";
 	# if it is still the same term. 	
 	# print out the vector to the matrix file 
 	if( $word eq $terms[0] )
 	{
+		#print "word: $word\n";
 		$bigrams .= "$index{$terms[1]} $freqs[0] ";
 		printf MATX "$index{$terms[1]} $freqs[0] ";	
 	}
@@ -239,6 +241,9 @@ while (my $line = <BIGM>)
 	{
 		# the first term of the bigrams changes, record 
 		# the vector position and length of the term
+
+		print "word: $word\n";
+
         if ($word ne "")
         {
 			$bigrams .= "\n";
@@ -253,7 +258,7 @@ while (my $line = <BIGM>)
 		$word = $terms[0];
 		$bigrams .= "$index{$word}: $index{$terms[1]} $freqs[0] ";
 		printf MATX "$index{$word}: $index{$terms[1]} $freqs[0] ";
-
+	}
 		# reach the end of the bigrams file, record the 
 		# vector position and length of the last term.	
 		if (eof(BIGM))
@@ -264,9 +269,6 @@ while (my $line = <BIGM>)
 			printf MATX "\n";
 		}
 
-
-
-	}
 }
 close MATX;
 close BIGM;

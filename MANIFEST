@@ -89,8 +89,6 @@ t/path.t
 t/tests/developers/fma.100
 t/tests/developers/msh.100
 t/tests/developers/snomedct.100
-t/tests/long-tests/snomedct.msh.par-chd
-t/tests/long-tests/snomedct.par-chd
 t/tests/measures/fma.par-chd
 t/tests/measures/msh.par-chd
 t/tests/utils/bigrams

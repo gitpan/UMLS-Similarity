@@ -1,12 +1,15 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 0.83 to 0.85
+    1. Add --doubledef document in vector.pm and lesk.pm
+
   Changes from version 0.81 to 0.83
-    1. added the --doubledef option for vector and lesk
+    1. Add --doubledef in vector.pm and lesk.pm
 
   Changes from version 0.79 to 0.81
-    1. I am not certain why but the rank.pm problem didn't get fixed in the
-    last release.
+    1. added the --compoundfile option for vector 2. added the --dictfile
+    option for vector
 
   Changes from version 0.77 to 0.79
     1. I am testing a new measure and forgot to it from umls-similarity

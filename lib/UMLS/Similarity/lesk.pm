@@ -190,7 +190,7 @@ sub new
     {
         chomp($line);
         my $lower_case = lc($line);
-        my @string = split(' ', $lower_case);
+        my @string = split('_', $lower_case);
         my $head = shift(@string);
 
         my $rest = join (' ', @string);
@@ -409,6 +409,34 @@ sub getRelatedness
 
     } # end of WITH --dictfile option
 
+	if (defined $stoplist)
+	{
+		my @d1 = split(/\s/, $def1);
+		my @d2 = split(/\s/, $def2);
+		my $new_def1 = "";
+		my $new_def2 = "";
+	
+		foreach my $check (@d1)
+		{
+			if(!($check =~ /$stopregex/))
+			{
+				$new_def1 .= "$check ";		
+			}
+		}		
+			
+		foreach my $check (@d2)
+		{
+			if(!($check =~ /$stopregex/))
+			{
+				$new_def2 .= "$check ";		
+			}
+		}		
+
+		$def1 = $new_def1;
+		$def2 = $new_def2;
+	}
+
+
  	# if define --doubledef option
     if (defined $doubledef)
     {
@@ -467,32 +495,6 @@ sub getRelatedness
 	my $len1 = 0;
 	my $len2 = 0;
 
-	if (defined $stoplist)
-	{
-		my @d1 = split(/\s/, $def1);
-		my @d2 = split(/\s/, $def2);
-		my $new_def1 = "";
-		my $new_def2 = "";
-	
-		foreach my $check (@d1)
-		{
-			if(!($check =~ /$stopregex/))
-			{
-				$new_def1 .= "$check ";		
-			}
-		}		
-			
-		foreach my $check (@d2)
-		{
-			if(!($check =~ /$stopregex/))
-			{
-				$new_def2 .= "$check ";		
-			}
-		}		
-
-		$def1 = $new_def1;
-		$def2 = $new_def2;
-	}
 
 	if (defined $stem)
 	{
@@ -588,7 +590,7 @@ sub getRelatedness
 
 sub findCompoundWord
 {
-    my $def = shift;
+	my $def = shift;
     my $ref_complist = shift;
     my $new_def = "";
 
@@ -605,9 +607,8 @@ sub findCompoundWord
             my @comps = @{$ref_complist->{$w}};
             foreach my $c (@comps)
             {
-                #compare the rest of the compound word  
+                #compare the rest of the compound word
                 my @string = split(' ', $c);
-
                 my $count = 1;
                 foreach my $s (@string)
                 {
@@ -624,23 +625,23 @@ sub findCompoundWord
                             last;
                         }
                     }
-                } # test one compound word start by $w           
-
-                # connect the compound word     
+                } # test one compound word start by $w
+                # connect the compound word
                 if ($flag_comp==1)
                 {
                     unshift(@string, "$w");
+
                     my $comp = join('_', @string);
                     $new_def .= "$comp ";
-                    if (defined $debugfile)
+					if (defined $debugfile)
                     {
-                        print DEBUG "$comp\n";
+                        print DEBUG "compounds: $comp\n";
                     }
                     my $skip = @string-1;
                     $i = $i + $skip;
-				    last;
+                    last;
                 }
-            } # test all the compound word start by $w  
+            } # test all the compound word start by $w
 
             # print out the $w if it doesn't match any compound words
             if (($flag_print_w==0) and ($flag_comp==0))
@@ -655,7 +656,7 @@ sub findCompoundWord
         {
             $new_def .= "$w ";
         }
-    } # end of one definition 
+    } # end of one definition
 
     return $new_def;
 
@@ -751,6 +752,51 @@ The input pair could be the following formats.
 Terms in the dictionary file use the delimiter : to seperate the terms and
 their definition. It allows multi terms in one concept. Please see the sample 
 file at /sample/dictfile
+
+--doubledef option is a dictionary file for the vector measure. It contains the
+'definitons' of a concept which could be used in the relatedness computation.
+When this option is defined, for each word in the definition, it uses the word's
+definition in the doubledef file. For example, the original defintion for 'cat' is,
+
+cat: a feline pet
+
+And then, the word vector for feline and pet in the doubledef file is:
+feline: small to medium-sized cats, cougar cheetah
+pet: cat dog bird fish
+
+The final definition for cat is to combine the original definition for cat, and
+then add the definition for feline(only add once) and pet:
+
+a feline pet small to medium-sized cats cougar cheetah cat dog bird fish
+
+Terms in the dictionary file use the delimiter : to seperate the terms and
+their definition. It has the same format with the dictfile. Please see the 
+sample file at /sample/dictfile. We extract the definition from
+the WordNet by glossFinder. For the extraced file, we further parse
+each senses of the same word and obtain a complete definition of the
+word.
+
+--compoundfile options is a compound word list for the vector measure. It defines
+the compound words which are treated as one word in the definitions. This
+must be used with the vector or lesk method. 
+
+For example, the definition for iraq and france are:
+
+iraq : saddam hussein
+france : jacques chirac
+
+In the --compoundfile file, "saddam hussein" and "jacques chirac" are compounds:
+
+jacques_chirac
+saddam_hussein
+
+So, the compound words in the definition could be detected:
+
+iraq : saddam_hussein
+france : jacques_chirac
+
+The lesk method searches the overlap of iraq and france definitions and get 
+the lesk relatedness scores.
 
 --config option is configure file for the lesk or vector measure. It defines 
 the relationship, source and rela relationship. When compute the relatedness

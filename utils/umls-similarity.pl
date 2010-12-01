@@ -1419,8 +1419,8 @@ sub showHelp() {
     print "                         the UMLS\n\n";
 
     print "--doubledef FILE         This is a dictionary file for the vector and lesk\n";
-    print "                         measure. sts. It finds the definition of every word\n";
-    print "                         of the concept definiin tions.\n\n";
+    print "                         measure. It finds the definition of every word's definition\n";
+    print "                         of the concept and construct the expanded definition.\n\n";
 
     print "--compoundfile FILE      This is a compound word file for the vector and lesk\n";
     print "                         measure. It contains the compound word lists. For the\n";
@@ -1437,17 +1437,13 @@ sub showHelp() {
     print "                         definitions used are 'cleaned'. If the --defraw\n";
     print "                         flag is set they will not be cleaned. \n\n";
 
-    print "\n\nLesk Measure Options:\n\n";
-
-
-
 
 }
 ##############################################################################
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.73 2010/11/19 15:09:17 liux0395 Exp $';
+    print '$Id: umls-similarity.pl,v 1.76 2010/12/01 22:11:25 btmcinnes Exp $';
     print "\nCopyright (c) 2008-2010, Ted Pedersen & Bridget McInnes\n";
 }
 
