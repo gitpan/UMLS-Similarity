@@ -228,7 +228,6 @@ while (my $line = <BIGM>)
 	my @terms = split('<>', $line);
 	my @freqs = split (' ', $terms[2]);	
 
-	print "terms: @terms\n";
 	# if it is still the same term. 	
 	# print out the vector to the matrix file 
 	if( $word eq $terms[0] )
@@ -242,7 +241,6 @@ while (my $line = <BIGM>)
 		# the first term of the bigrams changes, record 
 		# the vector position and length of the term
 
-		print "word: $word\n";
 
         if ($word ne "")
         {

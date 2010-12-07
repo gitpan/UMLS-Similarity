@@ -79,12 +79,12 @@ sub new
 
     $params = {} if(!defined $params);
 
-    $stoplist   = $params->{'stoplist'};
-    $debugfile  = $params->{'debugfile'};
-    $dictfile   = $params->{'dictfile'};
-    $doubledef  = $params->{'doubledef'};
-	$stem		= $params->{'stem'};	
-	$compoundfile = $params->{'compoundfile'};	
+    $stoplist     = $params->{'stoplist'};
+    $debugfile    = $params->{'debugfile'};
+    $dictfile     = $params->{'dictfile'};
+    $doubledef    = $params->{'doubledef'};
+    $stem	  = $params->{'stem'};	
+    $compoundfile = $params->{'compoundfile'};	
 
     my $defraw     = $params->{'defraw'};
 
@@ -540,7 +540,7 @@ sub getRelatedness
 				if ($s !~ /\<stop\>/) # count the length of the overlap 
 				{
 					$length++;			
-				}
+	 			}
 				if (($s =~ /\<stop\>/) and ($length<$array_length) and ($length > 0)) # <stop> in the middle of the overlap
 				{
 					$num = $overlaps->{$overlap};
@@ -717,11 +717,15 @@ the UMLS according to a method described by Banerjee and Pedersen(2002).
 The relatedness measure proposed by Banerjee and Pedersen is and
 adaptation of Lesk's dictionary-based word sense disambiguation algorithm.  
 
---defraw option is a flag for the lesk measure. The definitions 
+--defraw option 
+
+This is a flag for the lesk measure. The definitions 
 used are 'cleaned'. If the --defraw flag is set they will not be cleaned, 
 and it will leave the definitions in their "raw" form. 
 
---dictfile option is a dictionary file for the vector measure. It 
+--dictfile option 
+
+This is a dictionary file for the vector measure. It 
 contains the 'definitions' of a concept which would be used in the 
 relatedness computation. When this option is set, for the input 
 pair, umls-similarity.pl first find the CUIs or terms definition in 
@@ -733,41 +737,47 @@ If the --dictfile option is not set, the definiton will only come from the UMLS
 defintion by the --config option. 
 
 The input pair could be the following formats.
-1. cui1/term1 cui2/term2 
-   without --dictfile option and without --config option, 
-   use the UMLS definition of the default config file. 
 
-2. cui1/term1 cui2/term2  --dictfile ./sample/dictfile
-   --dictfile option is set and without --config option, 
-   definitions only come from dictfile. 
+    1. cui1/term1 cui2/term2 
+       without --dictfile option and without --config option, 
+       use the UMLS definition of the default config file. 
 
-3. cui1/term1 cui2/term2  --config ./sample/leskmeasure.config
-   without --dictfile option, --config option is set, 
-   definitions only come from UMLS by the config file. 
+    2. cui1/term1 cui2/term2  --dictfile ./sample/dictfile
+       --dictfile option is set and without --config option, 
+       definitions only come from dictfile. 
 
-4. cui1/term1 cui2/term2  --dictfile ./sample/dictfile --config ./sample/leskmeasure.config
-   --dictfile option is set, --config option is set, 
-   definitions come from dictfile and UMLS. 
+    3. cui1/term1 cui2/term2  --config ./sample/leskmeasure.config
+       without --dictfile option, --config option is set, 
+       definitions only come from UMLS by the config file. 
+
+    4. cui1/term1 cui2/term2  --dictfile ./sample/dictfile --config ./sample/leskmeasure.config
+       --dictfile option is set, --config option is set, 
+       definitions come from dictfile and UMLS. If the associated term 
+       for each CUI is defined in the dictfile, the associated terms' 
+       definition are also included.  
 
 Terms in the dictionary file use the delimiter : to seperate the terms and
 their definition. It allows multi terms in one concept. Please see the sample 
 file at /sample/dictfile
 
---doubledef option is a dictionary file for the vector measure. It contains the
+--doubledef option 
+
+This a dictionary file for the vector measure. It contains the
 'definitons' of a concept which could be used in the relatedness computation.
 When this option is defined, for each word in the definition, it uses the word's
-definition in the doubledef file. For example, the original defintion for 'cat' is,
+definition in the doubledef file. 
 
-cat: a feline pet
+    For example, the original defintion for 'cat' is,
+    cat: a feline pet
 
-And then, the word vector for feline and pet in the doubledef file is:
-feline: small to medium-sized cats, cougar cheetah
-pet: cat dog bird fish
+    And then, the word vector for feline and pet in the doubledef file is:
+    feline: small to medium-sized cats, cougar cheetah
+    pet: cat dog bird fish
 
-The final definition for cat is to combine the original definition for cat, and
-then add the definition for feline(only add once) and pet:
+    The final definition for cat is to combine the original definition for cat, and
+    then add the definition for feline(only add once) and pet.
 
-a feline pet small to medium-sized cats cougar cheetah cat dog bird fish
+    cat: a feline pet small to medium-sized cats cougar cheetah cat dog bird fish
 
 Terms in the dictionary file use the delimiter : to seperate the terms and
 their definition. It has the same format with the dictfile. Please see the 
@@ -776,39 +786,47 @@ the WordNet by glossFinder. For the extraced file, we further parse
 each senses of the same word and obtain a complete definition of the
 word.
 
---compoundfile options is a compound word list for the vector measure. It defines
+--compoundfile options 
+
+This is a compound word list for the vector measure. It defines
 the compound words which are treated as one word in the definitions. This
 must be used with the vector or lesk method. 
 
-For example, the definition for iraq and france are:
+    For example, the definition for iraq and france are:
 
-iraq : saddam hussein
-france : jacques chirac
+    iraq : saddam hussein
+    france : jacques chirac
 
-In the --compoundfile file, "saddam hussein" and "jacques chirac" are compounds:
+    In the --compoundfile file, "saddam hussein" and "jacques chirac" are compounds:
 
-jacques_chirac
-saddam_hussein
+    jacques_chirac
+    saddam_hussein
 
-So, the compound words in the definition could be detected:
+    So, the compound words in the definition could be detected:
 
-iraq : saddam_hussein
-france : jacques_chirac
+    iraq : saddam_hussein
+    france : jacques_chirac
 
 The lesk method searches the overlap of iraq and france definitions and get 
 the lesk relatedness scores.
 
---config option is configure file for the lesk or vector measure. It defines 
+--config option 
+
+This is configure file for the lesk or vector measure. It defines 
 the relationship, source and rela relationship. When compute the relatedness
 of a pair, umls-similarity.pl find the corresponding relationshps and 
 source by the config file. 
 
---stoplist option is a word list file for the lesk measure. The words
+--stoplist option 
+
+This is a word list file for the lesk measure. The words
 in the file should be removed from the definition. In the stop list file, 
 each word is in the regular expression format. A stop word sample file 
 is under the samples folder which is called stoplist-nsp.regex.
 
---stem option is a flag for the lesk measure. If we the --stem flag
+--stem option 
+
+This is a flag for the lesk measure. If we the --stem flag
 is set, the words of the definition are stemmed by the the Porter Stemming
 algorithm.  
 

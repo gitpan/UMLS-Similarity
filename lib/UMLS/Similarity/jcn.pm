@@ -262,7 +262,7 @@ and why. This is taken from the discussion about this measure
 when it was being implemented in WordNet::Similarity. The 
 actual message chain is located here:
 
-L< http://tech.groups.yahoo.com/group/wn-similarity/message/8>
+L<http://tech.groups.yahoo.com/group/wn-similarity/message/8>
 
 The Jiang and Conrath measure is calculated as follows:
 
