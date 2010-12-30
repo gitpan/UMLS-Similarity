@@ -1,6 +1,8 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 0.85 to 0.89
+1. Added the web interface scripts
   Changes from version 0.85 to 0.87
     1. Modified the documentation in jcn.pm, vector.pm and lesk.pm 2. update
     vector-input.pl

@@ -48,22 +48,6 @@ UMLS::Similarity
         documentation. However, it is highly recommended not messing 
         around with other parameters, unless you know what you're doing.
 
-        To conduct an extensive test of the package please set the 
-        UMLS_SIMILARITY_ALL_TESTS environment variable prior to 
-        running make test. This will run the long tests:
-
-        1. path-long.t
-        2. ic-long.t
-        3. relatedness-long.t
-
-        To set the environment variable in c shell:
-
-          setenv UMLS_SIMILARITY_RUN_ALL 1
-
-        and in bash shell:
-
-          export UMLS_SIMILARITY_RUN_ALL=1
-
   SEMANTIC RELATEDNESS
         We observe that humans find it extremely easy to say if two words are
         related and if one word is more related to a given word than another.
@@ -125,6 +109,10 @@ UMLS::Similarity
 
           create-icpropagation.pl    -- create the probability file required for 
                                         information content measures
+
+        The package contas a web/ directory which contains a web interface to 
+        the UMLS-Similarity package once it is installed. Please see the README 
+        file in the web/ directory for further information.
 
   CONFIGURATION
     UMLS-Interface allows information to be extracted from the UMLS given a

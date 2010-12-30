@@ -89,6 +89,8 @@ t/path.t
 t/tests/developers/fma.100
 t/tests/developers/msh.100
 t/tests/developers/snomedct.100
+t/tests/long-tests/snomedct.msh.par-chd
+t/tests/long-tests/snomedct.par-chd
 t/tests/measures/fma.par-chd
 t/tests/measures/msh.par-chd
 t/tests/utils/bigrams
@@ -101,4 +103,15 @@ utils/SignificanceTesting.r
 utils/sim2r.pl
 utils/spearmans.pl
 utils/umls-similarity.pl
+utils/umls_similarity_server.pl
 utils/vector-input.pl
+web/cgi-bin/umls_similarity.cgi
+web/cgi-bin/umls_wps.cgi
+web/docs/index.html
+web/docs/instructions.html
+web/docs/logo_black.gif
+web/docs/relatedness_measures.html
+web/docs/sim-style.css
+web/docs/similarity_measures.html
+web/index.html
+web/README

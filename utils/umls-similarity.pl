@@ -483,7 +483,8 @@ sub calculateSimilarity {
     if($debug) { print STDERR "In calculateSimilarity\n"; }
     
     if(defined $opt_matrix) { print "@input_array\n"; }
-    
+
+    my %similarityHash = ();    
     my @secondary_array = @input_array;
 
     foreach my $input1 (@input_array) {
@@ -570,14 +571,12 @@ sub calculateSimilarity {
 		($t2) = @ts2;
 	    }
 	    
-	    my %similarityHash = ();
-	    
 	    #  get the similarity between the concepts 
 	    foreach my $cc1 (@c1) {
 		foreach my $cc2 (@c2) {
-		    if(exists $similarityHash{$cc1}{$cc2}) { next; }
+		    if(exists $similarityHash{$cc1}{$cc2}) { print STDERR " 1\n";next; }
 		    if(exists $similarityHash{$cc2}{$cc1}) {
-			$similarityHash{$cc1}{$cc2} = $simialrityHash{$cc2}{$cc1};
+			$similarityHash{$cc1}{$cc2} = $similarityHash{$cc2}{$cc1};
 			next;
 		    }
 		    my $score = "";
@@ -591,8 +590,8 @@ sub calculateSimilarity {
 	    #  find the minimum score
 	    my $max_cc1 = ""; my $max_cc2 = ""; my $max_score = -1;
 	    my $min_cc1 = ""; my $min_cc2 = ""; my $min_score = 999;
-	    foreach my $concept1 (sort keys %similarityHash) {
-		foreach my $concept2 (sort keys %{$similarityHash{$concept1}}) {
+	    foreach my $concept1 (@c1) { 
+		foreach my $concept2 (@c2) { 
 		    if($max_score <= $similarityHash{$concept1}{$concept2}) {
 			$max_score = $similarityHash{$concept1}{$concept2};
 			$max_cc1 = $concept1;
@@ -1443,7 +1442,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.76 2010/12/01 22:11:25 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.78 2010/12/29 23:00:46 btmcinnes Exp $';
     print "\nCopyright (c) 2008-2010, Ted Pedersen & Bridget McInnes\n";
 }
 
