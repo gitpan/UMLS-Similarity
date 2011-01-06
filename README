@@ -110,7 +110,7 @@ UMLS::Similarity
           create-icpropagation.pl    -- create the probability file required for 
                                         information content measures
 
-        The package contas a web/ directory which contains a web interface to 
+        The package contains a web/ directory which contains a web interface to 
         the UMLS-Similarity package once it is installed. Please see the README 
         file in the web/ directory for further information.
 
@@ -326,7 +326,7 @@ UMLS::Similarity
     actually seen in the corpus.
 
   SOFTWARE COPYRIGHT AND LICENSE
-        Copyright (C) 2004-2010 Bridget T McInnes, Siddharth Patwardhan, 
+        Copyright (C) 2004-2011 Bridget T McInnes, Siddharth Patwardhan, 
         Serguei Pakhomov and Ted Pedersen
 
         This suite of programs is free software; you can redistribute it and/or
@@ -480,8 +480,8 @@ UMLS::Similarity
      liux0395 at umn.edu
 
   DOCUMENTATION COPYRIGHT AND LICENSE
-    Copyright (C) 2003-2010 Bridget T. McInnes, Siddharth Patwardhan,
-    Serguei Pakhomov and Ted Pedersen.
+    Copyright (C) 2003-2011 Bridget T. McInnes, Siddharth Patwardhan,
+    Serguei Pakhomov, Ying Liu and Ted Pedersen.
 
     Permission is granted to copy, distribute and/or modify this document
     under the terms of the GNU Free Documentation License, Version 1.2 or

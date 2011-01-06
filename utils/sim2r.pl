@@ -85,7 +85,7 @@ A cvs file that can be read by the SignificanceTesting.r program
 
 =head1 COPYRIGHT
 
-Copyright (c) 2007-2009,
+Copyright (c) 2007-2011,
 
  Bridget T. McInnes, University of Minnesota
  bthomson at cs.umn.edu
@@ -267,8 +267,8 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: sim2r.pl,v 1.5 2010/08/10 11:34:23 btmcinnes Exp $';
-    print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
+    print '$Id: sim2r.pl,v 1.6 2011/01/06 16:09:00 btmcinnes Exp $';
+    print "\nCopyright (c) 2007-2011, Ted Pedersen & Bridget McInnes\n";
 }
 
 ##############################################################################

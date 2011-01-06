@@ -3,7 +3,7 @@
 # Module implementing the semantic relatedness measure described 
 # by Resnik (1995)
 #
-# Copyright (c) 2009-2010,
+# Copyright (c) 2009-2011,
 #
 # Bridget T McInnes, University of Minnesota, Twin Cities
 # bthomson at umn.edu
@@ -297,7 +297,7 @@ perl(1), UMLS::Similarity(3)
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2004-2010 by Bridget T McInnes, Siddharth Patwardhan, 
+Copyright 2004-2011 by Bridget T McInnes, Siddharth Patwardhan, 
 Serguei Pakhomov, Ying Liu and Ted Pedersen
 
 This library is free software; you can redistribute it and/or modify

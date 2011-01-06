@@ -83,7 +83,7 @@ The Spearman's Rank Correlation between the two files.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2007-2009,
+Copyright (c) 2007-2011,
 
  Bridget T. McInnes, University of Minnesota
  bthomson at cs.umn.edu
@@ -350,8 +350,8 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: spearmans.pl,v 1.6 2010/08/10 15:30:26 btmcinnes Exp $';
-    print "\nCopyright (c) 2010, Ted Pedersen & Bridget McInnes\n";
+    print '$Id: spearmans.pl,v 1.7 2011/01/06 16:09:00 btmcinnes Exp $';
+    print "\nCopyright (c) 2009-2011, Ted Pedersen & Bridget McInnes\n";
 }
 
 ##############################################################################

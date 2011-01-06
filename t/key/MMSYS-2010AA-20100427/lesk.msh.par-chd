@@ -5,7 +5,6 @@ User Settings:
   --config t/config/rel-config.msh.par-chd
   --infile t/tests/measures/msh.par-chd
   --measure lesk
-  --realtime
 
 
 CuiFinder User Options: 
@@ -22,9 +21,6 @@ UMLS-Interface Configuration Information
     umls (MMSYS-2010AA-20100427)
 
 
-
-PathFinder User Options:
-   --realtime option set
 
 
 49.0000<>hand(C0018563)<>skull(C0037303)

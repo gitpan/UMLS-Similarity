@@ -11,7 +11,7 @@ use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 
-my $author4 = 'Siddharth Patwardhan <sidd@cs.utah.edu>';
+my $author4 = 'Ying Liu <liux0395@umn.edu>';
 my $author3 = 'Serguei Pakhomov <pakh0002 at umn.edu>';
 my $author2 = 'Ted Pedersen <tpederse@d.umn.edu>';
 my $author1 = 'Bridget McInnes <bthomson@cs.umn.edu>';

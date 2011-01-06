@@ -1,11 +1,25 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 0.89 to 0.91
+    1. modified documentation
+
+    2. fixed an error in the output of the umls-similarity.pl program
+
+    3. stipulated the --realtime option can only be used with the similarity
+    measures and modified the tests accordingly
+
+    4. turned back on the error checking - not certain why I had it off
+
+    5. added error.t test to check the ErrorHandler.pm module
+
   Changes from version 0.85 to 0.89
-1. Added the web interface scripts
+    1. Added the web interface scripts
+
   Changes from version 0.85 to 0.87
-    1. Modified the documentation in jcn.pm, vector.pm and lesk.pm 2. update
-    vector-input.pl
+    1. Modified the documentation in jcn.pm, vector.pm and lesk.pm
+
+    2. update vector-input.pl
 
   Changes from version 0.83 to 0.85
     1. Add --doubledef document in vector.pm and lesk.pm
@@ -14,8 +28,9 @@ NAME
     1. Add --doubledef in vector.pm and lesk.pm
 
   Changes from version 0.79 to 0.81
-    1. added the --compoundfile option for vector 2. added the --dictfile
-    option for vector
+    1. added the --compoundfile option for vector
+
+    2. added the --dictfile option for vector
 
   Changes from version 0.77 to 0.79
     1. I am testing a new measure and forgot to it from umls-similarity

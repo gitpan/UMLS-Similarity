@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # umls_similarity_server.pl version 0.01
-# (Last updated $Id: umls_similarity_server.pl,v 1.5 2010/12/29 19:32:18 btmcinnes Exp $)
+# (Last updated $Id: umls_similarity_server.pl,v 1.6 2011/01/06 16:09:00 btmcinnes Exp $)
 #
 # ---------------------------------------------------------------------
 
@@ -638,15 +638,15 @@ WordNet::Similarity home page (provides link to web interface):
  Ted Pedersen, University of Minnesota, Duluth
  tpederse at d.umn.edu
 
- Siddharth Patwardhan, University of Utah
- sidd at cs.utah.edu
+ Bridget T McInnes
+ bthomson at umn.edu
 
  Jason Michelizzi
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2008, Ted Pedersen, Siddharth Patwardhan 
-and Jason Michelizzi
+Copyright (c) 2005-2011, Ted Pedersen, Jason Michelizzi and 
+Bridget T McInnes
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

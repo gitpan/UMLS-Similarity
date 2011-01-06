@@ -2,7 +2,7 @@
 #
 # Perl implementation of semantic relatedness measures.
 #
-# Copyright (c) 2004-2010,
+# Copyright (c) 2004-2011,
 #
 # Bridget T McInnes, University of Minnesota, Twin Cities
 # bthomson at cs.umn.edu
@@ -38,7 +38,7 @@
 
 package UMLS::Similarity;
 
-$VERSION = '0.89';
+$VERSION = '0.91';
 
 sub new
 {
@@ -195,7 +195,7 @@ UMLS::Similarity::random(3)
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2004-2010 by Bridget McInnes, Siddharth Patwardhan, 
+Copyright 2004-2011 by Bridget McInnes, Siddharth Patwardhan, 
 Serguei Pakhomov, Ying Liu and Ted Pedersen
 
 This library is free software; you can redistribute it and/or modify

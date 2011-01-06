@@ -196,7 +196,7 @@ the README file.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2007-2009,
+Copyright (c) 2007-2011,
 
  Bridget T. McInnes, University of Minnesota
  bthomson at cs.umn.edu
@@ -623,8 +623,8 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: create-icpropagation.pl,v 1.8 2010/11/01 17:20:11 btmcinnes Exp $';
-    print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
+    print '$Id: create-icpropagation.pl,v 1.9 2011/01/06 16:09:00 btmcinnes Exp $';
+    print "\nCopyright (c) 2008-2011, Ted Pedersen & Bridget McInnes\n";
 }
 
 ##############################################################################

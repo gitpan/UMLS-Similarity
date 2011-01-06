@@ -3,7 +3,7 @@
 # Module implementing the simple edge counting measure of 
 # semantic relatedness.
 #
-# Copyright (c) 2004-2010,
+# Copyright (c) 2004-2011,
 #
 # Bridget T McInnes, University of Minnesota, Twin Cities
 # bthomson at cs.umn.edu
@@ -262,7 +262,7 @@ perl(1), UMLS::Similarity(3)
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2004-2010 by Bridget T McInnes, Siddharth Patwardhan, 
+Copyright 2004-2011 by Bridget T McInnes, Siddharth Patwardhan, 
 Serguei Pakhomov, Ying Liu and Ted Pedersen
 
 This library is free software; you can redistribute it and/or modify

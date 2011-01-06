@@ -47,6 +47,7 @@ t/config/rel-config.snomedct.par-chd
 t/create-icfrequency.t
 t/create-icpropagation.t
 t/developers-check
+t/error.t
 t/ic.t
 t/key/MMSYS-2010AA-20100427/cdist.fma.par-chd
 t/key/MMSYS-2010AA-20100427/cdist.msh.par-chd
@@ -54,6 +55,8 @@ t/key/MMSYS-2010AA-20100427/create-icfrequency.command
 t/key/MMSYS-2010AA-20100427/create-icfrequency.key
 t/key/MMSYS-2010AA-20100427/create-icpropagation.command
 t/key/MMSYS-2010AA-20100427/create-icpropagation.key
+t/key/MMSYS-2010AA-20100427/error.sab.rel
+t/key/MMSYS-2010AA-20100427/error.sabdef.reldef
 t/key/MMSYS-2010AA-20100427/jcn.fma.par-chd
 t/key/MMSYS-2010AA-20100427/jcn.msh.par-chd
 t/key/MMSYS-2010AA-20100427/lch.fma.par-chd

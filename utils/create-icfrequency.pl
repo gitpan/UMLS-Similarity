@@ -159,7 +159,7 @@ the README file or the perldoc for create-icpropagation.pl
 
 =head1 COPYRIGHT
 
-Copyright (c) 2007-2009,
+Copyright (c) 2007-2011,
 
  Bridget T. McInnes, University of Minnesota
  bthomson at cs.umn.edu
@@ -582,8 +582,8 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: create-icfrequency.pl,v 1.11 2010/11/01 18:43:39 btmcinnes Exp $';
-    print "\nCopyright (c) 2008, Ted Pedersen & Bridget McInnes\n";
+    print '$Id: create-icfrequency.pl,v 1.12 2011/01/06 16:09:00 btmcinnes Exp $';
+    print "\nCopyright (c) 2008-2011, Ted Pedersen & Bridget McInnes\n";
 }
 
 ##############################################################################

@@ -61,7 +61,7 @@ foreach my $file (@testfiles) {
     my $config  = File::Spec->catfile('t','config', $configfile);
     my $key     = File::Spec->catfile('t', 'key', $version, $keyfile);
     
-    my $output = `$perl $util_prg --config $config --vectormatrix $matrix --vectorindex $index --realtime --measure $measure --infile $infile 2>&1`;
+    my $output = `$perl $util_prg --config $config --vectormatrix $matrix --vectorindex $index --measure $measure --infile $infile 2>&1`;
     
     if(-e $key) {
 	ok (open KEY, $key) or diag "Could not open $key: $!";

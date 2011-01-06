@@ -93,10 +93,14 @@ for all of concepts in the specified set of sources and relations
 in the config file but obtain the information for just the 
 input concept
 
+This is option is only available for the path and ic measures. 
+
 =head3 --forcerun
 
 This option will bypass any command prompts such as asking 
 if you would like to continue with the index creation. 
+
+This is also only necessary for the path and ic measures
 
 =head3 --measure MEASURE
 
@@ -193,6 +197,11 @@ Password is required to access the umls database on mysql
 =head3 --hostname STRING
 
 Hostname where mysql is located. DEFAULT: localhost
+
+=head3 --socket STRING
+
+Socket where the mysql.sock or mysqld.sock is located. 
+DEFAULT: mysql.sock
 
 =head3 --database STRING        
 
@@ -381,7 +390,7 @@ set, definition words are stemmed using the Lingua::Stem::En module.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2007-2010,
+Copyright (c) 2007-2011,
 
  Bridget T. McInnes, University of Minnesota
  bthomson at cs.umn.edu
@@ -574,7 +583,7 @@ sub calculateSimilarity {
 	    #  get the similarity between the concepts 
 	    foreach my $cc1 (@c1) {
 		foreach my $cc2 (@c2) {
-		    if(exists $similarityHash{$cc1}{$cc2}) { print STDERR " 1\n";next; }
+		    if(exists $similarityHash{$cc1}{$cc2}) { next; }
 		    if(exists $similarityHash{$cc2}{$cc1}) {
 			$similarityHash{$cc1}{$cc2} = $similarityHash{$cc2}{$cc1};
 			next;
@@ -1137,6 +1146,14 @@ sub checkOptions {
 	    exit;
 	}
     }
+    
+    if(defined $opt_realtime) { 
+	if($opt_measure=~/vector|lesk/) { 
+	    print STDERR "The --realtime option is only available for the similarity measures\n";
+	    &minimalUsageNotes();
+	    exit;
+	}
+    }
 }
 
 #  set user input and default options
@@ -1333,13 +1350,13 @@ sub showHelp() {
         
     
     print "--realtime               This option finds the path and propagation\n";
-    print "                         information for relevant measures in realtime\n";
-    print "                         rather than building an index\n\n";
+    print "                         information for the similarity measures in \n";
+    print "                         realtime rather than building an index\n\n";
 
-    print "--forcerun               This option will bypass any command \n";
-    print "                         prompts such as asking if you would \n";
-    print "                         like to continue with the index \n";
-    print "                         creation. \n\n";
+    print "--forcerun               This option will bypass any command prompts\n";
+    print "                         such as asking if you would like to continue\n";
+    print "                         with the index creation. Necessary only for the\n";
+    print "                         path based and ic similarity measures\n\n";
 
     print "--measure MEASURE        The measure to use to calculate the\n";
     print "                         semantic similarity. (DEFAULT: path)\n\n";
@@ -1382,6 +1399,7 @@ sub showHelp() {
     print "--password STRING        Password required to access mysql\n\n";
 
     print "--hostname STRING        Hostname for mysql (DEFAULT: localhost)\n\n";
+    print "--socket STRING          Socket for mysql (DEFAULT: /tmp/mysql.sock\n\n";
 
     print "--database STRING        Database contain UMLS (DEFAULT: umls)\n\n";
     
@@ -1442,8 +1460,8 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.78 2010/12/29 23:00:46 btmcinnes Exp $';
-    print "\nCopyright (c) 2008-2010, Ted Pedersen & Bridget McInnes\n";
+    print '$Id: umls-similarity.pl,v 1.81 2011/01/06 16:09:00 btmcinnes Exp $';
+    print "\nCopyright (c) 2008-2011, Ted Pedersen & Bridget McInnes\n";
 }
 
 ##############################################################################

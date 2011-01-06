@@ -1,10 +1,10 @@
 # UMLS::Similarity::ErrorHandler
-# (Last Updated $Id: ErrorHandler.pm,v 1.8 2010/12/21 16:58:40 btmcinnes Exp $)
+# (Last Updated $Id: ErrorHandler.pm,v 1.10 2011/01/06 16:09:00 btmcinnes Exp $)
 #
 # Perl module that provides a perl interface to the
 # Unified Medical Language System (UMLS)
 #
-# Copyright (c) 2004-2010,
+# Copyright (c) 2004-2011,
 #
 # Bridget T. McInnes, University of Minnesota, Twin Cities
 # bthomson at cs.umn.edu
@@ -79,12 +79,12 @@ sub checkConfig {
     my $measure   = shift;
     my $interface = shift;
 
-    #if($measure=~/(path|cdist|nam|wup|lch|jcn|lin|res)/) {
-    #	$self->checkPathBasedMeasures($measure, $interface);
-    #}
-    #elsif($measure=~/(vector|lesk)/ ) {
-    # 	$self->checkRelatednessMeasures($measure, $interface);
-    #}
+    if($measure=~/(path|cdist|nam|wup|lch|jcn|lin|res)/) {
+    	$self->checkPathBasedMeasures($measure, $interface);
+    }
+    elsif($measure=~/(vector|lesk)/ ) {
+     	$self->checkRelatednessMeasures($measure, $interface);
+    }
 }
 
 #  check the config file with the path-based and IC measures
@@ -279,9 +279,9 @@ Ted Pedersen <tpederse@d.umn.edu>
 
 =head1 COPYRIGHT
 
- Copyright (c) 2007-2009
+ Copyright (c) 2010-2011
  Bridget T. McInnes, University of Minnesota
- bthomson at cs.umn.edu
+ bthomson at umn.edu
 
  Ted Pedersen, University of Minnesota Duluth
  tpederse at d.umn.edu

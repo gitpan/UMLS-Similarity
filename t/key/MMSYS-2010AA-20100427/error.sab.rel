@@ -2,11 +2,9 @@ Default Settings:
   --precision 4
 
 User Settings:
-  --vectormatrix t/options/vectormatrix
-  --vectorindex t/options/vectorindex
   --config t/config/rel-config.fma.par-chd
-  --infile t/tests/measures/fma.par-chd
-  --measure vector
+  --measure path
+  --realtime
 
 
 CuiFinder User Options: 
@@ -24,7 +22,11 @@ UMLS-Interface Configuration Information
 
 
 
+PathFinder User Options:
+   --realtime option set
 
--1.0000<>hand(C0018563)<>skull(C0037303)
--1.0000<>skull(C0037303)<>neck(C0027530)
--1.0000<>hand(C0018563)<>neck(C0027530)
+
+ERROR: UMLS::Similarity->path
+Measure does not support the configuration option (Error Code 1).
+Option: (RELDEF).
+
