@@ -1,6 +1,15 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 0.91 to 0.93
+    1. updated the --metamap option in create-icfrequency.pl to require the
+    year (version) of metamap that is being used in order to call it on the
+    command line.
+
+    2. modified the umls-similarity.pl program to obtain the CUIs of terms
+    from a different function when using the lesk or vector measures (this
+    is due to the config options).
+
   Changes from version 0.89 to 0.91
     1. modified documentation
 

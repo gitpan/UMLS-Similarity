@@ -326,9 +326,9 @@ cleaned.
 =head3 --stoplist FILE
 
 A file containing a list of words to be excluded from the features 
-in the vector method. The format required is one stopword per line, 
-words are in the regular expression format. 
-For example:
+in the lesk and vector method on a word by word basis. The format 
+required is one stopword per line, words are in the regular expression 
+format. For example:
 
 /\b[a-zA-Z]\b/
 /\b[aA]board\b/
@@ -529,14 +529,12 @@ sub calculateSimilarity {
 		if( (defined $opt_dictfile) && (defined $opt_config) ) {
 		    
 		    if($input1=~/C[0-9]+/) { push @c1, $input1; }
-		    else { @c1 = $umls->getConceptList($input1); }
+		    else { @c1 = $umls->getDefConceptList($input1); }
 
 		    if($input2=~/C[0-9]+/) { push @c2, $input2; }
-		    else { @c2 = $umls->getConceptList($input2); }
-
+		    else { @c2 = $umls->getDefConceptList($input2); }
 		    
 		    for my $i (0..$#c1) { $c1[$i] .= "#$input1"; } 
-		    
 		    for my $i (0..$#c2) { $c2[$i] .= "#$input2"; } 
 		    
 		}
@@ -554,6 +552,9 @@ sub calculateSimilarity {
 		    }
 		    $cui_flag1 = 1;
 		}
+		elsif($measure=~/lesk|vector/) { 
+		    @c1 = $umls->getDefConceptList($input1); 
+		}
 		else {
 		    @c1 = $umls->getConceptList($input1); 
 		}
@@ -564,6 +565,9 @@ sub calculateSimilarity {
 			push @c2, $input2;
 		    }
 		    $cui_flag2 = 1;
+		}
+		elsif($measure=~/lesk|vector/) { 
+		    @c2 = $umls->getDefConceptList($input2); 
 		}
 		else {
 		    @c2 = $umls->getConceptList($input2); 
@@ -741,6 +745,9 @@ sub loadInput {
 	    chomp;
 	    if($_=~/^\s*$/) { next; }
 	    if($_=~/\<\>/) {
+		#  escape the ' character on input if it exists
+		if(! ($_=~/\\\'/)) { $_=~s/'/\\'/g; }
+
 		push @input_array, $_;
 	    }
 	    else {
@@ -760,8 +767,12 @@ sub loadInput {
 	my $i1 = shift @ARGV;
 	my $i2 = shift @ARGV;
 
-	if($debug) { print STDERR "INPUT:  $i1 $i2\n"; }
+	#  escape the ' character on input if it exists
+	if(! ($i1=~/\\\'/)) { $i1=~s/'/\\'/g; }
+	if(! ($i2=~/\\\'/)) { $i2=~s/'/\\'/g; }
 
+	if($debug) { print STDERR "INPUT:  $i1 $i2\n"; }
+	
 	my $input = "$i1<>$i2";
 	push @input_array, $input;
     }
@@ -1460,7 +1471,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.81 2011/01/06 16:09:00 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.84 2011/01/13 14:41:50 btmcinnes Exp $';
     print "\nCopyright (c) 2008-2011, Ted Pedersen & Bridget McInnes\n";
 }
 

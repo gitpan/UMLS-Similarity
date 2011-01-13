@@ -44,9 +44,13 @@ than blood and then pressure.
 
 Obtains the CUI counts using the term counts. This is the default.
 
-=head3 --metamap
+=head3 --metamap TWO_DIGIT_YEAR
 
-Obtain the CUI counts using MetaMap. This requires that you have 
+This option takes the two digit year of the version of metamap that 
+is being used. For example, --metamap 10 would use ./metamap10 to 
+call metamap to tag the text. 
+
+This obtains the CUI counts using MetaMap. This requires that you have 
 MetaMap installed on your system. You can obtain this package:
 
 L<http://mmtx.nlm.nih.gov/>
@@ -205,7 +209,7 @@ use UMLS::Interface;
 use Getopt::Long;
 use File::Path;
 
-eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "config=s", "debug", "t", "metamap", "term", "compoundify")) or die ("Please check the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "config=s", "debug", "t", "metamap=s", "term", "compoundify")) or die ("Please check the above mentioned option(s).\n");
 
 #  if help is defined, print out help
 if( defined $opt_help ) {
@@ -266,6 +270,12 @@ my $relastring = $umls->getRelaString();
 my $cuilist = $umls->getCuiList();
 
 if(defined $opt_metamap) { 
+    
+    if(! ($opt_metamay=~/[0-9][0-9]/) ) {
+	print STDERR "The --metamap option requires a two digit year.\n";
+	&minimalUsageNotes();
+	exit;
+    }
     &getMetaMapCounts($inputfile);
 }
 else {
@@ -366,8 +376,9 @@ sub callMetaMap
     print METAMAP_INPUT "$line\n"; 
     close METAMAP_INPUT;
     
-    print "metamap09 -q $metamapInput $metamapOutput\n";
-    system("metamap09 -q $metamapInput $metamapOutput");
+    my $metamap = "metamap" . $opt_metamap;
+    print "$metamap -q $metamapInput $metamapOutput\n";
+    system("$metamap -q $metamapInput $metamapOutput");
 
     open(METAMAP_OUTPUT, $metamapOutput) || die "Could not open file: $metamapOutput\n";
     
@@ -432,7 +443,7 @@ sub setOptions {
     }
 
     if(defined $opt_metamap) { 
-	$set .= "  --metamap\n";
+	$set .= "  --metamap $opt_metamap\n";
     }
     elsif(defined $opt_term) {
 	$set .= "  --term\n";
@@ -559,7 +570,7 @@ sub showHelp() {
     print "--term                   Calculates the frequency counts using\n";
     print "                         the words in the input file. (DEFAULT)\n\n";
 
-    print "--metamap                Calculates the frequency counts using\n";
+    print "--metamap TWO_DIGIT_YEAR Calculates the frequency counts using\n";
     print "                         the CUIs assigned to terms by MetaMap.\n\n";
 
     print "--username STRING        Username required to access mysql\n\n";
@@ -582,7 +593,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: create-icfrequency.pl,v 1.12 2011/01/06 16:09:00 btmcinnes Exp $';
+    print '$Id: create-icfrequency.pl,v 1.13 2011/01/13 13:30:56 btmcinnes Exp $';
     print "\nCopyright (c) 2008-2011, Ted Pedersen & Bridget McInnes\n";
 }
 
