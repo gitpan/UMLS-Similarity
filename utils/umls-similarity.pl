@@ -547,9 +547,7 @@ sub calculateSimilarity {
 	    #  already cuis then just add them to the mapping arrays
 	    else {	    
 		if($input1=~/^C[0-9][0-9][0-9][0-9][0-9][0-9][0-9]$/) {
-		    if($umls->exists($input1)) {
-			push @c1, $input1;
-		    }
+		    push @c1, $input1;
 		    $cui_flag1 = 1;
 		}
 		elsif($measure=~/lesk|vector/) { 
@@ -561,9 +559,7 @@ sub calculateSimilarity {
 		
 		#  check if input2 contains cuis
 		if($input2=~/^C[0-9][0-9][0-9][0-9][0-9][0-9][0-9]$/) {
-		    if($umls->exists($input2)) {
-			push @c2, $input2;
-		    }
+		    push @c2, $input2;
 		    $cui_flag2 = 1;
 		}
 		elsif($measure=~/lesk|vector/) { 
@@ -583,7 +579,7 @@ sub calculateSimilarity {
 		my @ts2 = $umls->getAllPreferredTerm($input2);
 		($t2) = @ts2;
 	    }
-	    
+
 	    #  get the similarity between the concepts 
 	    foreach my $cc1 (@c1) {
 		foreach my $cc2 (@c2) {
@@ -1471,7 +1467,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.84 2011/01/13 14:41:50 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.85 2011/01/14 19:31:01 btmcinnes Exp $';
     print "\nCopyright (c) 2008-2011, Ted Pedersen & Bridget McInnes\n";
 }
 

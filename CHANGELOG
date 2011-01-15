@@ -1,6 +1,11 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 0.93 to 0.95
+    1. modified the check to see if a concept exists when using the vector
+    or lesk measure - it was checking the existence based on the SAB/REL
+    parameters rather than the SABDEF/RELDEF
+
   Changes from version 0.91 to 0.93
     1. updated the --metamap option in create-icfrequency.pl to require the
     year (version) of metamap that is being used in order to call it on the
