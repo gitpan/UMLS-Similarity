@@ -118,8 +118,8 @@ sub getRelatedness
     my $D = $interface->depth();
     my $score = log( $l * ($D-$lcs_depth) + 2 ) / log(2);    
     
-    
     return $score;
+    #return (1/$score);
 }
 
 

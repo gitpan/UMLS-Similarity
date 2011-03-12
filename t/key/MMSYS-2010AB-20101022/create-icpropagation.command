@@ -1,9 +1,8 @@
 Default Settings:
-  --term
+  No default settings
 
 User Settings:
-  No user defined settings
-
+  --smooth
 
 
 UMLS-Interface Configuration Information:
@@ -21,6 +20,9 @@ UMLS-Interface Configuration Information:
      UMLS_ALL
 
 PathFinder User Options:
-   --realtime option set
+  --realtime option set
 
+
+ICFinder User Options:
+  --smooth
 

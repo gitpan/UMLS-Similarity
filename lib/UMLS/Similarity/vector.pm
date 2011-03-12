@@ -51,7 +51,7 @@ use UMLS::Similarity::ErrorHandler;
 
 
 use vars qw($VERSION);
-$VERSION = '0.09';
+$VERSION = '0.11';
 
 my $debug        = 0;
 my $defraw_option= 0;
@@ -263,7 +263,7 @@ sub getRelatedness
 	{	
 	    my $defs1 = $interface->getExtendedDefinition($concept1);
 	    if(defined $debugfile) {
-		print DEBUG "DEFINITIONS FOR $concept1: \n";
+		print DEBUG "DEFINITIONS FOR CONCEPT 1 $concept1: \n";
 	    }
 	    my $i = 1;
 	    foreach my $def (@{$defs1}) {
@@ -285,7 +285,7 @@ sub getRelatedness
 	{
 	    my $defs2 = $interface->getExtendedDefinition($concept2);
 	    if(defined $debugfile) {
-		print DEBUG "DEFINITIONS FOR $concept2: \n";
+		print DEBUG "DEFINITIONS FOR CONCEPT 2 $concept2: \n";
 	    }
 	    my $i = 1;
 	    foreach my $def (@{$defs2}) {
@@ -317,7 +317,7 @@ sub getRelatedness
 	my @dictfile_term1;
 	my @dictfile_term2;
 	
-	if(defined $debugfile) { print DEBUG "DEFINITIONS FOR CUI 1: $concept1\n"; }
+	if(defined $debugfile) { print DEBUG "DEFINITIONS FOR CONCEPT 1: $concept1\n"; }
 
 	# the input format is cui#term	
 	if($concept1 =~ /^(C[0-9]+)(\#)(.*?)$/)
@@ -346,6 +346,8 @@ sub getRelatedness
 	    
 	    $d1 .= $term1_def . " " if $term1_def ne ""; 
 
+=comment
+		# check the if the cui's assoicated terms are defined in the dictfile
 		@dictfile_term1 = $interface->getTermList($cui1);			
 		foreach my $t (@dictfile_term1)
 		{
@@ -355,19 +357,20 @@ sub getRelatedness
 				$d1 .= "$term1_def" . " ";
 			}
 		}
-	    
+=cut	    
+
 	    if(defined $debugfile)
 	    {
-		print DEBUG "$i. $term1_def\n" if (defined $term1_def);
+			print DEBUG "$i. $term1_def\n" if (defined $term1_def);
 	    }
 	    
 	    #if the definition is empty, return -1
 	    if ($d1 eq "") 
 	    {
-		return -1;
+			return -1;
 	    }
 	}
-	else #the input file is term 
+	else #the input concept is a term 
 	{
 	    if (defined $dictionary{$concept1}) {
 		$d1 = $dictionary{$concept1};
@@ -382,7 +385,7 @@ sub getRelatedness
 		return -1; }
 	}
 	
-	if(defined $debugfile) { print DEBUG "DEFINITIONS FOR CUI 2: $concept2\n"; }
+	if(defined $debugfile) { print DEBUG "DEFINITIONS FOR CONCEPT 2: $concept2\n"; }
 	
 	if($concept2 =~ /^(C[0-9]+)(\#)(.*?)$/)
 	{
@@ -409,7 +412,9 @@ sub getRelatedness
 	    }	   
 	    
 	    $d2 .= $term2_def . " " if $term2_def ne ""; 
-	    
+	   
+=comment 
+		# check the if the cui's assoicated terms are defined in the dictfile
 		@dictfile_term2 = $interface->getTermList($cui2);			
 		foreach my $t (@dictfile_term2)
 		{
@@ -419,16 +424,16 @@ sub getRelatedness
 				$d2 .= "$term2_def" . " ";
 			}
 		}
-
+=cut
 	    if(defined $debugfile)
 	    {
-		print DEBUG "$i. $term2_def\n" if (defined $term2_def);
+			print DEBUG "$i. $term2_def\n" if (defined $term2_def);
 	    }
 	    
 	    #if the definition is empty, return -1
 	    if ($d2 eq "") 
 	    {
-		return -1;
+			return -1;
 	    }
 	}
 	else
@@ -445,26 +450,6 @@ sub getRelatedness
 	}
 	
     } #end of defined --dictfile option
-
-    # if --stopword option is set remove stop words
-    if (defined $stoplist) 
-    {
-	my @def1 = split(/\s/, $d1);	
-	my @def2 = split(/\s/, $d2);	
-	my @new_def1 = ();
-	my @new_def2 = ();
-	foreach my $w (@def1) {
-	    if (!($w =~ /$stopregex/)) {
-		push (@new_def1, $w);}
-	}
-	foreach my $w (@def2) {
-	    if (!($w =~ /$stopregex/)) {
-		push (@new_def2, $w);}
-	}
-	
-	$d1 = join (" ", @new_def1);	
-	$d2 = join (" ", @new_def2);	
-    }
 
 
 	# if define --doubledef option
@@ -502,21 +487,18 @@ sub getRelatedness
 				$d2 .= "$def" . " ";
 			}
 		}		
+
+		if (defined $debugfile)
+		{
+			print DEBUG "after --doubledef processing\n";
+			print DEBUG "concept 1: $d1\n";
+			print DEBUG "concept 2: $d2\n";
+		}
+
+
 	} #end of defined --doubledef option
-    
-
-
-    if(defined $stem) 
-    {
-	my @def_words1 = split(/\s/, $d1);
-	my $stemmed_words1 = Lingua::Stem::En::stem({ -words => \@def_words1, -locale => 'en'});
-	$d1 = join(" ", @{$stemmed_words1});
-	
-	my @def_words2 = split(/\s/, $d2);
-	my $stemmed_words2 = Lingua::Stem::En::stem({ -words => \@def_words2, -locale => 'en'});
-	$d2 = join(" ", @{$stemmed_words2});
-    }
-    
+   
+ 
     #  if the --defraw option is not set clean up the defintions
     if($defraw_option == 0) {
 	$d1 = lc($d1); $d2 = lc($d2);
@@ -524,15 +506,76 @@ sub getRelatedness
 	# remove punctuation doesn't contain '<' and '>' and '_'    
 	$d1=~s/[\.\,\?\/\'\"\;\:\[\]\{\}\!\@\#\$\%\^\&\*\(\)\-\+\-\=]//g;
 	$d2=~s/[\.\,\?\/\'\"\;\:\[\]\{\}\!\@\#\$\%\^\&\*\(\)\-\+\-\=]//g;
+
+	if (defined $debugfile)
+	{
+		print DEBUG "after --defraw processing\n";
+		print DEBUG "concept 1: $d1\n";
+		print DEBUG "concept 2: $d2\n";
+	}
     }
    
 
+	# find compound words
 	if(defined $compoundfile)
 	{
 		$d1 = findCompoundWord($d1, \%complist);
 		$d2 = findCompoundWord($d2, \%complist);
+		if (defined $debugfile)
+		{
+			print DEBUG "after --compoundfile processing\n";
+			print DEBUG "concept 1: $d1\n";
+			print DEBUG "concept 2: $d2\n";
+		}
 	}
 
+
+    # if --stopword option is set remove stop words
+    if (defined $stoplist) 
+    {
+	my @def1 = split(/\s/, $d1);	
+	my @def2 = split(/\s/, $d2);	
+	my @new_def1 = ();
+	my @new_def2 = ();
+	foreach my $w (@def1) {
+	    if (!($w =~ /$stopregex/)) {
+		push (@new_def1, $w);}
+	}
+	foreach my $w (@def2) {
+	    if (!($w =~ /$stopregex/)) {
+		push (@new_def2, $w);}
+	}
+	
+	$d1 = join (" ", @new_def1);	
+	$d2 = join (" ", @new_def2);	
+
+	if (defined $debugfile)
+	{
+		print DEBUG "after --stoplist processing\n";
+		print DEBUG "concept 1: $d1\n";
+		print DEBUG "concept 2: $d2\n";
+	}
+    } #end of stoplist option
+
+
+    if(defined $stem) 
+    {
+		my @def_words1 = split(/\s/, $d1);
+		my $stemmed_words1 = Lingua::Stem::En::stem({ -words => \@def_words1, -locale => 'en'});
+		$d1 = join(" ", @{$stemmed_words1});
+		
+		my @def_words2 = split(/\s/, $d2);
+		my $stemmed_words2 = Lingua::Stem::En::stem({ -words => \@def_words2, -locale => 'en'});
+		$d2 = join(" ", @{$stemmed_words2});
+
+		if (defined $debugfile)
+		{
+			print DEBUG "after --stem processing\n";
+			print DEBUG "concept 1: $d1\n";
+			print DEBUG "concept 2: $d2\n";
+		}
+    }
+    
 
     open(MATX, "<$vectormatrix")
         or die("Error: cannot open file '$vectormatrix' for output index.\n");
@@ -544,8 +587,7 @@ sub getRelatedness
    
     my $def1_length = 0 ;
     
-    foreach my $def_term1 (@defs1)
-    {
+    foreach my $def_term1 (@defs1){
 	if (defined $index{$def_term1})
 	{
 	    my $index_term = $index{$def_term1};
@@ -554,53 +596,54 @@ sub getRelatedness
 	    
 	    if (($p==0) and (!defined $l))
 	    {
-		next;
+			next;
 	    }
 	    else
 	    {
-		$def1_length++;
-		
-		my ($data, $n);
-		seek MATX, $p, 0;
-		if (($n = read MATX, $data, $l) != 0)
-		{
-		    if (defined $debugfile) {
-			print DEBUG "$def_term1: ";
-		    }
-		    
-		    chomp($data);
-		    my @word_vector = split (' ', $data);
-		    my $index = shift @word_vector;
-		    $index =~ m/^(\d+)\:$/;
-		    
-		    if ($index_term == $1)
-		    {
-			for (my $z=0; $z<@word_vector; )
-			{
-			    $vector1{$word_vector[$z]} += $word_vector[$z+1];
-			    $z += 2;
-			    
-			    if (defined $debugfile) { 
-				if(defined $word_vector[$z]) {
-				    print DEBUG "$reverse_index{$word_vector[$z]} ";
-				}
-			    } 	
-			    
-			}
+			$def1_length++;
 			
-			if (defined $debugfile) {
-			    print DEBUG "\n";
-			} 	
-		    }
-		    else 
-		    {
-			print STDERR "$def_term1 is not a correct word!\n";
-			exit;
-		    }
-		}	
+			my ($data, $n);
+			seek MATX, $p, 0;
+			if (($n = read MATX, $data, $l) != 0)
+			{
+				if (defined $debugfile) {
+				print DEBUG "$def_term1: ";
+				}
+				
+				chomp($data);
+				my @word_vector = split (' ', $data);
+				my $index = shift @word_vector;
+				$index =~ m/^(\d+)\:$/;
+				
+				if ($index_term == $1)
+				{
+					for (my $z=0; $z<@word_vector; )
+					{
+						$vector1{$word_vector[$z]} += $word_vector[$z+1];
+						
+						if (defined $debugfile) { 
+						if(defined $word_vector[$z]) {
+							print DEBUG "$reverse_index{$word_vector[$z]} ";
+						}
+						} 	
+					
+						$z += 2;
+					}
+				
+					if (defined $debugfile) 
+					{
+						print DEBUG "\n";
+					} 	
+				}
+				else 
+				{
+					print STDERR "$def_term1 is not a correct word!\n";
+					exit;
+				}
+			}	
 	    }
 	}
-    }
+    } # end of def1
     
     if (defined $debugfile) {
 	print DEBUG "def1 length: $def1_length\n";
@@ -641,12 +684,13 @@ sub getRelatedness
                   	for (my $z=0; $z<@word_vector; )
                     {
 			    		$vector2{$word_vector[$z]} += $word_vector[$z+1];
-			    		$z += 2;
 			    
 			    		if (defined $debugfile) {
 						if(defined $word_vector[$z]) {
 				    	print DEBUG "$reverse_index{$word_vector[$z]} "; }
 			    		} 	
+
+			    		$z += 2;
                     }
 			
 					if (defined $debugfile) {
@@ -1039,7 +1083,9 @@ is under the samples folder which is called stoplist-nsp.regex.
 
 This is a flag for the vector measure. If we the --stem flag
 is set, the words of the definition are stemmed by the the Porter Stemming
-algorithm.  
+algorithm. If this option is used, the original text should be stemmed too. 
+Otherwise, the stemmed words cannot find the its corresponding index in the 
+index file.  
 
 =head1 USAGE
 

@@ -302,17 +302,15 @@ my $pearsons = $numerator / $denominator;
 
 my $score = sprintf $floatformat, $pearsons;
 
-if(defined $opt_N) { 
-    my $yN= $ytotal - $ynegative;
-    my $xN= $xtotal - $xnegative; 
-    my $N = $yN;
-    if($xN < $yN){ $N = $xN; }
+#  calculate N
+my $yN= $ytotal - $ynegative;
+my $xN= $xtotal - $xnegative; 
+my $N = $yN;
+if($xN < $yN){ $N = $xN; }
 
-    print "Spearman's Rank Correlation: $score (N: $N)\n"; 
-}
-else {
-        print "Spearman's Rank Correlation: $score\n"; 
-}
+print "Spearman's Rank Correlation: $score "; 
+if(defined $opt_N)     { print "(N: $N) "; }
+print "\n";
 
 ##############################################################################
 #  function to output minimal usage notes
@@ -350,7 +348,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: spearmans.pl,v 1.7 2011/01/06 16:09:00 btmcinnes Exp $';
+    print '$Id: spearmans.pl,v 1.8 2011/03/11 22:23:37 btmcinnes Exp $';
     print "\nCopyright (c) 2009-2011, Ted Pedersen & Bridget McInnes\n";
 }
 

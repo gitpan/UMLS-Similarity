@@ -19,12 +19,12 @@ UMLS-Interface Configuration Information
     CHD
     PAR
   Database: 
-    umls (MMSYS-2010AA-20100427)
+    umls (MMSYS-2010AB-20101022)
 
 
 
 PathFinder User Options:
-   --realtime option set
+  --realtime option set
 
 
 0.5217<>hand(C0018563)<>skull(C0037303)

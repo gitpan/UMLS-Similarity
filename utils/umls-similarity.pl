@@ -524,8 +524,7 @@ sub calculateSimilarity {
 	    #  will take the terms as input - don't map them to cuis in the umls. 
 	    #  the definitions used by these measures are coming from the dictfile
 	    #  not the umls therefore the actual terms are required by the measures.
-	    if( ($measure=~/(lesk|vector)/) && 
-		(defined $opt_dictfile) ) {
+	    if( ($measure=~/(lesk|vector)/) && (defined $opt_dictfile) ) {
 		if( (defined $opt_dictfile) && (defined $opt_config) ) {
 		    
 		    if($input1=~/C[0-9]+/) { push @c1, $input1; }
@@ -533,9 +532,13 @@ sub calculateSimilarity {
 
 		    if($input2=~/C[0-9]+/) { push @c2, $input2; }
 		    else { @c2 = $umls->getDefConceptList($input2); }
-		    
+		    		    
 		    for my $i (0..$#c1) { $c1[$i] .= "#$input1"; } 
 		    for my $i (0..$#c2) { $c2[$i] .= "#$input2"; } 
+
+		    if($#c1 < 0) { push @c1, $input1; }
+		    if($#c2 < 0) { push @c2, $input2; }
+		    
 		    
 		}
 		else {
@@ -1467,7 +1470,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.85 2011/01/14 19:31:01 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.87 2011/03/11 22:55:32 btmcinnes Exp $';
     print "\nCopyright (c) 2008-2011, Ted Pedersen & Bridget McInnes\n";
 }
 

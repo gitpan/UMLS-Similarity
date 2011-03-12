@@ -49,7 +49,7 @@ use Lingua::Stem::En;
 use UMLS::Similarity::ErrorHandler;
 
 use vars qw($VERSION);
-$VERSION = '0.05';
+$VERSION = '0.07';
 
 my $compoundfile = ""; 
 my $debugfile  = ""; 
@@ -236,7 +236,7 @@ sub getRelatedness
 	{
 		my $defs1 = $interface->getExtendedDefinition($concept1);
 		if(defined $debugfile) { 
-		print DEBUG "DEFINITIONS FOR $concept1: \n"; 
+		print DEBUG "DEFINITIONS FOR CONCEPT 1: $concept1 \n"; 
 		}
 		my $i = 1;
 		foreach my $def (@{$defs1}) {
@@ -245,7 +245,7 @@ sub getRelatedness
 		$i++;
 		}
 		$def=~/(C[0-9]+) ([A-Za-z]+) ([A-Za-z0-9]+) ([A-Za-z0-9\.]+) \s*\:\s*(.*?)$/;
-		$def1 .= $5 . " " . "<stop>" . " "; 
+		$def1 .= $5 . " " . "definitionstop" . " "; 
 		}
 
 		#if the definition is empty, return -1;
@@ -258,7 +258,7 @@ sub getRelatedness
 	{
 		my $defs2 = $interface->getExtendedDefinition($concept2);
 		if(defined $debugfile) { 
-		print DEBUG "DEFINITIONS FOR $concept2: \n"; 
+		print DEBUG "DEFINITIONS FOR CONCEPT 2: $concept2 \n"; 
 		}
 		my $i = 1;
 		foreach my $def (@{$defs2}) {
@@ -267,7 +267,7 @@ sub getRelatedness
 		$i++;
 		}
 		$def=~/(C[0-9]+) ([A-Za-z]+) ([A-Za-z0-9]+) ([A-Za-z0-9\.]+) \s*\:\s*(.*?)$/;
-		$def2 .= $5 . " " . "<stop>" . " "; 
+		$def2 .= $5 . " " . "definitionstop" . " "; 
 		}
 
 		#if the definition is empty, return -1;
@@ -293,9 +293,12 @@ sub getRelatedness
 	{
 		my $cui1 = $1; 
 		$term1 = $3;
+
 		$defs1 = $interface->getExtendedDefinition($cui1);
 		$term1_def = $dictionary{$term1} if (defined $dictionary{$term1});
 
+=comment
+		# check the cui's associated term's def in dictfile
 		@dictfile_term1 = $interface->getTermList($cui1);		
 		foreach my $t (@dictfile_term1)
 		{
@@ -305,13 +308,13 @@ sub getRelatedness
 				$def1 .= "$term1_def" . " ";
 			}	
 		}
+=cut
+
 	}
 	else
 	{
 		if (defined $dictionary{$concept1}) {
 		$term1_def = $dictionary{$concept1}; 
-		if (defined $debugfile) {
-		print DEBUG "$concept1: $term1_def\n"; }
 		}
 		else{ 
 		if (defined $debugfile) {
@@ -323,9 +326,12 @@ sub getRelatedness
 	{
 		my $cui2 = $1; 
 		$term2 = $3;
+
 		$defs2 = $interface->getExtendedDefinition($cui2);
 		$term2_def = $dictionary{$term2} if (defined $dictionary{$term2});
 
+=comment
+		# check the cui's associated term's def in dictfile
 		@dictfile_term2 = $interface->getTermList($cui2);		
 		foreach my $t (@dictfile_term2)
 		{
@@ -335,13 +341,13 @@ sub getRelatedness
 				$def2 .= "$term2_def" . " ";
 			}	
 		}
+=cut
+
 	}
 	else
 	{
 		if (defined $dictionary{$concept2}) {
 		$term2_def = $dictionary{$concept2}; 
-		if (defined $debugfile) {
-		print DEBUG "$concept2: $term2_def\n"; }
 		}
 		else{ 
 		if (defined $debugfile) {
@@ -350,7 +356,7 @@ sub getRelatedness
 	}	
 
 	#  if debug setting is on print out definition one information
-	if(defined $debugfile) { print DEBUG "DEFINITIONS FOR $concept1: \n"; }
+	if(defined $debugfile) { print DEBUG "DEFINITIONS FOR CONCEPT 1: $concept1 \n"; }
 
 	#  set up the definition string - note the format is:
 	#  CUI REL CUI SAB : <definition>
@@ -361,7 +367,7 @@ sub getRelatedness
 		$i++;
 	    }
 	    $def=~/(C[0-9]+) ([A-Za-z]+) ([A-Za-z0-9]+) ([A-Za-z0-9\.]+) \s*\:\s*(.*?)$/;
-	    $def1 .= $5 . " " . "<stop>" . " "; 
+	    $def1 .= $5 . " " . "definitionstop" . " "; 
 	}
 	if(defined $term1_def)
 	{
@@ -379,7 +385,7 @@ sub getRelatedness
 	}
 
 	#  if debug setting is on print out definition two information
-	if(defined $debugfile) { print DEBUG "DEFINITIONS FOR $concept2: \n"; }
+	if(defined $debugfile) { print DEBUG "DEFINITIONS FOR CONCEPT 2: $concept2 \n"; }
 	
 	#  set up the definition string - note the format is:
 	#  CUI REL CUI SAB : <definition>
@@ -390,7 +396,7 @@ sub getRelatedness
 		$j++;
 	    }
 	    $def=~/(C[0-9]+) ([A-Za-z]+) ([A-Za-z0-9]+) ([A-Za-z0-9\.]+) \s*\:\s*(.*?)$/;
-	    $def2 .= $5 . " " . "<stop>" . " "; 
+	    $def2 .= $5 . " " . "definitionstop" . " "; 
 	}
 	if(defined $term2_def)
 	{
@@ -409,35 +415,7 @@ sub getRelatedness
 
     } # end of WITH --dictfile option
 
-	if (defined $stoplist)
-	{
-		my @d1 = split(/\s/, $def1);
-		my @d2 = split(/\s/, $def2);
-		my $new_def1 = "";
-		my $new_def2 = "";
-	
-		foreach my $check (@d1)
-		{
-			if(!($check =~ /$stopregex/))
-			{
-				$new_def1 .= "$check ";		
-			}
-		}		
-			
-		foreach my $check (@d2)
-		{
-			if(!($check =~ /$stopregex/))
-			{
-				$new_def2 .= "$check ";		
-			}
-		}		
 
-		$def1 = $new_def1;
-		$def2 = $new_def2;
-	}
-
-
- 	# if define --doubledef option
     if (defined $doubledef)
     {
         my @def1_array = split(/\s/, $def1);
@@ -472,28 +450,80 @@ sub getRelatedness
                 $def2 .= "$def" . " ";
             }
         }
+
+		if (defined $debugfile)
+		{
+			print DEBUG "after --doubledef processing\n";
+			print DEBUG "concept 1: $def1\n";
+			print DEBUG "concept 2: $def2\n";
+		}
     } #end of defined --doubledef option
 
-    #  if the --defraw option is not set clean up the defintions
-    if($defraw_option == 0) { 
-	$def1 = lc($def1); $def2 = lc($def2);
 
-	# remove punctuation doesn't contain '<' and '>'	
-	$def1=~s/[\.\,\?\/\'\"\;\:\[\]\{\}\!\@\#\$\%\^\&\*\(\)\-\_\+\-\=]//g;
-	$def2=~s/[\.\,\?\/\'\"\;\:\[\]\{\}\!\@\#\$\%\^\&\*\(\)\-\_\+\-\=]//g;
+    #  if the --defraw option is not set clean up the defintions
+    if($defraw_option == 0) 
+	{ 
+		$def1 = lc($def1); $def2 = lc($def2);
+
+		# remove punctuation doesn't contain '<' and '>'	
+		$def1=~s/[\.\,\?\/\'\"\;\:\[\]\{\}\!\@\#\$\%\^\&\*\(\)\-\_\+\-\=]//g;
+		$def2=~s/[\.\,\?\/\'\"\;\:\[\]\{\}\!\@\#\$\%\^\&\*\(\)\-\_\+\-\=]//g;
 	
+		if (defined $debugfile)
+		{
+			print DEBUG "after --defraw processing\n";
+			print DEBUG "concept 1: $def1\n";
+			print DEBUG "concept 2: $def2\n";
+		}
     }
+
 	
 	if(defined $compoundfile)
     {
         $def1 = findCompoundWord($def1, \%complist);
         $def2 = findCompoundWord($def2, \%complist);
+		if (defined $debugfile)
+		{
+			print DEBUG "after --compoundfile processing\n";
+			print DEBUG "concept 1: $def1\n";
+			print DEBUG "concept 2: $def2\n";
+		}
     }
+
 	
 	# remove stop words
-	my $overlaps = "";
-	my $len1 = 0;
-	my $len2 = 0;
+	if (defined $stoplist)
+	{
+		my @d1 = split(/\s/, $def1);
+		my @d2 = split(/\s/, $def2);
+		my $new_def1 = "";
+		my $new_def2 = "";
+	
+		foreach my $check (@d1)
+		{
+			if(!($check =~ /$stopregex/))
+			{
+				$new_def1 .= "$check ";		
+			}
+		}		
+			
+		foreach my $check (@d2)
+		{
+			if(!($check =~ /$stopregex/))
+			{
+				$new_def2 .= "$check ";		
+			}
+		}		
+
+		$def1 = $new_def1;
+		$def2 = $new_def2;
+		if (defined $debugfile)
+		{
+			print DEBUG "after --stoplist processing\n";
+			print DEBUG "concept 1: $def1\n";
+			print DEBUG "concept 2: $def2\n";
+		}
+	}
 
 
 	if (defined $stem)
@@ -503,14 +533,21 @@ sub getRelatedness
 		my $stemmed_words1 = Lingua::Stem::En::stem({ -words => \@def1_words, -locale => 'en'});	
 		my $stemmed_words2 = Lingua::Stem::En::stem({ -words => \@def2_words, -locale => 'en'});	
 
-		my $stem1 = join(" ", @{$stemmed_words1});
-		my $stem2 = join(" ", @{$stemmed_words2});
+		$def1 = join(" ", @{$stemmed_words1});
+		$def2 = join(" ", @{$stemmed_words2});
 
-		$def1 = $stem1;
-		$def2 = $stem2;
+		if (defined $debugfile)
+		{
+			print DEBUG "after --stem processing\n";
+			print DEBUG "concept 1: $def1\n";
+			print DEBUG "concept 2: $def2\n";
+		}
 	}
 	
    	#  find the overlap
+	my $overlaps = "";
+	my $len1 = 0;
+	my $len2 = 0;
    	($overlaps, $len1, $len2) = $finder->getOverlaps($def1, $def2);
 
 
@@ -529,19 +566,21 @@ sub getRelatedness
 		my $value = 0;
 
 
-		if ($overlap =~ /\<stop\>/)
+		if ($overlap =~ /definitionstop/)
 		{ 
 	   		my @array = split/\s+/, $overlap;
 			my $array_length = $#array + 1;
 			my $i = 0;
+			my $overlap_string = "";
 			foreach my $s (@array)
 			{
 				$i++;
-				if ($s !~ /\<stop\>/) # count the length of the overlap 
+				if ($s !~ /definitionstop/) # count the length of the overlap 
 				{
 					$length++;			
+					$overlap_string .= "$s ";
 	 			}
-				if (($s =~ /\<stop\>/) and ($length<$array_length) and ($length > 0)) # <stop> in the middle of the overlap
+				if (($s =~ /definitionstop/) and ($length<$array_length) and ($length > 0)) # definitionstop in the middle of the overlap
 				{
 					$num = $overlaps->{$overlap};
 					$value = $num * ($length**2);
@@ -549,23 +588,26 @@ sub getRelatedness
 					$length = 0;
 					if (defined $debugfile)
 					{
-						print DEBUG "$overlap $value\n";
+						print DEBUG "$overlap_string $value\n";
 					}
+					$overlap_string = "";
 				}
-				if (($s =~ /\<stop\>/) and ($length==0)) # <stop> at the beginning of the overlap
+				if (($s =~ /definitionstop/) and ($length==0)) # definitionstop at the beginning of the overlap
 				{
 					next;
 				}
-				if (($s !~ /\<stop\>/) and ($i==$array_length)) # reach the end of the overlap  
+				if (($s !~ /definitionstop/) and ($i==$array_length)) # reach the end of the overlap  
 				{
+					$overlap_string .= "$s ";
 					$num = $overlaps->{$overlap};
 					$value = $num * ($length**2);
 					$score += $value;
 					$length = 0;
 					if (defined $debugfile)
 					{
-						print DEBUG "$overlap $value\n";
+						print DEBUG "$overlap_string $value\n";
 					}
+					$overlap_string = "";
 				}
 			}
 		}

@@ -1,6 +1,13 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 0.95 to 0.97
+    1. updated the --debugfile option print out the concept's definition
+    after --dbouledef, --compoundfile, --stoplist, --defraw, --stem options.
+
+    2. fix the bug when use --dictfile and --config together, if a word is
+    not in UMLS, it will check the dictfile.
+
   Changes from version 0.93 to 0.95
     1. modified the check to see if a concept exists when using the vector
     or lesk measure - it was checking the existence based on the SAB/REL
