@@ -128,8 +128,6 @@ method described by Leacock and Chodorow (1998).
 
 =head1 SYNOPSIS
 
-  #!/usr/bin/perl
-
   use UMLS::Interface;
   use UMLS::Similarity::lch;
 

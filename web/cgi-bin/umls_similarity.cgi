@@ -2,13 +2,13 @@
 
 use strict;
 
-# where do we connect to the Similarity server?  Here:
+# where do we connect to the Similarity server? 
 # note I put in my local host information just to give you an idea.
 # you should add your own though if you are using another server
 # you need to change the $remote_host and the $doc_base
-my $remote_host = '127.0.0.1';
+my $remote_host = 'localhost';
 my $remote_port = '31135';
-my $doc_base = 'http://localhost/umls_similarity';
+my $doc_base = '/umls_similarity/';
 
 use CGI;
 use Socket;
@@ -152,6 +152,7 @@ elsif ($word1 and $word2) {
     }
 
     my $gloss      = $cgi->param ('gloss') ? 'yes' : 'no';
+    my $path       = $cgi->param ('path') ? 'yes' : 'no';
     my $all_senses = $cgi->param ('sense') ? 1 : 0;
 
     # terminate all messages with CRLF (best to avoid \r\n because the
@@ -164,12 +165,7 @@ elsif ($word1 and $word2) {
     if($word2=~/C[0-9]+/) { 
 	print Server "t|$word2|\015\012";
     }
-
-    #  get the definitions of the possible CUIs of the words or the CUIs 
-    #  themselves depending on what was entered
-    print Server "g|$word1|\015\012";
-    print Server "g|$word2|\015\012";
-
+    
     #  now get their similarity
     if ($measure eq 'all' && $button eq "Compute Similarity") {
 	foreach my $m (qw/path wup lch res lin jcn random cdist nam/) { 
@@ -180,22 +176,36 @@ elsif ($word1 and $word2) {
     }
     elsif ($measure eq 'all' && $button eq "Compute Relatendess") {
 	foreach my $m (qw/vector lesk/) { 
-	    print Server +("r|$word1|$word2|$m|$sab|$rel|", 
+	    print Server +("r|$word1|$word2|$button|$m|$sab|$rel|", 
 			   "\015\012");
 	}
-	print Server "\015\012";
+
     }
     else {
-	print Server ("r|$word1|$word2|$measure|$sab|$rel|",
-		      "\015\012\015\012");
+	print Server ("r|$word1|$word2|$button|$measure|$sab|$rel|",
+		      "\015\012");
     }
 
+    #  get the path information if the similarity button is clicked
+    if($button eq "Compute Similarity") { 
+	print Server "p|$word1|$word2|\015\012";
+    }
+
+    #  get the definitions of the possible CUIs of the words or the CUIs 
+    #  themselves depending on what was entered
+    print Server "g|$button|$word1|\015\012";
+    print Server "g|$button|$word2|\015\012";
+
+    print Server "\015\012";
     
-    my %terms   = ();
-    my %cuis    = ();
-    my %scores  = ();
-    my @glosses = ();
-    my @errors  = ();;
+    my %terms    = ();
+    my %cuis     = ();
+    my %scores   = ();
+    my %paths    = ();
+    my @glosses  = ();
+    my @errors   = ();
+
+    my $pathflag = 0;
 
     my @version_info;
     my $lines = 0;
@@ -219,11 +229,27 @@ elsif ($word1 and $word2) {
 	}
 	elsif($beginning eq 't') { 
 	    my ($cui, $word) = split/\s+/, $end;
+	    $word=~s/_/ /g;
 	    $terms{$cui} = $word;
 	}
 	elsif ($beginning eq 'g') {
 	    my ($wps, @gloss_words) = split /\s+/, $end;
 	    push @glosses, [$wps, substr ($end, length ($wps))];
+	}
+	elsif($beginning eq 'p') { 
+	    my @array = split/\|/, $end;
+	    my $i = 0;
+	    while($i <= $#array) {
+		
+		my $c1 = $array[$i]; $i++;
+		my $c2 = $array[$i]; $i++;
+		my $p  = $array[$i]; $i++;
+		if($c1=~/^\s*$/) { next; }
+		if($c2=~/^\s*$/) { next; }
+		push @{$paths{"$c1|$c2"}}, $p;
+		$pathflag = 1; 
+	    }
+	    
 	}
 	elsif ($beginning eq 'v') {
 	    my ($package, $version) = split /\s+/, $end;
@@ -237,176 +263,215 @@ elsif ($word1 and $word2) {
     
     my $query_string = $ENV{QUERY_STRING} || "";
     # replace literal ampersands with their XML entity equivalents
-	$query_string =~ s/&/&amp;/g;
+    $query_string =~ s/&/&amp;/g;
 
-	if (scalar @version_info) {
-	    foreach my $item (@version_info) {
-		print "<p>$item->[0] version $item->[1]</p>\n";
-	    }
-	    goto SHOW_END;
+    if (scalar @version_info) {
+	foreach my $item (@version_info) {
+	    print "<p>$item->[0] version $item->[1]</p>\n";
 	}
-
-	# show errors, if any
-	if (scalar @errors) {
-	    unless ($cgi->param ('errors') eq 'show') {
-		my $query = $query_string . '&amp;errors=show';
-		my $url = "umls_similarity.cgi?${query}";
-
-		# Having onclick return false should keep the browser from
-		# loading the page specified by href, but IE loads it
-		# anyways.  That's why we set href to # instead of the
-		# URL (setting it to the URL would let non-JavaScript
-		# browsers see the page in the main window, but such
-		# browsers are rare)
-		print +("<p>",
-			"<a href=\"#\" ",
-			"onclick=\"showWindow ('$url', 'Errors'); return false;\">View errors</a>",
-			'</p>',
-			"\n");
-	    }
-	    else {
-		print '<h2>Warnings/Errors:</h2>';
-	
-		print '<p class="errors">';
-		my $parity = 0;
-		foreach (0..$#errors) {
-		    my $color = $parity ? $text_color1 : $text_color2;
-		    print "<div style=\"color: $color\">$errors[$_]</div>";
-		    $parity = !$parity;
-		}
-		print "</p>\n";
-
-		goto SHOW_END;
-	    }
-	}
-
-	# show glosses, if any
-	if ($gloss eq 'yes') {
-	    my $parity = 0;
-	    if (scalar @glosses) {
-	    	print '<h2>Definitions:</h2>';
-	    	print '<p class="gloss">';
-
-	    	print "<dl>";
-	    	foreach my $ref (@glosses) {
-		    my $cui = $ref->[0];
-		    my $word = $cuis{$cui};
-		    my @defs = split/\|/, $ref->[1];
-		    
-		    if($word=~/C[0-9]/) { 
-			$word = $terms{$word};
-		    }
-	    	    print "<dt>$word ($cui) </dt>";
-		    foreach my $def (@defs) { 
-			print "<dd>$def</dd>";
-		    }
-	    	}
-	    	print "</dl>\n";
-	    }
-	    else {
-		print "<p>Sorry, no glosses were found.</p>\n";
-	    }
-	    goto SHOW_END;
-	}
-	else {
-	    my $query = $query_string . '&amp;gloss=yes';
+	goto SHOW_END;
+    }
+    
+    # show errors, if any
+    if (scalar @errors) {
+	unless ($cgi->param ('errors') eq 'show') {
+	    my $query = $query_string . '&amp;errors=show';
 	    my $url = "umls_similarity.cgi?${query}";
-
-	    print +('<p>',
+	    
+	    # Having onclick return false should keep the browser from
+	    # loading the page specified by href, but IE loads it
+	    # anyways.  That's why we set href to # instead of the
+	    # URL (setting it to the URL would let non-JavaScript
+	    # browsers see the page in the main window, but such
+	    # browsers are rare)
+	    print +("<p>",
 		    "<a href=\"#\" ",
-		    "onclick=\"showWindow ('$url', 'Glosses'); return false;\">",
-                    "View Definitions</a>",
+		    "onclick=\"showWindow ('$url', 'Errors'); return false;\">View errors</a>",
 		    '</p>',
 		    "\n");
 	}
-
-	if ($all_senses) {
-	    print '<h2>Results:</h2>' if scalar keys %scores;
-	    print '<table class="results" border="1">';
-	    print '<tr><th>Measure</th><th>Term 1</th><th>Term 2</th><th>Score</th>';
-	    print "</tr>\n";
-	    foreach my $m (keys %scores) {
-		my @scrs = sort {$b->[0] <=> $a->[0]} @{$scores{$m}};
-		foreach (@scrs) {
-		    my $wps1 = $_->[1];
-		    $wps1 =~ s/\#/%23/g;
-		    my $wps2 = $_->[2];
-		    $wps2 =~ s/\#/%23/g;
-
-		    print "<tr><td>$m</td>";
-		    print "<td><a href=\"#\" onclick=\"showWindow ('umls_wps.cgi?wps=$wps1', ''); return false;\">$_->[1]</a></td>";
-		    print "<td><a href=\"#\" onclick=\"showWindow ('umls_wps.cgi?wps=$wps2', ''); return false;\">$_->[2]</a></td>";
-		    print "<td>$_->[0]</td>";
-		    print "</tr>\n";
+	else {
+	    print '<h2>Warnings/Errors:</h2>';
+	    
+	    print '<p class="errors">';
+	    my $parity = 0;
+	    foreach (0..$#errors) {
+		my $color = $parity ? $text_color1 : $text_color2;
+		print "<div style=\"color: $color\">$errors[$_]</div>";
+		$parity = !$parity;
+	    }
+	    print "</p>\n";
+	    
+	    goto SHOW_END;
+	}
+    }
+    
+    # show glosses, if any
+    if ($gloss eq 'yes') {
+	my $parity = 0;
+	if (scalar @glosses) {
+	    print '<h2>Definitions:</h2>';
+	    print '<p class="gloss">';
+	    
+	    print "<dl>";
+	    foreach my $ref (@glosses) {
+		my $cui = $ref->[0];
+		my $word = $cuis{$cui};
+		my @defs = split/\|/, $ref->[1];
+		if($word=~/C[0-9]/) { 
+		    $word = $terms{$word};
+		}
+		print "<dt>$word ($cui) </dt>";
+		foreach my $def (@defs) { 
+		    print "<dd>$def</dd>";
 		}
 	    }
-
-	    print "</table>\n";
+	    print "</dl>\n";
 	}
 	else {
-	    my $query = $query_string;
-
-	    # remove from the query string options that we don't want
-	    $query =~ s/(?:&amp;)sense=yes//;
-	    $query =~ s/(?:&amp;)?trace=yes//;
-	    # now add the option we do want
-	    $query .= '&amp;sense=yes';
-
-	    # prepare two query strings--one without traces and one with
-	    my $url_nt = "umls_similarity.cgi?${query}"; # 'nt' means 'no trace'
-	    my $url_trace = $url_nt . '&amp;trace=yes';
-
-	    goto SHOW_END unless scalar keys %scores;
-
-	    print '<h2>Results:</h2>';
-
-	    foreach my $m (keys %scores) {
-		my $good = $scores{$m}->[0];
-		foreach my $i (1..$#{$scores{$m}}) {
-		    if ($scores{$m}->[$i]->[0] > $good->[0]) {
-			$good = $scores{$m}->[$i];
+	    print "<p>Sorry, no definitions were found.</p>\n";
+	    }
+	goto SHOW_END;
+    }
+    else {
+	my $query = $query_string . '&amp;gloss=yes';
+	my $url = "umls_similarity.cgi?${query}";
+	
+	print +('<p>',
+		    "<a href=\"#\" ",
+		"onclick=\"showWindow ('$url', 'Glosses'); return false;\">",
+		"View Definitions</a>",
+		'</p>',
+		"\n");
+    }
+    
+    
+    # show path information if similarity is desired, if any
+    if($button eq "Compute Similarity") {
+	if ($path eq 'yes') {
+	    my $parity = 0;
+	    if($pathflag > 0) { 
+	    	print '<h2>Shortest Path Information</h2>';
+	    	print '<p class="path">';
+		
+	    	print "<dl>";
+		foreach my $item (sort keys %paths) { 
+		    if($item=~/^\s*$/) { next; }
+		    my ($c1, $c2) = split/\|/, $item;
+		    print "The shortest path between $c1 and $c2 is:<br>";
+		    foreach my $p (@{$paths{$item}}) { 
+			print "  <dd>$p</dd><br>";
 		    }
+		 
 		}
-		my $wps1 = $good->[1];
+		
+	    	print "</dl>\n";
+	    }
+	    else {
+		print "<p>Sorry, no path information was found.</p>\n";
+	    }
+	    goto SHOW_END;
+	}
+	else {
+	    my $query = $query_string . '&amp;path=yes';
+	    my $url = "umls_similarity.cgi?${query}";
+	    
+	    print +('<p>',
+		    "<a href=\"#\" ",
+		    "onclick=\"showWindow ('$url', 'Shortest Path'); return false;\">",
+                    "View Shortest Path</a>",
+		    '</p>',
+		    "\n");
+	}
+    }
+    
+    if ($all_senses) {
+	print '<h2>Results:</h2>' if scalar keys %scores;
+	print '<table class="results" border="1">';
+	print '<tr><th>Measure</th><th>Term 1</th><th>Term 2</th><th>Score</th>';
+	print "</tr>\n";
+	foreach my $m (keys %scores) {
+	    my @scrs = sort {$b->[0] <=> $a->[0]} @{$scores{$m}};
+	    foreach (@scrs) {
+		my $wps1 = $_->[1];
 		$wps1 =~ s/\#/%23/g;
-		my $wps2 = $good->[2];
+		my $wps2 = $_->[2];
 		$wps2 =~ s/\#/%23/g;
 		
-		my $term1 = $word1;
-		my $term2 = $word2;
-		if($word1=~/C[0-9]+/) { $term1 = $terms{$word1}; }
-		if($word2=~/C[0-9]+/) { $term2 = $terms{$word2}; }
-		
-		if($m=~/lesk|vector/) { 
-		    print +("\n<p class=\"results\">",
-			    "The relatedness of $term1 (",
-			    "<a href=\"#\" onclick=\"showWindow ('umls_wps.cgi?wps=$wps1', ''); return false;\">$good->[1]</a> ",
-			    ") and $term2 (<a href=\"#\" onclick=\"showWindow ('umls_wps.cgi?wps=$wps2', ''); return false;\">$good->[2]</a> ",
-			    ") using $measurehash{$m} ($m) is $good->[0].",
-			    "</p>\nUsing:",
-			    "<p>&nbsp&nbsp&nbsp SABDEF :: include $sab</p>",
-			    "<p>&nbsp&nbsp&nbsp RELDEF :: include $rel</p>");
-		}
-		else {
-		    print +("\n<p class=\"results\">",
-			    "The similarity of $term1 (",
-			    "<a href=\"#\" onclick=\"showWindow ('umls_wps.cgi?wps=$wps1', ''); return false;\">$good->[1]</a> ",
-			    ") and $term2 (<a href=\"#\" onclick=\"showWindow ('umls_wps.cgi?wps=$wps2', ''); return false;\">$good->[2]</a> ",
-			    ") using $measurehash{$m} ($m) is $good->[0].",
-			    "</p>\nUsing:",
-			    "<p>&nbsp&nbsp&nbsp SAB :: include $sab</p>",
-			    "<p>&nbsp&nbsp&nbsp REL :: include $rel</p>");
+		print "<tr><td>$m</td>";
+		print "<td><a href=\"#\" onclick=\"showWindow ('umls_wps.cgi?wps=$wps1', ''); return false;\">$_->[1]</a></td>";
+		print "<td><a href=\"#\" onclick=\"showWindow ('umls_wps.cgi?wps=$wps2', ''); return false;\">$_->[2]</a></td>";
+		print "<td>$_->[0]</td>";
+		print "</tr>\n";
+	    }
+	}
+	
+	print "</table>\n";
+    }
+    else {
+	my $query = $query_string;
+	
+	# remove from the query string options that we don't want
+	$query =~ s/(?:&amp;)sense=yes//;
+	$query =~ s/(?:&amp;)?trace=yes//;
+	# now add the option we do want
+	$query .= '&amp;sense=yes';
+	
+	# prepare two query strings--one without traces and one with
+	my $url_nt = "umls_similarity.cgi?${query}"; # 'nt' means 'no trace'
+	my $url_trace = $url_nt . '&amp;trace=yes';
+	
+	goto SHOW_END unless scalar keys %scores;
+	
+	print '<h2>Results:</h2>';
+	
+	foreach my $m (keys %scores) {
+	    my $good = $scores{$m}->[0];
+	    foreach my $i (1..$#{$scores{$m}}) {
+		if ($scores{$m}->[$i]->[0] > $good->[0]) {
+		    $good = $scores{$m}->[$i];
 		}
 	    }
-
-	    print +("<p><a href=\"#\" ",
-                    "onclick=\"showWindow ('$url_nt', 'All senses'); return false\">",
-		    "View relatedness of all possible senses</a></p>\n");
+	    my $wps1 = $good->[1];
+	    $wps1 =~ s/\#/%23/g;
+	    my $wps2 = $good->[2];
+	    $wps2 =~ s/\#/%23/g;
+	    
+	    my $term1 = $word1;
+	    my $term2 = $word2;
+	    if($word1=~/C[0-9]+/) { $term1 = $terms{$word1}; }
+	    if($word2=~/C[0-9]+/) { $term2 = $terms{$word2}; }
+	    
+	    if($m=~/lesk|vector/) { 
+		print +("\n<p class=\"results\">",
+			"The relatedness of $term1 (",
+			"<a href=\"#\" onclick=\"showWindow ('umls_wps.cgi?wps=$wps1', ''); return false;\">$good->[1]</a> ",
+			") and $term2 (<a href=\"#\" onclick=\"showWindow ('umls_wps.cgi?wps=$wps2', ''); return false;\">$good->[2]</a> ",
+			") using $measurehash{$m} ($m) is $good->[0].",
+			"</p>\nUsing:",
+			"<p>&nbsp&nbsp&nbsp SABDEF :: include $sab</p>",
+			"<p>&nbsp&nbsp&nbsp RELDEF :: include $rel</p>");
+	    }
+	    else {
+		print +("\n<p class=\"results\">",
+			"The similarity of $term1 (",
+			"<a href=\"#\" onclick=\"showWindow ('umls_wps.cgi?wps=$wps1|$button', ''); return false;\">$good->[1]</a> ",
+			") and $term2 (<a href=\"#\" onclick=\"showWindow ('umls_wps.cgi?wps=$wps2|$button', ''); return false;\">$good->[2]</a> ",
+			") using $measurehash{$m} ($m) is $good->[0].",
+			"</p>\nUsing:",
+			"<p>&nbsp&nbsp&nbsp SAB :: include $sab</p>",
+			"<p>&nbsp&nbsp&nbsp REL :: include $rel</p>");
+	    }
 	}
-
-    SHOW_END:
-	print "<hr />";
-	close Server;
+	
+	print +("<p><a href=\"#\" ",
+		"onclick=\"showWindow ('$url_nt', 'All senses'); return false\">",
+		"View relatedness of all possible senses</a></p>\n");
+    }
+    
+  SHOW_END:
+    print "<hr />";
+    close Server;
     
 }
 
@@ -487,9 +552,14 @@ sub showPageStart
        alt="" /></a>
    </div>
 
-  <h1>UMLS::Similarity</h1>
-  <p>Read an overview of
-    <a href="http://search.cpan.org/dist/UMLS-Similarity/">UMLS::Similarity</a>.
+  <h1>UMLS::Similarity Web Interface</h1>
+  <!-- <p><a href="http://search.cpan.org/dist/UMLS-Similarity/">UMLS::Similarity</a> -->
+  UMLS::Similarity 
+  is a freely available open source software package that can be used to obtain the 
+  similarity or relatedness between two biomedical terms from the 
+  <a href="http://www.nlm.nih.gov/research/umls/">Unified Medical Language System</a>
+  (UMLS). Please note, the link to the UMLS::Similarity package is severed at this time 
+  for the purpose of anonymity. 
   </p>
 
 EOINTRO
@@ -506,16 +576,20 @@ sub showForm ($$$$$$$$$)
     my $action = 'umls_similarity.cgi';
 
     print <<"EOFORM1";
-  <p>You may enter any two terms or CUIs below. If terms are entered, then 
-      the relatedness or similarity of possible CUIs will be computed and 
-      the pair with the highest score returned. 
-
+  <p>DIRECTIONS: You may enter any two terms or 
+      <a href="$doc_base/faq.html">Concept Unique Identifiers</a> (CUIs) below. 
+      If terms are entered, then the relatedness or similarity of the possible 
+      CUIs will be computed and the pair with the highest score returned. 
+      <a href="$doc_base/faq.html">The difference between similarity and 
+      relatedness is ....</a>
   <p>
-     <a href="$doc_base/instructions.html">More instructions.</a>
+     <a href="$doc_base/instructions.html">Detailed instructions.</a>
      <br>
      <a href="$doc_base/similarity_measures.html">About the Similarity Measures.</a>
      <br>
      <a href="$doc_base/relatedness_measures.html">About the Relatedness Measures.</a>
+     <br>
+
      </p>
   <form action="$action" method="get" id="queryform" onreset="formReset()">
   <p>
@@ -590,15 +664,16 @@ EOT
     print '<select name="similarity" id="similaritypull" ',
     'onchange="similarityChanged();">', "\n";
     my @similarity = (['all', 'Use All Similarity Measures'],
-		      ['path', 'Path Length'],
-		      ['lch', 'Leacock &amp; Chodorow'],
-		      ['wup', 'Wu &amp; Palmer'], 
-		      ['res', 'Resnik'],
-		      ['lin', 'Lin'],
-		      ['jcn', 'Jiang &amp Conrath'],
-		      ['cdist','Conceptual Distance'],
-		      ['nam', 'Nguyen &amp Al-Mubaid'],
-		      ['random', 'Random Measure']);
+		      ['cdist','Conceptual Distance (cdist)'],
+		      ['jcn', 'Jiang &amp Conrath (jcn)'],
+		      ['lch', 'Leacock &amp; Chodorow (lch)'],
+		      ['lin', 'Lin (lin)'],
+		      ['nam', 'Nguyen &amp Al-Mubaid (nam)'],
+		      ['path', 'Path Length (path)'],
+		      ['random', 'Random Measure (random)'],
+		      ['res', 'Resnik (res)'],
+		      ['wup', 'Wu &amp; Palmer (wup)']
+	);
     
     foreach (@similarity) {
 	my $selected = $_->[0] eq $arg3 ? 'selected="selected"' : '';
@@ -646,8 +721,8 @@ EOFORM
     print '<select name="relatedness" id="relatednesspull" ',
       'onchange="relatednessChanged();">', "\n";
     my @relatednesss = (['all', 'Use All Relatedness Measures'],
-			['lesk', 'Adapted Lesk'],
-			['vector', 'Vector Measure']);
+			['lesk', 'Adapted Lesk (lesk)'],
+			['vector', 'Vector Measure (vector)']);
     
     foreach (@relatednesss) {
 	my $selected = $_->[0] eq $arg8 ? 'selected="selected"' : '';
@@ -679,8 +754,8 @@ print <<'ENDOFPAGE';
 <div class="footer">
 This interface is based on the 
 <a href="http://wn-similarity.sourceforge.net">WordNet::Similarity web interface</a>
-<br />Created by Ted Pedersen and Jason Michelizzi and Bridget T. McInnes
-<br />E-mail: bthomson (at) umn (dot) edu 
+<!-- <br />Created by Ted Pedersen and Jason Michelizzi and Bridget T. McInnes -->
+<!-- <br />E-mail: bthomson (at) umn (dot) edu -->
 </div>
 </body>
 </html>

@@ -1,5 +1,5 @@
 # UMLS::Similarity::ErrorHandler
-# (Last Updated $Id: ErrorHandler.pm,v 1.10 2011/01/06 16:09:00 btmcinnes Exp $)
+# (Last Updated $Id: ErrorHandler.pm,v 1.11 2011/04/01 14:17:29 btmcinnes Exp $)
 #
 # Perl module that provides a perl interface to the
 # Unified Medical Language System (UMLS)
@@ -210,7 +210,7 @@ __END__
 
 =head1 NAME
 
-UMLS::Similarity::ErrorHandler - provides the error 
+UMLS::Similarity::ErrorHandler - Provides the error 
 handling of the configuration files for the measures 
 in the UMLS-Similarity package.
 

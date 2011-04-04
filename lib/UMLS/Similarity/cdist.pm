@@ -123,8 +123,6 @@ of concepts in the UMLS by simple edge counting proposed by Rada, et. al.
 
 =head1 SYNOPSIS
 
-  #!/usr/bin/perl
-
   use UMLS::Interface;
 
   use UMLS::Similarity::cdist;

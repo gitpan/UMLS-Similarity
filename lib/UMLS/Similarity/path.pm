@@ -111,8 +111,6 @@ of concepts in the UMLS by simple edge counting.
 
 =head1 SYNOPSIS
 
-  #!/usr/bin/perl
-
   use UMLS::Interface;
   use UMLS::Similarity::path;
 

@@ -1,6 +1,14 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 0.97 to 0.99
+    1. modified the umls_similarity_server.pl program to account for spaces
+    in the preferred term when a CUI is entered
+
+    2. modified the umls_similarity_server.pl program to include showing the
+    shortest path between the concepts and their definitions if they exist
+    in the view of the UMLS that is specified at the SAB.
+
   Changes from version 0.95 to 0.97
     1. updated the --debugfile option print out the concept's definition
     after --dbouledef, --compoundfile, --stoplist, --defraw, --stem options.

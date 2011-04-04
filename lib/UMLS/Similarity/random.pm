@@ -96,8 +96,6 @@ by assigning a random number between zero and one as the similarity score.
 
 =head1 SYNOPSIS
 
-  #!/usr/bin/perl
-
   use UMLS::Interface;
   use UMLS::Similarity::random;
 

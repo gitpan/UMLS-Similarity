@@ -138,8 +138,6 @@ relatednessof concepts in the Unified Medical Language System
 
 =head1 SYNOPSIS
 
-  #!/usr/bin/perl
-
   use UMLS::Interface;
   use UMLS::Similarity::lin;
 

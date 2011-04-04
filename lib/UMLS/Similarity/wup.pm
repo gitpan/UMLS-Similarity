@@ -148,8 +148,6 @@ method described by Wu and Palmer (1994).
 
 =head1 SYNOPSIS
 
-  #!/usr/bin/perl
-
   use UMLS::Interface;
   use UMLS::Similarity::wup;
 

@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # umls_similarity_server.pl version 0.01
-# (Last updated $Id: umls_similarity_server.pl,v 1.6 2011/01/06 16:09:00 btmcinnes Exp $)
+# (Last updated $Id: umls_similarity_server.pl,v 1.10 2011/04/04 18:14:58 btmcinnes Exp $)
 #
 # ---------------------------------------------------------------------
 
@@ -14,7 +14,7 @@ use UMLS::Similarity;
 use POSIX ':sys_wait_h';  # for waitpid() and friends; used by reaper()
 use POSIX qw(setsid);     # to daemonize
 
-my $doc_base = '/var/www/similarity';
+my $doc_base = '/var/www/umls_similarity';
 
 # Get the command-line options
 our($opt_port, $opt_logfile, $opt_maxchild, $opt_stoplist, $opt_version, $opt_help);
@@ -86,6 +86,7 @@ print STDERR "Loading modules... ";
 
 # prototypes:
 sub getAllForms ($ $);
+sub getAllDefForms ($ $);
 sub getlock ();
 sub releaselock ();
 sub timestamp ($);
@@ -240,13 +241,18 @@ while((my $client = $socket->accept) or $interrupted)
 	    $preferred = "UMLS_ROOT";
 	}
 	else {
-	    $preferred = $interface->getPreferredTerm($cui); 
+	    $preferred = $interface->getAllPreferredTerm($cui); 
 	}
 	
+        $preferred=~s/\s+/ /g;
+        $preferred=~s/^\s+//g;
+        $preferred=~s/\s+$//g;
+        $preferred=~s/\s/_/g;
+
 	print $client "t $cui $preferred\015\012";
     }
 
-    if($type eq 'v')
+    elsif($type eq 'v')
     {
       eval{
         # get version information
@@ -261,9 +267,9 @@ while((my $client = $socket->accept) or $interrupted)
     }
     elsif($type eq 'r')
     {
-	my (undef, $word1, $word2, $measure, $sab, $rel)= split /\|/, $request;
+	my (undef, $word1, $word2, $button, $measure, $sab, $rel)= split /\|/, $request;
 
-	print STDERR "$word1 $word2 $measure $sab $rel\n";
+	print STDERR "$word1 $word2 $button $measure $sab $rel\n";
 
 	&setInterface($sab, $rel, $measure);
 
@@ -290,14 +296,24 @@ while((my $client = $socket->accept) or $interrupted)
 	    goto EXIT_CHILD;
 	}
 	
-	my @wps1 = getAllForms($word1, $interface);
-	my @wps2 = getAllForms($word2, $interface);
+	my @wps1 = ();
+	my @wps2 = ();
+
+	if($button eq "Compute Similarity") { 
+	    @wps1 = getAllForms($word1, $interface);
+	    @wps2 = getAllForms($word2, $interface);
+	}
+	else { 
+	    @wps1 = getAllDefForms($word1, $interface);
+	    @wps2 = getAllDefForms($word2, $interface);
+	}
+
 	unless(scalar @wps1) {
-	    print $client "! $word1 was not found in UMLS\015\012";
+	    print $client "! $word1 was not found in $sab\015\012";
 	    goto EXIT_CHILD;
 	}
 	unless(scalar @wps2) {
-	    print $client "! $word2 was not found in UMLS\015\012";
+	    print $client "! $word2 was not found in $sab\015\012";
 	    goto EXIT_CHILD;
 	}
 	
@@ -319,15 +335,22 @@ while((my $client = $socket->accept) or $interrupted)
 	getlock;
     }
     elsif($type eq 'g') { 
-	
-	my (undef, $word) = split/\|/, $request;
-	
+
+	my (undef, $button, $word) = split/\|/, $request;
+
+	print STDERR "HERE ($button) g ($word)\n";	
 	my @cuis = ();
 	if($word =~/[Cc][0-9]+/) { 
 	    push @cuis, uc($word);
 	}
 	else {
-	    @cuis = getAllForms($word, $interface);
+	    if($button eq "Compute Similarity") { 
+		@cuis = getAllForms($word, $interface);
+	    }
+	    else { 
+		@cuis = getAllDefForms($word, $interface);
+	    }
+	    print STDERR "CUIS: @cuis\n";
 	}
 	foreach my $cui (@cuis) { 
 	    my @defs = $interface->getCuiDef($cui, 1);
@@ -340,6 +363,49 @@ while((my $client = $socket->accept) or $interrupted)
 	    print $client "g $cui $string\015\012";
 	    print STDERR "g $cui $string\n";
 	}
+    }
+    elsif($type eq 'p') { 
+	
+	my (undef, $word1, $word2) = split/\|/, $request;
+	
+	my @cuis1 = ();	
+	if($word1 =~/[Cc][0-9]+/) { 
+	    push @cuis1, uc($word1);
+	}
+	else {
+	    @cuis1 = getAllForms($word1, $interface);
+	}
+	
+	my @cuis2 = ();
+	if($word2 =~/[Cc][0-9]+/) { 
+	    push @cuis2, uc($word2);
+	}
+	else {
+	    @cuis2 = getAllForms($word2, $interface);
+	}
+
+	my $string = "";
+	foreach my $cui1 (@cuis1) { 
+	    my $t1 = $interface->getAllPreferredTerm($cui1);
+	    foreach my $cui2 (@cuis2) { 
+		my $t2 = $interface->getAllPreferredTerm($cui2);
+		my @paths = $interface->findShortestPath($cui1, $cui2);
+		foreach my $path (@paths) { 
+		    my @array = split/\s+/, $path;
+		    $string .= "$cui1 ($t1)|$cui2 ($t2)|";
+		    foreach my $i (0..$#array) {
+			my $concept = $array[$i];
+			my $t = $interface->getAllPreferredTerm($concept); 
+			$string.= "$concept ($t) => "; 
+		    }
+		    chop $string; chop $string; chop $string; chop $string;
+		    $string .= "|"
+		} 
+	    }
+	}
+	chop $string;
+	print $client "p $string\015\012";
+	print STDERR "p $string\n";
     }
     else
     {
@@ -407,17 +473,21 @@ sub setInterface {
 
     $interface = UMLS::Interface->new(\%option_hash);
 
-    $path   = UMLS::Similarity::path->new($interface);
-    $lch    = UMLS::Similarity::lch->new($interface);
-    $wup    = UMLS::Similarity::wup->new($interface);
-    $res    = UMLS::Similarity::res->new($interface);
-    $lin    = UMLS::Similarity::lin->new($interface);
-    $jcn    = UMLS::Similarity::jcn->new($interface);
-    $nam    = UMLS::Similarity::nam->new($interface);
-    $cdist  = UMLS::Similarity::cdist->new($interface);
-    $lesk   = UMLS::Similarity::lesk->new($interface);
-    $vector = UMLS::Similarity::vector->new($interface, \%vector_options);
-    $random = UMLS::Similarity::random->new($interface);
+    if($measure=~/path|lch|wup|res|lin|jcn|nam|cdist|random/) { 
+	$path   = UMLS::Similarity::path->new($interface);
+	$lch    = UMLS::Similarity::lch->new($interface);
+	$wup    = UMLS::Similarity::wup->new($interface);
+	$res    = UMLS::Similarity::res->new($interface);
+	$lin    = UMLS::Similarity::lin->new($interface);
+	$jcn    = UMLS::Similarity::jcn->new($interface);
+	$nam    = UMLS::Similarity::nam->new($interface);
+	$cdist  = UMLS::Similarity::cdist->new($interface);
+	$random = UMLS::Similarity::random->new($interface);
+    }
+    if($measure=~/lesk|vector/) { 
+	$lesk   = UMLS::Similarity::lesk->new($interface);
+	$vector = UMLS::Similarity::vector->new($interface, \%vector_options);
+    }
 
     @measures = ($path, $wup, $lch, $res, $lin, $jcn, $nam, $cdist, $lesk, $vector, $random);
 }
@@ -429,7 +499,7 @@ sub getCuis {
 
     # check if the string is a CUI just use it
     if($word =~ m/C[0-9]+/) { push @forms, $word; }
-
+    
     # otherwise find the CUIs
     else {
 	getlock;
@@ -447,21 +517,49 @@ sub getAllForms ($ $)
 {
     my $word = shift;
     my $umls = shift;
-
+    
+    print STDERR "In getAllForms ($word)\n";
     my @forms = ();
-
+    
     # check if the string is a CUI just use it
     if($word =~ m/[cC][0-9]+/) { $word = uc($word); push @forms, $word; }
-
+    
     # otherwise find the CUIs
     else {
 	getlock;
 	eval{@forms = $umls->getConceptList($word);};
+	print STDERR "Forms ($word) : @forms\n";
 	print(STDERR &timestamp("$@\n")) if($@);
 	releaselock;
 	return () unless scalar @forms;	 
     }
     #  return the forms
+    print STDERR "Returning Forms ($word) : @forms\n";
+    return @forms;
+}
+
+sub getAllDefForms ($ $)
+{
+    my $word = shift;
+    my $umls = shift;
+    
+    print STDERR "In getDefAllForms ($word)\n";
+    my @forms = ();
+    
+    # check if the string is a CUI just use it
+    if($word =~ m/[cC][0-9]+/) { $word = uc($word); push @forms, $word; }
+    
+    # otherwise find the CUIs
+    else {
+	getlock;
+	eval{@forms = $umls->getDefConceptList($word);};
+	print STDERR "Forms ($word) : @forms\n";
+	print(STDERR &timestamp("$@\n")) if($@);
+	releaselock;
+	return () unless scalar @forms;	 
+    }
+    #  return the forms
+    print STDERR "Returning Forms ($word) : @forms\n";
     return @forms;
 }
 

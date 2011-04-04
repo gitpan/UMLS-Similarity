@@ -8,7 +8,7 @@ use Socket;
 # note I put in my local host information just to give you an idea.
 # you should add your own though if you are using another server
 # you need to change the $remote_host and $doc_base
-my $remote_host = '127.0.0.1';
+my $remote_host = 'localhost';
 my $remote_port = 31135;
 my $doc_base = '/var/www/umls_similarity';
 
@@ -16,7 +16,10 @@ my $cgi = CGI->new;
 
 print $cgi->header;
 
-my $wps = $cgi->param ('wps') || 'undefined word';
+
+my $input = $cgi->param ('wps') || 'undefined word';
+
+my ($wps, $button) = split/\|/, $input;
 
 print <<"EOB";
 <?xml version="1.0" encoding="ISO-8859-1"?>
@@ -52,7 +55,8 @@ unless (connect (Server, $paddr)) {
 
 select ((select (Server), $|=1)[0]);
 
-print Server "g|$wps|\015\012";
+
+print Server "g|$button|$wps|\015\012";
 print Server "\015\012";
 
 while (my $line = <Server>) {

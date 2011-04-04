@@ -868,8 +868,6 @@ method described by Patwardhan and Pedersen (2006).
 
 =head1 SYNOPSIS
 
-  #!/usr/bin/perl
-
   use UMLS::Interface;
   use UMLS::Similarity::vector;
 
