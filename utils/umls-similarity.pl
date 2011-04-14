@@ -160,7 +160,6 @@ Unless the --matrix option is chosen then it is just a list of CUIS:
     cui3 
     ...
 
-
 =head3 --matrix
 
 This option returns a matrix of similarity scores given a file 
@@ -182,7 +181,6 @@ exist in the source.
 
 This option will print out the table information to the 
 config file that you specified.
-
 
 =head2 Database Options:
 
@@ -229,14 +227,13 @@ See create-icpropagation.pl for more information.
 
 =head3 --icfrequency FILE
 
-FILE containing frequency counts of CUIs. This file must be in the following 
-format: 
+FILE containing frequency counts of CUIs. This file must be in the 
+following format: 
 
-    CUI<>freq
+  CUI<>freq
 
-where freq is the frequency in which the concept occurred in some text. 
-
-See create-icfrequency.pl for more information.
+where freq is the frequency in which the concept occurred in some text. See 
+create-icfrequency.pl for more information.
 
 =head3 --smooth
 
@@ -247,6 +244,8 @@ of zero. The disadvantage is that it can shift the overall probability
 mass of the concepts from what is actually seen in the corpus. 
 
 This can only be used in conjunction with the --icfrequency options
+
+
 
 =head2 Vector Measure Options:
 
@@ -287,27 +286,27 @@ option.
 
 The expect format for the --dictfile file is:
 
-CUI: <definition>
-CUI: <definition>
-TERM: <definition> 
-TERM: <definition>
+  CUI: <definition>
+  CUI: <definition>
+  TERM: <definition> 
+  TERM: <definition>
 
 There are three different option configurations that you have with the
 --dictfile.
 
-1. No --dictfile - which will use the UMLS definitions
+  1. No --dictfile - which will use the UMLS definitions
 
-  umls-similarity.pl --measure lesk hand foot
+     umls-similarity.pl --measure lesk hand foot
 
-2. --dictfile - which will just use the dictfile definitions
+  2. --dictfile - which will just use the dictfile definitions
 
-  umls-similarity.pl --measure lesk --dictfile samples/dictfile hand foot
+     umls-similarity.pl --measure lesk --dictfile samples/dictfile hand foot
 
-3. --dictfile + --config - which will use both the UMLS and dictfile 
-definitions
+  3. --dictfile + --config - which will use both the UMLS and dictfile 
+     definitions
 
-  umls-similarity.pl --measure lesk --dictfile samples/dictfile --config
-  configuration hand foot
+     umls-similarity.pl --measure lesk --dictfile samples/dictfile --config
+     configuration hand foot
 
 Keep in mind, when using this file with the --config option, if 
 one of the CUIs or terms that you are obtaining the similarity 
@@ -325,18 +324,18 @@ cleaned.
 
 =head3 --stoplist FILE
 
-A file containing a list of words to be excluded from the features 
-in the lesk and vector method on a word by word basis. The format 
-required is one stopword per line, words are in the regular expression 
-format. For example:
+A file containing a list of words to be excluded from the features in 
+the lesk and vector method on a word by word basis. The format required 
+is one stopword per line, words are in the regular expression format. 
+For example:
 
-/\b[a-zA-Z]\b/
-/\b[aA]board\b/
-/\b[aA]bout\b/
-/\b[aA]bove\b/
-/\b[aA]cross\b/
-/\b[aA]fter\b/
-/\b[aA]gain\b/
+  /\b[a-zA-Z]\b/
+  /\b[aA]board\b/
+  /\b[aA]bout\b/
+  /\b[aA]bove\b/
+  /\b[aA]cross\b/
+  /\b[aA]fter\b/
+  /\b[aA]gain\b/
 
 The sample file, stoplist-nsp.regex, is under the samples directory.
 
@@ -443,7 +442,7 @@ eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "d
 my $debug = 0;
 
 #  if help is defined, print out help
-if( defined $opt_help ) {
+if( defined $opt_help ) {    
     $opt_help = 1;
     &showHelp();
     exit;
@@ -1470,7 +1469,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.87 2011/03/11 22:55:32 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.88 2011/04/11 19:39:35 btmcinnes Exp $';
     print "\nCopyright (c) 2008-2011, Ted Pedersen & Bridget McInnes\n";
 }
 

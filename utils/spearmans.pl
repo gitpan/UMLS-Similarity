@@ -23,16 +23,20 @@ score<>CUI1<>CUI2
 score<>CUI3<>CUI4
 ect ...
 
-This format is the output format of umls-similarity.pl
+The output format of umls-similarity.pl will work here because it 
+extracts the CUIs from the paranthesis, so no worries. If you are 
+not using the CUI format or a umls-similarity.pl output file though, 
+use the --word option described below. 
 
 =head2 Optional Arguments:
 
 
 Displays the quick summary of program options.
 
-=head3 --version
+=head3 --word
 
-Displays the version information.
+The format of the input files contains words rather than CUIs and/or 
+is not a umls-similarity.pl output file.
 
 =head3 --N 
 
@@ -42,7 +46,11 @@ that has a score greater than or equal to zero.
 
 =head3 --precision NUMBER
 
-Displays values up to NUMBER places of decimal.
+Displays values up to NUMBER places of decimal. Default is 4. 
+
+=head3 --version
+
+Displays the version information.
 
 =head1 OUTPUT
 
@@ -127,7 +135,7 @@ this program; if not, write to:
 
 use Getopt::Long;
 
-eval(GetOptions( "version", "help", "N", "precision=s")) or die ("Please check the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "word", "N", "precision=s")) or die ("Please check the above mentioned option(s).\n");
 
 #  if help is defined, print out help
 if( defined $opt_help ) {
@@ -193,11 +201,17 @@ while(<X>) {
     chomp;
     my ($score, $t1, $t2) = split/<>/;
     
-    $t1=~/(C[0-9]+)/;
-    $c1 = $1;
+    my $c1 = ""; my $c2 = "";
+    if(defined $opt_word) { 
+	$c1 = $t1; $c2 = $t2;
+    }
+    else {
+	$t1=~/(C[0-9]+)/;
+        $c1 = $1;
     
-    $t2=~/(C[0-9]+)/;
-    $c2 = $1;
+	$t2=~/(C[0-9]+)/;
+	$c2 = $1;
+    }
 
     $xtotal++;
     if($score < 0) { $xnegative++; next; }
@@ -210,12 +224,18 @@ while(<X>) {
 while(<Y>) {
     chomp;
     my ($score, $t1, $t2) = split/<>/;
+
+    my $c1 = ""; my $c2 = "";
+    if(defined $opt_word) { 
+	$c1 = $t1; $c2 = $t2;
+    }
+    else {
+	$t1=~/(C[0-9]+)/;
+	$c1 = $1;
     
-    $t1=~/(C[0-9]+)/;
-    $c1 = $1;
-    
-    $t2=~/(C[0-9]+)/;
-    $c2 = $1;
+	$t2=~/(C[0-9]+)/;
+	$c2 = $1;
+    }
 
     $ytotal++;
     if($score < 0) { $ynegative++; next; }
@@ -334,10 +354,16 @@ sub showHelp() {
 
     print "Options:\n\n";
 
-    print "--precision NUMBER       Displays values upto NUMBER places of decimal.\n\n";
+    print "--precision NUMBER       Displays values upto NUMBER places of \n";
+    print "                         decimal.\n\n";
+
     print "--N                      Prints the total number of term\n";
     print "                         pairs the correlation metric is\n";
     print "                         using.\n\n";
+
+    print "--word                   The format of the input files contains words \n";
+    print "                         rather than CUIs or is not a umls-similarity.pl \n";
+    print "                         output file. \n\n";
 
     print "--version                Prints the version number\n\n";
     
@@ -348,7 +374,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: spearmans.pl,v 1.8 2011/03/11 22:23:37 btmcinnes Exp $';
+    print '$Id: spearmans.pl,v 1.10 2011/04/08 20:12:52 btmcinnes Exp $';
     print "\nCopyright (c) 2009-2011, Ted Pedersen & Bridget McInnes\n";
 }
 

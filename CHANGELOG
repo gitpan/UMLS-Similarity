@@ -1,6 +1,11 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 0.99 to 1.01
+    1. Added a --word option to spearmans.pl to use for input files that do
+    not consist of CUIs and/or are not in the umls-similarity.pl output
+    format
+
   Changes from version 0.97 to 0.99
     1. modified the umls_similarity_server.pl program to account for spaces
     in the preferred term when a CUI is entered
