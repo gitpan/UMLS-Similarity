@@ -631,7 +631,7 @@ sub calculateSimilarity {
 	    #  print the matrix
 	    if(defined $opt_matrix) { print "$score "; }
 	    #  print all the concepts and their scores
-	    elsif(defined $opt_allsenses) {
+	    elsif( (defined $opt_allsenses) && ($cc1 ne "" or $cc2 ne "") ) {
 		foreach my $cc1 (sort keys %similarityHash) {
 		    foreach my $cc2 (sort keys %{$similarityHash{$cc1}}) {
 			if(defined $opt_dictfile)       { 
@@ -683,6 +683,8 @@ sub calculateSimilarity {
 			elsif($cuiflag1)         { print "$noscore<>$cc1($t1)<>$input2\n"; }
 			else                     { print "$noscore<>$t1($cc1)<>$input2\n"; }
 			if($opt_info)            { print "    => $input2 does not exist\n"; }
+
+			if(! defined $opt_allsenses) { last; }
 		    }
 		}
 		elsif($#c2 > -1) {
@@ -691,6 +693,8 @@ sub calculateSimilarity {
 			elsif($cuiflag1)         { print "$noscore<>$input1<>$cc2($t2)\n"; }
 			else                     { print "$noscore<>$input1<>$t2($cc2)\n"; }
 			if($opt_info)            { print "    => $input1 does not exist\n"; }
+
+			if(! defined $opt_allsenses) { last; }
 		    }
 		}
 		else {
@@ -1469,7 +1473,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.88 2011/04/11 19:39:35 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.89 2011/04/19 17:28:55 btmcinnes Exp $';
     print "\nCopyright (c) 2008-2011, Ted Pedersen & Bridget McInnes\n";
 }
 

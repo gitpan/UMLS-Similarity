@@ -1,6 +1,11 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 1.01 to 1.03
+    1. Fixed umls-similarity.pl - it was printing out all possible senses of
+    a term pair if one of the terms didn't exists. Now it just prints out
+    one unless the --allsenses option is used.
+
   Changes from version 0.99 to 1.01
     1. Added a --word option to spearmans.pl to use for input files that do
     not consist of CUIs and/or are not in the umls-similarity.pl output
