@@ -52,8 +52,10 @@ File::Path->remove_tree($outputfile);
 my $filekey    = File::Spec->catfile('t', 'key', $version, 'create-icfrequency.key');
 my $commandkey = File::Spec->catfile('t', 'key', $version, 'create-icfrequency.command');
 
-#  run the pgoram	
+#  run the program	
 my $commandline = `$perl $util_prg $outputfile $inputfile 2>&1`;
+
+print "$util_prg $outputfile $inputfile\n";
 
 #  check the output
 my $output = "";

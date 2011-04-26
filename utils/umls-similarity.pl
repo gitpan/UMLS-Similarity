@@ -512,8 +512,7 @@ sub calculateSimilarity {
 	
 	foreach $input2 (@secondary_array) {	
 
-	    my @c1 = ();
-	    my @c2 = ();
+	    my $c1 = undef; my $c2 = undef;
 	    
 	    my $cui_flag1 = 0;
 	    my $cui_flag2 = 0;
@@ -526,65 +525,65 @@ sub calculateSimilarity {
 	    if( ($measure=~/(lesk|vector)/) && (defined $opt_dictfile) ) {
 		if( (defined $opt_dictfile) && (defined $opt_config) ) {
 		    
-		    if($input1=~/C[0-9]+/) { push @c1, $input1; }
-		    else { @c1 = $umls->getDefConceptList($input1); }
+		    if($input1=~/C[0-9]+/) { push @{$c1}, $input1; }
+		    else { $c1 = $umls->getDefConceptList($input1); }
 
-		    if($input2=~/C[0-9]+/) { push @c2, $input2; }
-		    else { @c2 = $umls->getDefConceptList($input2); }
+		    if($input2=~/C[0-9]+/) { push @{$c2}, $input2; }
+		    else { $c2 = $umls->getDefConceptList($input2); }
 		    		    
-		    for my $i (0..$#c1) { $c1[$i] .= "#$input1"; } 
-		    for my $i (0..$#c2) { $c2[$i] .= "#$input2"; } 
+		    for my $i (0..$#{$c1}) { ${$c1}[$i] .= "#$input1"; } 
+		    for my $i (0..$#{$c2}) { ${$c2}[$i] .= "#$input2"; } 
 
-		    if($#c1 < 0) { push @c1, $input1; }
-		    if($#c2 < 0) { push @c2, $input2; }
+		    if($#{$c1} < 0) { push @{$c1}, $input1; }
+		    if($#{$c2} < 0) { push @{$c2}, $input2; }
 		    
 		    
 		}
 		else {
-		    push @c1, $input1;
-		    push @c2, $input2;
+		    push @{$c1}, $input1;
+		    push @{$c2}, $input2;
 		}
 	    }
 	    #  otherwise get the cuis for the input terms unless they are
 	    #  already cuis then just add them to the mapping arrays
 	    else {	    
 		if($input1=~/^C[0-9][0-9][0-9][0-9][0-9][0-9][0-9]$/) {
-		    push @c1, $input1;
+		    push @{$c1}, $input1;
 		    $cui_flag1 = 1;
 		}
 		elsif($measure=~/lesk|vector/) { 
-		    @c1 = $umls->getDefConceptList($input1); 
+		    $c1 = $umls->getDefConceptList($input1); 
 		}
 		else {
-		    @c1 = $umls->getConceptList($input1); 
+		    $c1 = $umls->getConceptList($input1); 
 		}
 		
 		#  check if input2 contains cuis
 		if($input2=~/^C[0-9][0-9][0-9][0-9][0-9][0-9][0-9]$/) {
-		    push @c2, $input2;
+		    push @{$c2}, $input2;
 		    $cui_flag2 = 1;
 		}
 		elsif($measure=~/lesk|vector/) { 
-		    @c2 = $umls->getDefConceptList($input2); 
+		    $c2 = $umls->getDefConceptList($input2); 
 		}
 		else {
-		    @c2 = $umls->getConceptList($input2); 
+		    $c2 = $umls->getConceptList($input2); 
 		}
 	    }
 	    
 	    my $t1 = $input1; my $t2 = $input2;	    
 	    if($cui_flag1) {
-		my @ts1 = $umls->getAllPreferredTerm($input1);
-		($t1) = @ts1;
+		my $ts1 = $umls->getAllPreferredTerm($input1);
+		($t1) = shift @{$ts1};
 	    }
 	    if($cui_flag2) {
-		my @ts2 = $umls->getAllPreferredTerm($input2);
-		($t2) = @ts2;
+		my $ts2 = $umls->getAllPreferredTerm($input2);
+		($t2) = shift @{$ts2};
 	    }
 
 	    #  get the similarity between the concepts 
-	    foreach my $cc1 (@c1) {
-		foreach my $cc2 (@c2) {
+	    foreach my $cc1 (@{$c1}) {
+		foreach my $cc2 (@{$c2}) {
 		    if(exists $similarityHash{$cc1}{$cc2}) { next; }
 		    if(exists $similarityHash{$cc2}{$cc1}) {
 			$similarityHash{$cc1}{$cc2} = $similarityHash{$cc2}{$cc1};
@@ -601,8 +600,8 @@ sub calculateSimilarity {
 	    #  find the minimum score
 	    my $max_cc1 = ""; my $max_cc2 = ""; my $max_score = -1;
 	    my $min_cc1 = ""; my $min_cc2 = ""; my $min_score = 999;
-	    foreach my $concept1 (@c1) { 
-		foreach my $concept2 (@c2) { 
+	    foreach my $concept1 (@{$c1}) { 
+		foreach my $concept2 (@{$c2}) { 
 		    if($max_score <= $similarityHash{$concept1}{$concept2}) {
 			$max_score = $similarityHash{$concept1}{$concept2};
 			$max_cc1 = $concept1;
@@ -1473,7 +1472,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.89 2011/04/19 17:28:55 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.90 2011/04/26 12:20:11 btmcinnes Exp $';
     print "\nCopyright (c) 2008-2011, Ted Pedersen & Bridget McInnes\n";
 }
 

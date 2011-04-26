@@ -316,9 +316,9 @@ sub getTermCounts {
 	    $term=~s/_/ /g;
 	}
 
-	my @cuis = $umls->getConceptList($term); 
+	my $cuis = $umls->getConceptList($term); 
 
-	foreach my $cui (@cuis) {
+	foreach my $cui (@{$cuis}) {
 	    if(exists ${$cuilist}{$cui}) {
 		${$cuilist}{$cui} += $freq;
 		$N += $freq;
@@ -593,7 +593,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: create-icfrequency.pl,v 1.13 2011/01/13 13:30:56 btmcinnes Exp $';
+    print '$Id: create-icfrequency.pl,v 1.14 2011/04/26 12:20:11 btmcinnes Exp $';
     print "\nCopyright (c) 2008-2011, Ted Pedersen & Bridget McInnes\n";
 }
 

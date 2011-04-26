@@ -98,11 +98,11 @@ sub getRelatedness
     }
     
     #  find the lcses
-    my @lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
+    my $lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
     
     #  get the minimum depth of the lowest lcs
     my $lcs_depth = -1;
-    foreach my $l (@lcses) {
+    foreach my $l (@{$lcses}) {
 	my $ldepth = $interface->findMinimumDepth($l);
 	if($lcs_depth == -1)     { $lcs_depth = $ldepth; }
 	elsif($ldepth < $lcs_depth) { $lcs_depth = $ldepth; }

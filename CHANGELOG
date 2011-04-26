@@ -1,6 +1,11 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 1.03 to 1.05
+    1. modified the .pm modules and umls-similarity.pl program to account
+    for the changes in the UMLS::Interface API which now passes all array
+    information back by reference.
+
   Changes from version 1.01 to 1.03
     1. Fixed umls-similarity.pl - it was printing out all possible senses of
     a term pair if one of the terms didn't exists. Now it just prints out

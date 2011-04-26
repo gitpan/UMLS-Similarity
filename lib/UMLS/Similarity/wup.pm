@@ -93,14 +93,14 @@ sub getRelatedness
     my $interface = $self->{'interface'};
     
     #  find the lcses of the two concepts
-    my @lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
+    my $lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
     
     #  if there aren't any return zero
-    if($#lcses < 0) { return -1; }
+    if($#{$lcses} < 0) { return -1; }
     
     #  get the depth of the lowest lcs
     my $lcs_depth = 0; my $lcs = "";
-    foreach my $l (@lcses) {
+    foreach my $l (@{$lcses}) {
 	my $depth  = $interface->findMaximumDepth($l);
 	if(defined $depth and $lcs_depth < $depth) { 
 	    $lcs_depth = $depth; $lcs = $l;

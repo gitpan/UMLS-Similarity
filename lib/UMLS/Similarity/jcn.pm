@@ -103,11 +103,11 @@ sub getRelatedness
     if($ic1 <= 0 or $ic2 <= 0) { return -1; }
 
     #  get the lcses of the concepts
-    my @lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
+    my $lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
     
     #  get the IC of the lcs with the lowest IC 
     my $iclcs = 0;
-    foreach my $lcs (@lcses) {
+    foreach my $lcs (@{$lcses}) {
 	my $value = $interface->getIC($lcs);
 	if($iclcs < $value) { $iclcs = $value; }
     }

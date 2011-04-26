@@ -89,11 +89,11 @@ sub getRelatedness
     my $interface = $self->{'interface'};
 
     #  get the lcses of the concepts
-    my @lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
+    my $lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
     
     #  get the ic of the lcs with the lowest ic score
     my $score = 0; my $l = "";
-    foreach my $lcs (@lcses) {
+    foreach my $lcs (@{$lcses}) {
 	my $value = $interface->getIC($lcs);
 	if($score < $value) { $score = $value; $l = $lcs; }
     }
