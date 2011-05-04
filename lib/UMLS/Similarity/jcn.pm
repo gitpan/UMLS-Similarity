@@ -53,12 +53,12 @@ my $debug = 0;
 sub new
 {
     my $className = shift;
-    
+    my $interface = shift;
+    my $params    = shift;
+
     return undef if(ref $className);
 
     if($debug) { print STDERR "In UMLS::Similarity::jcn->new()\n"; }
-
-    my $interface = shift;
 
     my $self = {};
      
@@ -75,6 +75,43 @@ sub new
 	exit;
     }
     
+    # set the propagation/frequency information
+    $interface->setPropagationParameters($params);
+    
+    #  if the icpropagation or icfrequency option is not 
+    #  defined set the default options for icpropagation
+    if( (!defined $params->{"icpropagation"}) &&
+	(!defined $params->{"icfrequency"}) ) {
+	
+	print STDERR "Setting default propagation file\n";
+
+	#  get the icfrequency file
+	my $icfrequency = ""; foreach my $path (@INC) {
+	    if(-e $path."/UMLS/icfrequency.default.dat") { 
+		$icfrequency = $path."/UMLS/icfrequency.default.dat";
+	    }
+	    elsif(-e $path."\\UMLS\\icfrequency.default.dat") { 
+		$icfrequency =  $path."\\UMLS\\icfrequency.default.dat";
+	    }
+	}
+	
+	#  set the cuilist
+	my $fhash = $interface->getCuiList();
+	
+	#  load the frequency counts
+	open(FILE, $icfrequency) || die "Could not open $icfrequency\n";
+	while(<FILE>) { 
+	    chomp;
+	    my ($cui, $freq) = split/<>/;
+	    if(exists ${$fhash}{$cui}) { 
+		${$fhash}{$cui} = $freq;
+	    }
+	}
+	
+	#  propagate the counts
+	my $phash = $interface->propagateCounts($fhash);
+    }
+
     return $self;
 }
 

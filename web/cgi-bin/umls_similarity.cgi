@@ -169,12 +169,12 @@ elsif ($word1 and $word2) {
     #  now get their similarity
     if ($measure eq 'all' && $button eq "Compute Similarity") {
 	foreach my $m (qw/path wup lch res lin jcn random cdist nam/) { 
-	    print Server +("r|$word1|$word2|$m|$sab|$rel|", 
+	    print Server +("r|$word1|$word2|$button|$m|$sab|$rel|", 
 			   "\015\012");
 	}
 	print Server "\015\012";
     }
-    elsif ($measure eq 'all' && $button eq "Compute Relatendess") {
+    elsif ($measure eq 'all' && $button eq "Compute Relatedness") {
 	foreach my $m (qw/vector lesk/) { 
 	    print Server +("r|$word1|$word2|$button|$m|$sab|$rel|", 
 			   "\015\012");
@@ -486,6 +486,10 @@ my $relatedness = 'vector';
 
 showForm (2, $word1, $word2, $measure, $sab, $rel, $sabdef, $reldef, $relatedness) unless $showform eq 'no';
 showPageEnd ();
+
+
+
+
 exit;
 
 # ========= subroutines =========
@@ -553,14 +557,13 @@ sub showPageStart
    </div>
 
   <h1>UMLS::Similarity Web Interface</h1>
-  <!-- <p><a href="http://search.cpan.org/dist/UMLS-Similarity/">UMLS::Similarity</a> -->
-  UMLS::Similarity 
+  <p><a href="http://search.cpan.org/dist/UMLS-Similarity/">UMLS::Similarity</a> 
   is a freely available open source software package that can be used to obtain the 
   similarity or relatedness between two biomedical terms from the 
   <a href="http://www.nlm.nih.gov/research/umls/">Unified Medical Language System</a>
-  (UMLS). Please note, the link to the UMLS::Similarity package is severed at this time 
-  for the purpose of anonymity. 
+  (UMLS). 
   </p>
+
 
 EOINTRO
 }
@@ -639,7 +642,8 @@ EOT
       'onchange="sabChanged();">', "\n";
     my @sabs = (['MSH', 'MSH'],
 		['FMA', 'FMA'],
-		['SNOMEDCT', 'SNOMEDCT']);
+		['OMIM', 'OMIM'],
+	  	['SNOMEDCT', 'SNOMEDCT']);
 
     foreach (@sabs) {
 	my $selected = $_->[0] eq $arg4 ? 'selected="selected"' : '';
@@ -738,7 +742,7 @@ EOFORM
 	<input type="reset" value="Clear" />
     </p>
   </form>
-
+  <br>
   <p><a href="umls_similarity.cgi?version=yes">Show version info</a></p>
 
 <hr />
@@ -752,10 +756,16 @@ sub showPageEnd
 
 print <<'ENDOFPAGE';
 <div class="footer">
+<table width="100%"><tbody><tr><td>
 This interface is based on the 
 <a href="http://wn-similarity.sourceforge.net">WordNet::Similarity web interface</a>
-<!-- <br />Created by Ted Pedersen and Jason Michelizzi and Bridget T. McInnes -->
-<!-- <br />E-mail: bthomson (at) umn (dot) edu -->
+<br />Created by Ted Pedersen and Jason Michelizzi and Bridget T. McInnes
+<br />E-mail: bthomson (at) umn (dot) edu
+<br>
+<td align="right"
+<a href="http://www2.clustrmaps.com/counter/maps.php?url=http://atlas.ahc.umn.edu/cgi-bin/umls_similarity.cgi" id="clustrMapsLink"><img src="http://www2.clustrmaps.com/counter/index2.php?url=http://atlas.ahc.umn.edu/cgi-bin/umls_similarity.cgi" style="border:0px;" alt="Locations of visitors to this page" title="Locations of visitors to this page" id="clustrMapsImg" onerror="this.onerror=null; this.src='http://clustrmaps.com/images/clustrmaps-back-soon.jpg'; document.getElementById('clustrMapsLink').href='http://clustrmaps.com';" />
+</a>
+</td></tbody></table>
 </div>
 </body>
 </html>

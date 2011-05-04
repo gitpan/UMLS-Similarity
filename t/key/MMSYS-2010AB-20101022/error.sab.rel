@@ -25,7 +25,6 @@ UMLS-Interface Configuration Information
 PathFinder User Options:
   --realtime option set
 
-
 ERROR: UMLS::Similarity->path
 Measure does not support the configuration option (Error Code 1).
 Option: (RELDEF).

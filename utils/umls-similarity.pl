@@ -573,14 +573,12 @@ sub calculateSimilarity {
 	    
 	    my $t1 = $input1; my $t2 = $input2;	    
 	    if($cui_flag1) {
-		my $ts1 = $umls->getAllPreferredTerm($input1);
-		($t1) = shift @{$ts1};
+		$t1 = $umls->getAllPreferredTerm($input1);
 	    }
 	    if($cui_flag2) {
-		my $ts2 = $umls->getAllPreferredTerm($input2);
-		($t2) = shift @{$ts2};
+		$t2 = $umls->getAllPreferredTerm($input2);
 	    }
-
+	    
 	    #  get the similarity between the concepts 
 	    foreach my $cc1 (@{$c1}) {
 		foreach my $cc2 (@{$c2}) {
@@ -859,21 +857,35 @@ sub loadMeasures {
 	use UMLS::Similarity::nam;
 	$meas = UMLS::Similarity::nam->new($umls);
     }
+    
+    my %icoptions = ();
+    if($measure=~/res|jcn|lin/) { 
+	if(defined $opt_icpropagation) {
+	    $icoptions{"icpropagation"} = $opt_icpropagation;
+	}
+	if(defined $opt_icfrequency) { 
+	    $icoptions{"icfrequency"} = $opt_icfrequency;
+	}
+	if(defined $opt_smooth) { 
+	    $icoptions{"smooth"} = $opt_smooth;
+	}
+    }
+
     #  load the module implementing the Resnik (1995) measure
     if($measure eq "res") {
 	use UMLS::Similarity::res;
-	$meas = UMLS::Similarity::res->new($umls);
+	$meas = UMLS::Similarity::res->new($umls, \%icoptions);
     }
     #  load the module implementing the Jiang and Conrath 
     #  (1997) measure
     if($measure eq "jcn") {
 	use UMLS::Similarity::jcn;
-	$meas = UMLS::Similarity::jcn->new($umls);
+	$meas = UMLS::Similarity::jcn->new($umls, \%icoptions);
     }
     #  load the module implementing the Lin (1998) measure
     if($measure eq "lin") {
 	use UMLS::Similarity::lin;
-	$meas = UMLS::Similarity::lin->new($umls);
+	$meas = UMLS::Similarity::lin->new($umls, \%icoptions);
     }
     #  load the module implementing the random measure
     if($measure eq "random") {
@@ -946,15 +958,6 @@ sub loadUMLS {
     if(defined $opt_verbose) {
 	$option_hash{"verbose"} = $opt_verbose;
     }
-    if(defined $opt_icpropagation) {
-	$option_hash{"icpropagation"} = $opt_icpropagation;
-    }
-    if(defined $opt_icfrequency) { 
-	$option_hash{"icfrequency"} = $opt_icfrequency;
-    }
-    if(defined $opt_smooth) { 
-	$option_hash{"smooth"} = $opt_smooth;
-    }
     if(defined $opt_undirected) { 
 	$option_hash{"undirected"} = $opt_undirected;
     }
@@ -992,28 +995,6 @@ sub checkOptions {
 	}   
     }
     
-    # make certain the db file is specified if the vector measure 
-    # is being used
-    if($opt_measure=~/vector/) {
-	if(! (defined $opt_vectorindex)) {
-	    print STDERR "The --vectorindex and --vectormatrix option must be\n";
-	    print STDERR "specified when using the vector measure. An example\n";
-	    print STDERR "of the matrix and index files can be seen in the \n";
-	    print STDERR "samples/ directory.\n\n";
-	    &minimalUsageNotes();
-	    exit;
-	}
-	if(! (defined $opt_vectormatrix)) {
-	    print STDERR "The --vectorindex and --vectormatrix option must be\n";
-	    print STDERR "specified when using the vector measure.An example\n";
-	    print STDERR "of the index and matrix files can be seen in the\n";
-	    print STDERR "samples/ directory. The vector-input.pl program can\n";
-	    print STDERR "generate these files given your specific text. \n\n";
-	    &minimalUsageNotes();
-	    exit;
-	}
-    }
- 
     if(defined $opt_stoplist) { 
 	if(! ($opt_measure=~/vector|lesk/) ) {
 	    print STDERR "The --stoplist option is only available\n";
@@ -1095,21 +1076,6 @@ sub checkOptions {
 	}
     }    
     
-	    
-	  
-    #  make certain the propagation file is specified if the resnik, 
-    #  jcn, or lin measure is being used
-    if($opt_measure=~/(res|lin|jcn)/) {
-	if(! (defined $opt_icpropagation) and !(defined $opt_icfrequency) ) {
-	    print STDERR "The --icpropagation or --icfrequency option must be\n";
-	    print STDERR "specified when using the res, lin or jcn measures.\n";
-	    print STDERR "An example of the propagation file can be seen in\n";
-	    print STDERR "the samples/ directory.\n\n";
-	    &minimalUsageNotes();
-	    exit;
-	}
-    } 
-
     #  make ceratin if the undirected option is specified that
     #  it is only for the path option
     if($opt_undirected) { 
@@ -1472,7 +1438,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.90 2011/04/26 12:20:11 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.91 2011/05/03 18:52:12 btmcinnes Exp $';
     print "\nCopyright (c) 2008-2011, Ted Pedersen & Bridget McInnes\n";
 }
 

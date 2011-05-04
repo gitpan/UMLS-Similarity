@@ -1,5 +1,5 @@
 # UMLS::Similarity::ErrorHandler
-# (Last Updated $Id: ErrorHandler.pm,v 1.11 2011/04/01 14:17:29 btmcinnes Exp $)
+# (Last Updated $Id: ErrorHandler.pm,v 1.12 2011/05/03 18:52:10 btmcinnes Exp $)
 #
 # Perl module that provides a perl interface to the
 # Unified Medical Language System (UMLS)
@@ -53,9 +53,9 @@ my $e3  = "Duplicate configuration option (Error Code 3).";
 sub _error {
 
     my $self           = shift;
-    my $measure   = shift;
-    my $string        = shift;
-    my $code         = shift;
+    my $measure        = shift;
+    my $string         = shift;
+    my $code           = shift;
     
     my $errorstring = "";
     if($code == 1) { $errorstring = $e1; }

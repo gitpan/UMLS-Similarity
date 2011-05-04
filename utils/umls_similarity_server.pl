@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # umls_similarity_server.pl version 0.01
-# (Last updated $Id: umls_similarity_server.pl,v 1.10 2011/04/04 18:14:58 btmcinnes Exp $)
+# (Last updated $Id: umls_similarity_server.pl,v 1.12 2011/05/04 12:04:33 btmcinnes Exp $)
 #
 # ---------------------------------------------------------------------
 

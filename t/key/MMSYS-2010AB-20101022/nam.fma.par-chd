@@ -26,7 +26,6 @@ UMLS-Interface Configuration Information
 PathFinder User Options:
   --realtime option set
 
-
 7.2479<>hand(C0018563)<>skull(C0037303)
 6.7415<>skull(C0037303)<>neck(C0027530)
 6.8329<>hand(C0018563)<>neck(C0027530)

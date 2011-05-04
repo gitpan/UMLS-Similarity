@@ -305,6 +305,11 @@ my $relastring = $umls->getRelaString();
 #  get the frequency counts
 my $cuiHash = &getFileCounts($inputfile);
 
+#  set the information content parametsr
+my %params = ();
+if(defined $opt_smooth) { $params{"smooth"} = 1; }
+$umls->setPropagationParameters(\%params);
+ 
 #  propagate the counts
 my $propagationHash = $umls->propagateCounts($cuiHash);
 
@@ -556,9 +561,6 @@ sub loadUMLS {
     if(defined $opt_debug) {
 	$option_hash{"debug"} = $opt_debug;
     }
-    if(defined $opt_smooth) {
-	$option_hash{"smooth"} = 1;
-    }
     if(defined $opt_username and defined $opt_password) {
 	$option_hash{"driver"}   = "mysql";
 	$option_hash{"database"} = $database;
@@ -623,7 +625,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: create-icpropagation.pl,v 1.9 2011/01/06 16:09:00 btmcinnes Exp $';
+    print '$Id: create-icpropagation.pl,v 1.10 2011/05/03 18:52:12 btmcinnes Exp $';
     print "\nCopyright (c) 2008-2011, Ted Pedersen & Bridget McInnes\n";
 }
 

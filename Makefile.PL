@@ -19,7 +19,7 @@ my $author1 = 'Bridget McInnes <bthomson@cs.umn.edu>';
 WriteMakefile(
               'NAME'		  => 'UMLS::Similarity',
               'VERSION_FROM'	  => 'lib/UMLS/Similarity.pm',
-              'PREREQ_PM'         => {'UMLS::Interface' => '1.09',
+              'PREREQ_PM'         => {'UMLS::Interface' => '1.11',
 				      'Text::NSP' => '1.17', 
                                       'File::Spec' => '3.31',
                                       'File::Path' => '2.08', 
@@ -27,6 +27,7 @@ WriteMakefile(
 				      'Text::OverlapFinder' => '0.02'},
 	      'EXE_FILES'         => [("utils/umls-similarity.pl",
 				       "utils/umls_similarity_server.pl",  
+				       "utils/query-umls-similarity-webinterface.pl",  
 				       "utils/vector-input.pl", 
 				       "utils/spearmans.pl", 
 				       "utils/create-icfrequency.pl", 

@@ -1,6 +1,16 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 1.05 to 1.07
+    1. added the query-umls-similarity-webinterface.pl program
+
+    2. added default vectormatrix and vectorindex files if they are not
+    specified on the command line
+
+    3. added default icpropagation information to the icpropagation
+    similarity measures if the --icpropagation or --icfrequency options are
+    not specified on the command line
+
   Changes from version 1.03 to 1.05
     1. modified the .pm modules and umls-similarity.pl program to account
     for the changes in the UMLS::Interface API which now passes all array

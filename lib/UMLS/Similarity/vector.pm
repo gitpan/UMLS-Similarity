@@ -143,7 +143,7 @@ sub new
     }
 
 
-	# read in the dictfile for --dictfile option 
+    # read in the dictfile for --dictfile option 
     if (defined $dictfile) {
 	open(DICT, "$dictfile")
 	    or die("Error: cannot open dictionary file ($dictfile).\n");
@@ -163,6 +163,43 @@ sub new
 	close DICT;
     }
 
+    #  if the vector index is not defined - get the default
+    if(! (defined $vectorindex) ) { 
+	foreach my $path (@INC) {
+	    if(-e $path."/UMLS/vector-index.dat") { 
+		$vectorindex = $path."/UMLS/vector-index.dat";
+	    }
+	    elsif(-e $path."\\UMLS\\vector-index.dat") { 
+		$vectorindex =  $path."\\UMLS\\vector-index.dat";
+	    }
+	}
+    }
+
+    #  check to make certain that you found the vector index file
+    if(! (defined $vectorindex) ) { 
+	print STDERR "Error: can not find the default vector index file (vector-index.dat).\n";
+	exit;
+    }
+
+    #  if the vector matrix is not defined - get the default
+    if(! (defined $vectormatrix) ) { 
+	foreach my $path (@INC) {
+	    if(-e $path."/UMLS/vector-matrix.dat") { 
+		$vectormatrix = $path."/UMLS/vector-matrix.dat";
+	    }
+	    elsif(-e $path."\\UMLS\\vector-matrix.dat") { 
+		$vectormatrix =  $path."\\UMLS\\vector-matrix.dat";
+	    }
+	}
+    }
+    
+    #  check to make certain that you found the vector matrix file
+    if(! (defined $vectormatrix) ) { 
+	print STDERR "Error: can not find the default vector matrix file (vector-matrix.dat).\n";
+	exit;
+    }
+	
+    # read in the vectorindex file
     open(INDX, "<$vectorindex")
         or die("Error: cannot open file '$vectorindex' for output index.\n");
     
