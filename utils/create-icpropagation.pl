@@ -51,6 +51,18 @@ create the icfrequency file.
 
 =head2 Optional Arguments:
 
+=head3 --st
+
+This outputs the probability of the concepts semantic types 
+rather than the concepts themselves. The frequencies for the 
+st are propagated up the semantic network and therefore are 
+source independent. Note, that the semantic types are expected 
+in the icfrequency input file. This can be created using the 
+create-icfrequency.pl program with the --st option. 
+
+If you are erroring out due to the header information on the 
+top of the icfrequency file, try using the --disregard option.
+
 =head3 --smooth 
 
 Incorporate Laplace smoothing, where the frequency count of each of the 
@@ -242,7 +254,7 @@ use UMLS::Interface;
 use Getopt::Long;
 use File::Path;
 
-eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "config=s", "debug", "t", "precision=s", "smooth", "disregard")) or die ("Please check the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "config=s", "debug", "t", "precision=s", "smooth", "disregard", "st")) or die ("Please check the above mentioned option(s).\n");
 
 
 #  if help is defined, print out help
@@ -305,16 +317,37 @@ my $relastring = $umls->getRelaString();
 #  get the frequency counts
 my $cuiHash = &getFileCounts($inputfile);
 
-#  set the information content parametsr
-my %params = ();
-if(defined $opt_smooth) { $params{"smooth"} = 1; }
-$umls->setPropagationParameters(\%params);
+#  set the information content parameters
  
 #  propagate the counts
-my $propagationHash = $umls->propagateCounts($cuiHash);
+my $propagationHash = "";
+my $N = "";
+if(defined $opt_st) { 
 
-#  get the total number of CUIs in the frequency file
-my $N          = $umls->getN();
+    #  if defined smoothing set the smoothing parameter
+    if(defined $opt_smooth) { 
+	$umls->setStSmoothing();
+    }
+
+    #  propagate the semantic type counts 
+    $propagationHash = $umls->propagateStCounts($cuiHash); 
+    
+    #  get the total number of semantic types in the frequency file
+    $N = $umls->getStN();
+}
+else {  
+    
+    #  set the propagation parameters
+    my %params = ();
+    if(defined $opt_smooth) { $params{"smooth"} = 1; }
+    $umls->setPropagationParameters(\%params);
+    
+    #  propagate the counts
+    $propagationHash = $umls->propagateCounts($cuiHash);  
+    
+    #  get the total number of CUIs in the frequency file
+    $N = $umls->getN();
+}
 
 #  print out the propagation counts
 open(OUTPUT, ">$outputfile") || die "Could not open $outputfile\n";
@@ -482,8 +515,12 @@ sub setOptions {
     }
 
     if(defined $opt_smooth) {
-	$set .= "  --smooth";
+	$set .= "  --smooth\n";
 	$smooth = 1;
+    }
+
+    if(defined $opt_st) {
+	$set .= "  --st\n";
     }
 	
     #  set databasee options
@@ -602,6 +639,9 @@ sub showHelp() {
 
     print "--config FILE            Configuration file\n\n";
 
+    print "--st                     Outputs the probability of the semantic\n";
+    print "                         types in the icfrequency file.\n\n";
+
     print "--smooth                 Incorporate LaPlace smoothing\n\n";
 
     print "--precision N            Displays values upto N places of decimal.\n\n";
@@ -625,7 +665,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: create-icpropagation.pl,v 1.10 2011/05/03 18:52:12 btmcinnes Exp $';
+    print '$Id: create-icpropagation.pl,v 1.11 2011/05/04 18:33:57 btmcinnes Exp $';
     print "\nCopyright (c) 2008-2011, Ted Pedersen & Bridget McInnes\n";
 }
 

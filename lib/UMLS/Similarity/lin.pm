@@ -208,7 +208,7 @@ relatednessof concepts in the Unified Medical Language System
 This module computes the semantic relatedness of two concepts in 
 the UMLS according to a method described by Lin (1998). The 
 relatedness measure proposed by Lin is the IC(lcs) / IC(concept1) 
-+ IC(concept2). One can observe, then, that the realtedness value 
++ IC(concept2). One can observe, then, that the similarity value 
 will be greater-than or equal-to zero and less-than or equal-to one.
 
 If the information content of any of either concept1 or concept2 is zero,

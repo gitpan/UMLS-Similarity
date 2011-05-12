@@ -48,7 +48,8 @@ use UMLS::Similarity::ErrorHandler;
 use vars qw($VERSION);
 $VERSION = '0.07';
 
-my $debug = 0;
+my $debug    = 0;
+my $stoption = 0;
 
 sub new
 {
@@ -74,44 +75,106 @@ sub new
 	print STDERR "The UMLS::Similarity::ErrorHandler did not load properly\n";
 	exit;
     }
-    
-    # set the propagation/frequency information
-    $interface->setPropagationParameters($params);
-    
-    #  if the icpropagation or icfrequency option is not 
-    #  defined set the default options for icpropagation
-    if( (!defined $params->{"icpropagation"}) &&
-	(!defined $params->{"icfrequency"}) ) {
-	
-	print STDERR "Setting default propagation file\n";
 
-	#  get the icfrequency file
-	my $icfrequency = ""; foreach my $path (@INC) {
-	    if(-e $path."/UMLS/icfrequency.default.dat") { 
-		$icfrequency = $path."/UMLS/icfrequency.default.dat";
+    #  load the propagation information for semantic types
+    if(defined $params->{"st"}) { 
+	#  set the st option
+	$stoption = 1;
+	
+	if(defined $params->{"icfrequency"}) { 
+	    
+	    #  get the file name
+	    my $icfrequency = $params->{"icfrequency"};
+	    
+	    #  initialize hte hash
+	    my %fhash = ();
+
+	    #  load the frequency counts
+	    open(FILE, $icfrequency) || die "Could not open $icfrequency\n";
+	    while(<FILE>) { 
+		chomp;
+		if($_=~/REL|SAB|N/) { next; }
+		my ($st, $freq) = split/<>/;
+		$fhash{$st} = $freq;
 	    }
-	    elsif(-e $path."\\UMLS\\icfrequency.default.dat") { 
-		$icfrequency =  $path."\\UMLS\\icfrequency.default.dat";
-	    }
+	    
+	    #  if defined smoothing set the smoothing parameter
+	    if(defined $params->{"smooth"}) { $interface->setStSmoothing(); }
+
+	    #  propagate the semantic type counts 
+	    $interface->propagateStCounts(\%fhash); 
+
 	}
-	
-	#  set the cuilist
-	my $fhash = $interface->getCuiList();
-	
-	#  load the frequency counts
-	open(FILE, $icfrequency) || die "Could not open $icfrequency\n";
-	while(<FILE>) { 
-	    chomp;
-	    my ($cui, $freq) = split/<>/;
-	    if(exists ${$fhash}{$cui}) { 
-		${$fhash}{$cui} = $freq;
+	else {
+	    my $icpropagation = "";
+	    #  get the icpropagation file if defined
+	    if(defined $params->{"icpropagation"}) { 
+		$icpropagation = $params->{"icpropagation"};
 	    }
+	    #  otherwise get the default icpropagation file
+	    else {
+		foreach my $path (@INC) {
+		    if(-e $path."/UMLS/icpropagation.st.default.dat") { 
+			$icpropagation = $path."/UMLS/icpropagation.st.default.dat";
+		    }
+		    elsif(-e $path."\\UMLS\\icpropagation.st.default.dat") { 
+			$icpropagation =  $path."\\UMLS\\icpropagation.st.default.dat";
+		    }
+		}
+	    }
+	    
+	    # get the probability counts
+	    my %hash = ();
+	    open(FILE, $icpropagation) || die "Could not open $icpropagation\n";
+	    while(<FILE>) { 
+		chomp;
+		my ($st, $freq) = split/<>/;
+		$hash{$st} = $freq;
+	    }
+
+	    $interface->loadStPropagationHash(\%hash);
 	}
-	
-	#  propagate the counts
-	my $phash = $interface->propagateCounts($fhash);
     }
-    
+    #  load the propagation information for the concepts
+    else {
+
+	# set the propagation/frequency information
+	$interface->setPropagationParameters($params);
+	
+	#  if the icpropagation or icfrequency option is not 
+	#  defined set the default options for icpropagation
+	if( (!defined $params->{"icpropagation"}) &&
+	    (!defined $params->{"icfrequency"}) ) {
+	    
+	    print STDERR "Setting default propagation file\n";
+	    
+	    #  get the icfrequency file
+	    my $icfrequency = ""; foreach my $path (@INC) {
+		if(-e $path."/UMLS/icfrequency.default.dat") { 
+		    $icfrequency = $path."/UMLS/icfrequency.default.dat";
+		}
+		elsif(-e $path."\\UMLS\\icfrequency.default.dat") { 
+		    $icfrequency =  $path."\\UMLS\\icfrequency.default.dat";
+		}
+	    }
+	    
+	    #  set the cuilist
+	    my $fhash = $interface->getCuiList();
+	    
+	    #  load the frequency counts
+	    open(FILE, $icfrequency) || die "Could not open $icfrequency\n";
+	    while(<FILE>) { 
+		chomp;
+		my ($cui, $freq) = split/<>/;
+		if(exists ${$fhash}{$cui}) { 
+		    ${$fhash}{$cui} = $freq;
+		}
+	    }
+	    
+	    #  propagate the counts
+	    my $phash = $interface->propagateCounts($fhash);
+	}
+    }
     return $self;
 }
 
@@ -131,11 +194,22 @@ sub getRelatedness
     
     #  get the ic of the lcs with the lowest ic score
     my $score = 0; my $l = "";
-    foreach my $lcs (@{$lcses}) {
-	my $value = $interface->getIC($lcs);
-	if($score < $value) { $score = $value; $l = $lcs; }
+    if($stoption  == 1) { 
+	foreach my $lcs (@{$lcses}) {
+	    my $sts = $interface->getSt($lcs);
+	    foreach my $st (@{$sts}) { 
+		my $value = $interface->getStIC($st);
+		if($score < $value) { $score = $value; $l = $lcs; }
+	    }
+	}
     }
-
+    else {
+	foreach my $lcs (@{$lcses}) {
+	    my $value = $interface->getIC($lcs);
+	    if($score < $value) { $score = $value; $l = $lcs; }
+	}
+    }
+    
     #  if the information content is less then zero return -1
     if($score <= 0) { return -1; }
 

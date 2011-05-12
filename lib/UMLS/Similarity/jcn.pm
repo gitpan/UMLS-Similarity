@@ -48,7 +48,8 @@ use UMLS::Similarity::ErrorHandler;
 use vars qw($VERSION);
 $VERSION = '0.09';
 
-my $debug = 0;
+my $debug    = 0;
+my $stoption = 0;
 
 sub new
 {
@@ -74,7 +75,7 @@ sub new
 	print STDERR "The UMLS::Similarity::ErrorHandler did not load properly\n";
 	exit;
     }
-    
+
     # set the propagation/frequency information
     $interface->setPropagationParameters($params);
     
@@ -84,7 +85,7 @@ sub new
 	(!defined $params->{"icfrequency"}) ) {
 	
 	print STDERR "Setting default propagation file\n";
-
+	
 	#  get the icfrequency file
 	my $icfrequency = ""; foreach my $path (@INC) {
 	    if(-e $path."/UMLS/icfrequency.default.dat") { 
@@ -111,7 +112,7 @@ sub new
 	#  propagate the counts
 	my $phash = $interface->propagateCounts($fhash);
     }
-
+    
     return $self;
 }
 
@@ -131,8 +132,7 @@ sub getRelatedness
     #  get the IC of each of the concepts
     my $ic1 = $interface->getIC($concept1);
     my $ic2 = $interface->getIC($concept2);
-   
- 
+    
  
     #  Check to make certain that the IC for each of the
     #  concepts is greater than zero otherwise return zero
@@ -156,7 +156,6 @@ sub getRelatedness
 
     #  calculate the distance
     my $distance = $ic1 + $ic2 - (2 * $iclcs);
-   
 
     # if the distance is zero 
     # implies ic1 == ic2 == ic3 (most probably all three represent

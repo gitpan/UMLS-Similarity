@@ -21,6 +21,7 @@ UMLS-Interface Configuration Information
 
 
 
+
 ERROR: UMLS::Similarity->lesk
 Measure does not support the configuration option (Error Code 1).
 Option: (REL).

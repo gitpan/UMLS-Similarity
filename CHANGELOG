@@ -1,8 +1,18 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 1.07 to 1.09
+    1. added the --st option to create-icfrequency and create-icpropagation
+    to propagation semantic types to find their probability using the is-a
+    heirarchy in the semantic network
+
+    2. added the --st option to umls-similarity.pl for the Resnik (res)
+    measure - this will return the information content of the semantic type
+    of the two concepts least common subsumer
+
   Changes from version 1.05 to 1.07
-    1. added the query-umls-similarity-webinterface.pl program
+    1. added the query-umls-similarity-webinterface.pl program to
+    automatically query the web interface
 
     2. added default vectormatrix and vectorindex files if they are not
     specified on the command line
@@ -10,6 +20,8 @@ NAME
     3. added default icpropagation information to the icpropagation
     similarity measures if the --icpropagation or --icfrequency options are
     not specified on the command line
+
+    4. updated the web interface to include OMIM
 
   Changes from version 1.03 to 1.05
     1. modified the .pm modules and umls-similarity.pl program to account

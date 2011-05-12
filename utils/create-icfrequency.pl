@@ -34,6 +34,14 @@ File containing plain text.
 
 =head2 Optional Arguments:
 
+=head3 --st
+
+Output the semantic type of the CUIs and their frequency counts.
+The concepts are determined based on the source/relations in 
+the configuration file so I would recommend using UMLS_ALL with 
+the PAR/CHD/RB/RN relations unless you are certain of your 
+source. 
+
 =head3 --compoundify
 
 The text contains compounds depicted by an underscore. For example,
@@ -209,7 +217,7 @@ use UMLS::Interface;
 use Getopt::Long;
 use File::Path;
 
-eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "config=s", "debug", "t", "metamap=s", "term", "compoundify")) or die ("Please check the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "config=s", "debug", "t", "metamap=s", "term", "compoundify", "st")) or die ("Please check the above mentioned option(s).\n");
 
 #  if help is defined, print out help
 if( defined $opt_help ) {
@@ -282,19 +290,56 @@ else {
     &getTermCounts($inputfile);
 }
 
-#  print out the propagation counts
-open(OUTPUT, ">$outputfile") || die "Could not open $outputfile\n";
-print OUTPUT "$sabstring\n";
-print OUTPUT "$relstring\n";
-if($relastring ne "") {
-    print OUTPUT "$relastring\n";
+if(defined $opt_st) {
+    &printStPropagationCounts();
 }
-print OUTPUT "N :: $N\n";
-foreach my $cui (sort keys %{$cuilist}) {
-    my $freq = ${$cuilist}{$cui};    
-    print OUTPUT "$cui<>$freq\n";
+else { 
+    &printCuiPropagationCounts();
 }
-close OUTPUT;
+
+sub printStPropagationCounts { 
+
+    my %stlist = (); my $N = 0;
+    foreach my $cui (sort keys %{$cuilist}) {
+	my $freq = ${$cuilist}{$cui};    
+	my $sts   = $umls->getSt($cui);
+	
+	foreach my $st (@{$sts}) { 
+	    if(exists $stlist{$st}) { $stlist{$st} += $freq; }
+	    else                    { $stlist{$st}  = $freq; }
+	    $N+= $freq;
+	}
+    }		
+
+    open(OUTPUT, ">$outputfile") || die "Could not open $outputfile\n";
+    print OUTPUT "$sabstring\n";
+    print OUTPUT "$relstring\n";
+    if($relastring ne "") {
+	print OUTPUT "$relastring\n";
+    }
+    print OUTPUT "N :: $N\n";
+    foreach my $st (sort keys %stlist) { 
+	my $freq = $stlist{$st};    
+	print OUTPUT "$st<>$freq\n";
+    }
+    close OUTPUT;
+}
+
+sub printCuiPropagationCounts { 
+    
+    open(OUTPUT, ">$outputfile") || die "Could not open $outputfile\n";
+    print OUTPUT "$sabstring\n";
+    print OUTPUT "$relstring\n";
+    if($relastring ne "") {
+	print OUTPUT "$relastring\n";
+    }
+    print OUTPUT "N :: $N\n";
+    foreach my $cui (sort keys %{$cuilist}) {
+	my $freq = ${$cuilist}{$cui};    
+	print OUTPUT "$cui<>$freq\n";
+    }
+    close OUTPUT;
+}
 
 sub getTermCounts {
 
@@ -455,6 +500,10 @@ sub setOptions {
     if(defined $opt_compoundify) { 
 	$set .= "  --compoundify\n";
     }
+    
+    if(defined $opt_st) { 
+	$set .= "  --st\n";
+    }
 
     #  set database options
     if(defined $opt_username) {
@@ -564,6 +613,9 @@ sub showHelp() {
 
     print "--config FILE            Configuration file\n\n";
 
+    print "--st                     Output the semantic type of the CUIs \n";
+    print "                         and their frequency counts.\n\n";
+
     print "--compoundify            The input text contains compounds\n";
     print "                         depicted by an underscore. \n\n";
 
@@ -593,7 +645,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: create-icfrequency.pl,v 1.14 2011/04/26 12:20:11 btmcinnes Exp $';
+    print '$Id: create-icfrequency.pl,v 1.16 2011/05/04 18:39:25 btmcinnes Exp $';
     print "\nCopyright (c) 2008-2011, Ted Pedersen & Bridget McInnes\n";
 }
 

@@ -214,6 +214,13 @@ the path measure itself
 
 =head2 IC Measure Options:
 
+=head3 --st 
+
+Uses the information content of the CUIs semantic type to calculate the 
+res measures. If the --icpropagation or --icfrequency files are specified 
+they must contain the probability or frequency counts of the semantic types. 
+If they aren't specified the defaults will be used. 
+
 =head3 --icpropagation FILE
 
 FILE containing the propagation counts of the CUIs. This file must be 
@@ -436,7 +443,7 @@ this program; if not, write to:
 use UMLS::Interface;
 use Getopt::Long;
 
-eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "forcerun", "debug", "verbose", "icfrequency=s", "smooth", "icpropagation=s", "undirected", "realtime", "stoplist=s", "stem", "debugfile=s", "vectormatrix=s", "vectorindex=s", "defraw", "dictfile=s", "doubledef=s", "compoundfile=s", "t")) or die ("Please check the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "forcerun", "debug", "verbose", "icfrequency=s", "smooth", "st", "icpropagation=s", "undirected", "realtime", "stoplist=s", "stem", "debugfile=s", "vectormatrix=s", "vectorindex=s", "defraw", "dictfile=s", "doubledef=s", "compoundfile=s", "t")) or die ("Please check the above mentioned option(s).\n");
 
 
 my $debug = 0;
@@ -860,6 +867,9 @@ sub loadMeasures {
     
     my %icoptions = ();
     if($measure=~/res|jcn|lin/) { 
+	if(defined $opt_st) {
+	    $icoptions{"st"} = $opt_st;
+	}
 	if(defined $opt_icpropagation) {
 	    $icoptions{"icpropagation"} = $opt_icpropagation;
 	}
@@ -1104,6 +1114,18 @@ sub checkOptions {
 	    print STDERR "The --icpropagation or --icfrequency options\n";
             print STDERR "may only be specified when using the res, lin\n";
 	    print STDERR "or jcn measures.\n\n";
+	    &minimalUsageNotes();
+	    exit;
+	}
+    }    
+
+
+    #  the icpropagation and icfrequency options can only be used 
+    #  with specific measures
+    if(defined $opt_st) { 
+	if( !($opt_measure=~/(res)/) ) {
+	    print STDERR "Currently, the --st option may only be specified when\n";
+	    print "using the Resnik (res) measure.\n\n";
 	    &minimalUsageNotes();
 	    exit;
 	}
@@ -1388,6 +1410,9 @@ sub showHelp() {
 
     print "\n\nIC Measure Options:\n\n";
 
+    print "--st                     Use the information content of the CUIs\n";
+    print "                         semantic type to calculate the res measure\n\n";
+
     print "--icpropagation FILE     File containing the information content\n";
     print "                         of the CUIs.\n\n";
 
@@ -1438,7 +1463,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.91 2011/05/03 18:52:12 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.92 2011/05/04 18:33:57 btmcinnes Exp $';
     print "\nCopyright (c) 2008-2011, Ted Pedersen & Bridget McInnes\n";
 }
 

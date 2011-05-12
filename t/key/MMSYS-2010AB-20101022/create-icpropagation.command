@@ -5,6 +5,7 @@ User Settings:
   --smooth
 
 
+
 UMLS-Interface Configuration Information:
 (Default Information - no config file)
 
@@ -21,6 +22,7 @@ UMLS-Interface Configuration Information:
 
 PathFinder User Options:
   --realtime option set
+
 
 
 ICFinder User Options:
