@@ -1,0 +1,1385 @@
+In setInterface(MSH, PAR/CHD, path)
+FILENAME: /tmp/mcYPXsk9Ur
+
+CuiFinder User Options: 
+   --config option set
+
+
+UMLS-Interface Configuration Information
+  Sources (SAB):
+    MSH
+  Relations (REL):
+    CHD
+    PAR
+  Database: 
+    umls (MMSYS-2010AB-20101022)
+
+
+
+PathFinder User Options:
+   --forcerun option set
+
+
+Setting measures
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+TYPE: r
+hand skull Compute Similarity path MSH PAR/CHD
+In setInterface(MSH, PAR/CHD, path)
+FILENAME: /tmp/MTesEdsHdD
+
+CuiFinder User Options: 
+   --config option set
+
+
+UMLS-Interface Configuration Information
+  Sources (SAB):
+    MSH
+  Relations (REL):
+    CHD
+    PAR
+  Database: 
+    umls (MMSYS-2010AB-20101022)
+
+
+
+PathFinder User Options:
+   --forcerun option set
+
+
+Setting measures
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+TYPE: p
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+HERE: C0018563 Hand, NOS C0037303 Bone structure of cranium
+p C0018563 (Hand, NOS)|C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS) => C1140618 (Extremity, Upper) => C0015385 (Limb structure) => C0005898 (Regions, Body) => C0002807 (Anatomy (MeSH Category)) => C0026860 (System, Musculoskeletal) => C0816871 (Skeletons) => C0005931 (Bones and Bone) => C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS)|C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS) => C1140618 (Extremity, Upper) => C0015385 (Limb structure) => C0005898 (Regions, Body) => C0002807 (Anatomy (MeSH Category)) => C0040300 (Body tissue, NOS) => C0009780 (Tissue, Connective) => C0005931 (Bones and Bone) => C0037303 (Bone structure of cranium)
+TYPE: g
+HERE (Compute Similarity) g (hand)
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+CUIS: C0018563
+g C0018563 CSP : part of the upper limb distal to the wrist including carpus, metacarpus and fingers.|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits. (NCI)|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits.|
+TYPE: g
+HERE (Compute Similarity) g (skull)
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+CUIS: C0037303
+g C0037303 MSH : The SKELETON of the HEAD including the FACIAL BONES and the bones enclosing the BRAIN.|UWDA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|CSP : bony part of the head including the facial bones and the bones enclosing the brain.|FMA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|NCI : The bones that form the head, made up of the bones of the braincase and face. (NCI)|NCI : The bones that form the head, made up of the bones of the braincase and face.|
+TYPE: r
+hand skull Compute Similarity path MSH PAR/CHD
+In setInterface(MSH, PAR/CHD, path)
+FILENAME: /tmp/MTesEdsHdD
+
+CuiFinder User Options: 
+   --config option set
+
+
+UMLS-Interface Configuration Information
+  Sources (SAB):
+    MSH
+  Relations (REL):
+    CHD
+    PAR
+  Database: 
+    umls (MMSYS-2010AB-20101022)
+
+
+
+PathFinder User Options:
+   --forcerun option set
+
+
+Setting measures
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+TYPE: p
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+HERE: C0018563 Hand, NOS C0037303 Bone structure of cranium
+p C0018563 (Hand, NOS)|C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS) => C1140618 (Extremity, Upper) => C0015385 (Limb structure) => C0005898 (Regions, Body) => C0002807 (Anatomy (MeSH Category)) => C0026860 (System, Musculoskeletal) => C0816871 (Skeletons) => C0005931 (Bones and Bone) => C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS)|C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS) => C1140618 (Extremity, Upper) => C0015385 (Limb structure) => C0005898 (Regions, Body) => C0002807 (Anatomy (MeSH Category)) => C0040300 (Body tissue, NOS) => C0009780 (Tissue, Connective) => C0005931 (Bones and Bone) => C0037303 (Bone structure of cranium)
+TYPE: g
+HERE (Compute Similarity) g (hand)
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+CUIS: C0018563
+g C0018563 CSP : part of the upper limb distal to the wrist including carpus, metacarpus and fingers.|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits. (NCI)|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits.|
+TYPE: g
+HERE (Compute Similarity) g (skull)
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+CUIS: C0037303
+g C0037303 MSH : The SKELETON of the HEAD including the FACIAL BONES and the bones enclosing the BRAIN.|UWDA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|CSP : bony part of the head including the facial bones and the bones enclosing the brain.|FMA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|NCI : The bones that form the head, made up of the bones of the braincase and face. (NCI)|NCI : The bones that form the head, made up of the bones of the braincase and face.|
+TYPE: r
+hand skull Compute Similarity path MSH PAR/CHD
+In setInterface(MSH, PAR/CHD, path)
+FILENAME: /tmp/MTesEdsHdD
+
+CuiFinder User Options: 
+   --config option set
+
+
+UMLS-Interface Configuration Information
+  Sources (SAB):
+    MSH
+  Relations (REL):
+    CHD
+    PAR
+  Database: 
+    umls (MMSYS-2010AB-20101022)
+
+
+
+PathFinder User Options:
+   --forcerun option set
+
+
+Setting measures
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+TYPE: p
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+HERE: C0018563 Hand, NOS C0037303 Bone structure of cranium
+p C0018563 (Hand, NOS)|C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS) => C1140618 (Extremity, Upper) => C0015385 (Limb structure) => C0005898 (Regions, Body) => C0002807 (Anatomy (MeSH Category)) => C0026860 (System, Musculoskeletal) => C0816871 (Skeletons) => C0005931 (Bones and Bone) => C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS)|C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS) => C1140618 (Extremity, Upper) => C0015385 (Limb structure) => C0005898 (Regions, Body) => C0002807 (Anatomy (MeSH Category)) => C0040300 (Body tissue, NOS) => C0009780 (Tissue, Connective) => C0005931 (Bones and Bone) => C0037303 (Bone structure of cranium)
+TYPE: g
+HERE (Compute Similarity) g (hand)
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+CUIS: C0018563
+g C0018563 CSP : part of the upper limb distal to the wrist including carpus, metacarpus and fingers.|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits. (NCI)|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits.|
+TYPE: g
+HERE (Compute Similarity) g (skull)
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+CUIS: C0037303
+g C0037303 MSH : The SKELETON of the HEAD including the FACIAL BONES and the bones enclosing the BRAIN.|UWDA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|CSP : bony part of the head including the facial bones and the bones enclosing the brain.|FMA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|NCI : The bones that form the head, made up of the bones of the braincase and face. (NCI)|NCI : The bones that form the head, made up of the bones of the braincase and face.|
+TYPE: r
+arm skull Compute Similarity path FMA PAR/CHD
+In setInterface(FMA, PAR/CHD, path)
+FILENAME: /tmp/MTesEdsHdD
+
+CuiFinder User Options: 
+   --config option set
+
+
+UMLS-Interface Configuration Information
+  Sources (SAB):
+    FMA
+  Relations (REL):
+    CHD
+    PAR
+  Database: 
+    umls (MMSYS-2010AB-20101022)
+
+
+
+PathFinder User Options:
+   --forcerun option set
+
+
+Setting measures
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.fma.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.fma.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.fma.par.chd
+
+In getAllForms (arm)
+Forms (arm) : C1140618
+Returning Forms (arm) : C1140618
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+You have requested path information about a concept. In
+order to obtain this information we need to create an 
+index or resubmit this command using --realtime. Creating
+an index can be very time-consuming, but once it is built
+your commands will run faster than with --realtime.
+
+TYPE: p
+In getAllForms (arm)
+Forms (arm) : C1140618
+Returning Forms (arm) : C1140618
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+HERE: C1140618 Extremity, Upper C0037303 Bone structure of cranium
+p C1140618 (Extremity, Upper)|C0037303 (Bone structure of cranium)|C1140618 (Extremity, Upper) => C0015385 (Limb structure) => C0229962 (Parts, Body) => C0700276 (Anatomic structures) => C1744602 (Organ system subdivision) => C1179745 (Subdivision of skeletal system) => C0037303 (Bone structure of cranium)
+TYPE: g
+HERE (Compute Similarity) g (arm)
+In getAllForms (arm)
+Forms (arm) : C1140618
+Returning Forms (arm) : C1140618
+CUIS: C1140618
+g C1140618 MSH : The region of the upper limb in animals, extending from the deltoid region to the HAND, and including the ARM; AXILLA; and SHOULDER.|CSP : part of the upper extremity between the shoulder and wrist; includes forearm and upper arm.|NCI : The portion of the upper extremity between the shoulder and the elbow. For clinical purposes this term is also used to refer to the whole superior limb. (NCI)|SNOMEDCT : Upper extremity, including shoulder, arm, forearm, wrist, and hand|NCI : The portion of the upper extremity between the shoulder and the elbow. For clinical purposes this term is also used to refer to the whole superior limb.|NCI : The region of the body that includes the arm, the forearm, and hand.|
+TYPE: g
+HERE (Compute Similarity) g (skull)
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+CUIS: C0037303
+g C0037303 MSH : The SKELETON of the HEAD including the FACIAL BONES and the bones enclosing the BRAIN.|UWDA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|CSP : bony part of the head including the facial bones and the bones enclosing the brain.|FMA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|NCI : The bones that form the head, made up of the bones of the braincase and face. (NCI)|NCI : The bones that form the head, made up of the bones of the braincase and face.|
+TYPE: r
+arm skull Compute Similarity path OMIM PAR/CHD
+In setInterface(OMIM, PAR/CHD, path)
+FILENAME: /tmp/MTesEdsHdD
+
+CuiFinder User Options: 
+   --config option set
+
+
+UMLS-Interface Configuration Information
+  Sources (SAB):
+    OMIM
+  Relations (REL):
+    CHD
+    PAR
+  Database: 
+    umls (MMSYS-2010AB-20101022)
+
+
+
+PathFinder User Options:
+   --forcerun option set
+
+
+Setting measures
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.omim.par.chd
+
+Could not open file /var/www/umls_similarity/icpropagation/icprop.omim.par.chd
+TYPE: r
+arm skull Compute Similarity path MSH PAR/CHD
+In setInterface(MSH, PAR/CHD, path)
+FILENAME: /tmp/MTesEdsHdD
+
+CuiFinder User Options: 
+   --config option set
+
+
+UMLS-Interface Configuration Information
+  Sources (SAB):
+    MSH
+  Relations (REL):
+    CHD
+    PAR
+  Database: 
+    umls (MMSYS-2010AB-20101022)
+
+
+
+PathFinder User Options:
+   --forcerun option set
+
+
+Setting measures
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+In getAllForms (arm)
+Forms (arm) : C0446516
+Returning Forms (arm) : C0446516
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+TYPE: p
+In getAllForms (arm)
+Forms (arm) : C0446516
+Returning Forms (arm) : C0446516
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+HERE: C0446516 Upper arm C0037303 Bone structure of cranium
+p C0446516 (Upper arm)|C0037303 (Bone structure of cranium)|C0446516 (Upper arm) => C1140618 (Extremity, Upper) => C0015385 (Limb structure) => C0005898 (Regions, Body) => C0002807 (Anatomy (MeSH Category)) => C0026860 (System, Musculoskeletal) => C0816871 (Skeletons) => C0005931 (Bones and Bone) => C0037303 (Bone structure of cranium)|C0446516 (Upper arm)|C0037303 (Bone structure of cranium)|C0446516 (Upper arm) => C1140618 (Extremity, Upper) => C0015385 (Limb structure) => C0005898 (Regions, Body) => C0002807 (Anatomy (MeSH Category)) => C0040300 (Body tissue, NOS) => C0009780 (Tissue, Connective) => C0005931 (Bones and Bone) => C0037303 (Bone structure of cranium)
+TYPE: g
+HERE (Compute Similarity) g (arm)
+In getAllForms (arm)
+Forms (arm) : C0446516
+Returning Forms (arm) : C0446516
+CUIS: C0446516
+g C0446516 MSH : The superior part of the upper extremity between the SHOULDER and the ELBOW.|SNOMEDCT : Upper extremity between shoulder and elbow|
+TYPE: g
+HERE (Compute Similarity) g (skull)
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+CUIS: C0037303
+g C0037303 MSH : The SKELETON of the HEAD including the FACIAL BONES and the bones enclosing the BRAIN.|UWDA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|CSP : bony part of the head including the facial bones and the bones enclosing the brain.|FMA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|NCI : The bones that form the head, made up of the bones of the braincase and face. (NCI)|NCI : The bones that form the head, made up of the bones of the braincase and face.|
+TYPE: r
+arm skull Compute Similarity path OMIM PAR/CHD
+In setInterface(OMIM, PAR/CHD, path)
+FILENAME: /tmp/MTesEdsHdD
+
+CuiFinder User Options: 
+   --config option set
+
+
+UMLS-Interface Configuration Information
+  Sources (SAB):
+    OMIM
+  Relations (REL):
+    CHD
+    PAR
+  Database: 
+    umls (MMSYS-2010AB-20101022)
+
+
+
+PathFinder User Options:
+   --forcerun option set
+
+
+Setting measures
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.omim.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.omim.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.omim.par.chd
+
+In getAllForms (arm)
+Forms (arm) : C1863110
+Returning Forms (arm) : C1863110
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+You have requested path information about a concept. In
+order to obtain this information we need to create an 
+index or resubmit this command using --realtime. Creating
+an index can be very time-consuming, but once it is built
+your commands will run faster than with --realtime.
+
+TYPE: p
+In getAllForms (arm)
+Forms (arm) : C1863110
+Returning Forms (arm) : C1863110
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+HERE: C1863110 ALDOSE REDUCTASE M Gene C0037303 Bone structure of cranium
+p 
+TYPE: g
+HERE (Compute Similarity) g (arm)
+In getAllForms (arm)
+Forms (arm) : C1863110
+Returning Forms (arm) : C1863110
+CUIS: C1863110
+g C1863110 
+TYPE: g
+HERE (Compute Similarity) g (skull)
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+CUIS: C0037303
+g C0037303 MSH : The SKELETON of the HEAD including the FACIAL BONES and the bones enclosing the BRAIN.|UWDA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|CSP : bony part of the head including the facial bones and the bones enclosing the brain.|FMA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|NCI : The bones that form the head, made up of the bones of the braincase and face. (NCI)|NCI : The bones that form the head, made up of the bones of the braincase and face.|
+TYPE: r
+heart cell Compute Similarity path OMIM PAR/CHD
+In setInterface(OMIM, PAR/CHD, path)
+FILENAME: /tmp/MTesEdsHdD
+
+CuiFinder User Options: 
+   --config option set
+
+
+UMLS-Interface Configuration Information
+  Sources (SAB):
+    OMIM
+  Relations (REL):
+    CHD
+    PAR
+  Database: 
+    umls (MMSYS-2010AB-20101022)
+
+
+
+PathFinder User Options:
+   --forcerun option set
+
+
+Setting measures
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.omim.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.omim.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.omim.par.chd
+
+In getAllForms (heart)
+Forms (heart) : C0018787
+Returning Forms (heart) : C0018787
+In getAllForms (cell)
+Forms (cell) : C1861886
+Returning Forms (cell) : C1861886
+TYPE: p
+In getAllForms (heart)
+Forms (heart) : C0018787
+Returning Forms (heart) : C0018787
+In getAllForms (cell)
+Forms (cell) : C1861886
+Returning Forms (cell) : C1861886
+HERE: C0018787 Heart, NOS C1861886 CELL Gene
+p 
+TYPE: g
+HERE (Compute Similarity) g (heart)
+In getAllForms (heart)
+Forms (heart) : C0018787
+Returning Forms (heart) : C0018787
+CUIS: C0018787
+g C0018787 MSH : The hollow, muscular organ that maintains the circulation of the blood.|UWDA : Organ with cavitated organ parts, which is connected to the systemic and pulmonary arterial and venous trees. Examples: There is only one heart.|CSP : hollow, muscular organ that maintains the circulation of the blood.|FMA : Organ with cavitated organ parts, which is continuous with the systemic and \npulmonary arterial and venous trees. Examples: There is only one heart.|NCI : A hollow muscular organ which receives the blood from the veins and propels it into the arteries. It is divided by a musculomembranous septum into two halves -- right or venous and left or arterial -- each of which consists of a receiving chamber (atrium) and an ejecting chamber (ventricle). (NCI)|NCI : A hollow organ located slightly to the left of the middle portion of the chest. It is composed of muscle and it is divided by a septum into two sides: the right side which receives de-oxygenated blood from the body and the left side which sends newly oxygenated blood to the body. Each side is composed of two chambers: the atrium (receiving blood) and ventricle (ejecting blood).|
+TYPE: g
+HERE (Compute Similarity) g (cell)
+In getAllForms (cell)
+Forms (cell) : C1861886
+Returning Forms (cell) : C1861886
+CUIS: C1861886
+g C1861886 
+TYPE: r
+hand skull Compute Similarity path MSH PAR/CHD
+In setInterface(MSH, PAR/CHD, path)
+FILENAME: /tmp/MTesEdsHdD
+
+CuiFinder User Options: 
+   --config option set
+
+
+UMLS-Interface Configuration Information
+  Sources (SAB):
+    MSH
+  Relations (REL):
+    CHD
+    PAR
+  Database: 
+    umls (MMSYS-2010AB-20101022)
+
+
+
+PathFinder User Options:
+   --forcerun option set
+
+
+Setting measures
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+TYPE: p
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+HERE: C0018563 Hand, NOS C0037303 Bone structure of cranium
+p C0018563 (Hand, NOS)|C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS) => C1140618 (Extremity, Upper) => C0015385 (Limb structure) => C0005898 (Regions, Body) => C0002807 (Anatomy (MeSH Category)) => C0026860 (System, Musculoskeletal) => C0816871 (Skeletons) => C0005931 (Bones and Bone) => C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS)|C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS) => C1140618 (Extremity, Upper) => C0015385 (Limb structure) => C0005898 (Regions, Body) => C0002807 (Anatomy (MeSH Category)) => C0040300 (Body tissue, NOS) => C0009780 (Tissue, Connective) => C0005931 (Bones and Bone) => C0037303 (Bone structure of cranium)
+TYPE: g
+HERE (Compute Similarity) g (hand)
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+CUIS: C0018563
+g C0018563 CSP : part of the upper limb distal to the wrist including carpus, metacarpus and fingers.|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits. (NCI)|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits.|
+TYPE: g
+HERE (Compute Similarity) g (skull)
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+CUIS: C0037303
+g C0037303 MSH : The SKELETON of the HEAD including the FACIAL BONES and the bones enclosing the BRAIN.|UWDA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|CSP : bony part of the head including the facial bones and the bones enclosing the brain.|FMA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|NCI : The bones that form the head, made up of the bones of the braincase and face. (NCI)|NCI : The bones that form the head, made up of the bones of the braincase and face.|
+TYPE: r
+hand skull Compute Similarity path OMIM PAR/CHD
+In setInterface(OMIM, PAR/CHD, path)
+FILENAME: /tmp/MTesEdsHdD
+
+CuiFinder User Options: 
+   --config option set
+
+
+UMLS-Interface Configuration Information
+  Sources (SAB):
+    OMIM
+  Relations (REL):
+    CHD
+    PAR
+  Database: 
+    umls (MMSYS-2010AB-20101022)
+
+
+
+PathFinder User Options:
+   --forcerun option set
+
+
+Setting measures
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.omim.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.omim.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.omim.par.chd
+
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+TYPE: p
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+HERE: C0018563 Hand, NOS C0037303 Bone structure of cranium
+p C0018563 (Hand, NOS)|C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS) => C0521324 (Skeletal) => C0037303 (Bone structure of cranium)
+TYPE: g
+HERE (Compute Similarity) g (hand)
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+CUIS: C0018563
+g C0018563 CSP : part of the upper limb distal to the wrist including carpus, metacarpus and fingers.|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits. (NCI)|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits.|
+TYPE: g
+HERE (Compute Similarity) g (skull)
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+CUIS: C0037303
+g C0037303 MSH : The SKELETON of the HEAD including the FACIAL BONES and the bones enclosing the BRAIN.|UWDA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|CSP : bony part of the head including the facial bones and the bones enclosing the brain.|FMA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|NCI : The bones that form the head, made up of the bones of the braincase and face. (NCI)|NCI : The bones that form the head, made up of the bones of the braincase and face.|
+TYPE: r
+hand skull Compute Similarity path SNOMEDCT PAR/CHD
+In setInterface(SNOMEDCT, PAR/CHD, path)
+FILENAME: /tmp/MTesEdsHdD
+
+CuiFinder User Options: 
+   --config option set
+
+
+UMLS-Interface Configuration Information
+  Sources (SAB):
+    SNOMEDCT
+  Relations (REL):
+    CHD
+    PAR
+  Database: 
+    umls (MMSYS-2010AB-20101022)
+
+
+
+PathFinder User Options:
+   --forcerun option set
+
+
+Setting measures
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.snomedct.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.snomedct.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.snomedct.par.chd
+
+In getAllForms (hand)
+Forms (hand) : C0018563 C1281583
+Returning Forms (hand) : C0018563 C1281583
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+TYPE: p
+In getAllForms (hand)
+Forms (hand) : C0018563 C1281583
+Returning Forms (hand) : C0018563 C1281583
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+HERE: C0018563 Hand, NOS C0037303 Bone structure of cranium
+HERE: C1281583 Entire hand C0037303 Bone structure of cranium
+p C0018563 (Hand, NOS)|C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS) => C0584981 (Wrist and hand structures) => C1268196 (Upper extremity part) => C0229963 (Upper body part structure) => C0460004 (Head and neck structure) => C0460047 (Musculoskeletal structure of head and neck) => C0460036 (Musculoskeletal structure of head) => C0447986 (Bone structure of head) => C0037303 (Bone structure of cranium)|C1281583 (Entire hand)|C0037303 (Bone structure of cranium)|C1281583 (Entire hand) => C0018563 (Hand, NOS) => C0584981 (Wrist and hand structures) => C1268196 (Upper extremity part) => C0229963 (Upper body part structure) => C0460004 (Head and neck structure) => C0460047 (Musculoskeletal structure of head and neck) => C0460036 (Musculoskeletal structure of head) => C0447986 (Bone structure of head) => C0037303 (Bone structure of cranium)|C1281583 (Entire hand)|C0037303 (Bone structure of cranium)|C1281583 (Entire hand) => C1285081 (Entire body part) => C0229962 (Parts, Body) => C1268087 (Upper body structure) => C0229963 (Upper body part structure) => C0460004 (Head and neck structure) => C0460047 (Musculoskeletal structure of head and neck) => C0460036 (Musculoskeletal structure of head) => C0447986 (Bone structure of head) => C0037303 (Bone structure of cranium)
+TYPE: g
+HERE (Compute Similarity) g (hand)
+In getAllForms (hand)
+Forms (hand) : C0018563 C1281583
+Returning Forms (hand) : C0018563 C1281583
+CUIS: C0018563 C1281583
+g C0018563 CSP : part of the upper limb distal to the wrist including carpus, metacarpus and fingers.|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits. (NCI)|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits.|
+g C1281583 
+TYPE: g
+HERE (Compute Similarity) g (skull)
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+CUIS: C0037303
+g C0037303 MSH : The SKELETON of the HEAD including the FACIAL BONES and the bones enclosing the BRAIN.|UWDA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|CSP : bony part of the head including the facial bones and the bones enclosing the brain.|FMA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|NCI : The bones that form the head, made up of the bones of the braincase and face. (NCI)|NCI : The bones that form the head, made up of the bones of the braincase and face.|
+TYPE: r
+hand skull Compute Similarity nam MSH PAR/CHD
+In setInterface(MSH, PAR/CHD, nam)
+FILENAME: /tmp/MTesEdsHdD
+
+CuiFinder User Options: 
+   --config option set
+
+
+UMLS-Interface Configuration Information
+  Sources (SAB):
+    MSH
+  Relations (REL):
+    CHD
+    PAR
+  Database: 
+    umls (MMSYS-2010AB-20101022)
+
+
+
+PathFinder User Options:
+   --forcerun option set
+
+
+Setting measures
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+TYPE: p
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+HERE: C0018563 Hand, NOS C0037303 Bone structure of cranium
+p C0018563 (Hand, NOS)|C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS) => C1140618 (Extremity, Upper) => C0015385 (Limb structure) => C0005898 (Regions, Body) => C0002807 (Anatomy (MeSH Category)) => C0026860 (System, Musculoskeletal) => C0816871 (Skeletons) => C0005931 (Bones and Bone) => C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS)|C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS) => C1140618 (Extremity, Upper) => C0015385 (Limb structure) => C0005898 (Regions, Body) => C0002807 (Anatomy (MeSH Category)) => C0040300 (Body tissue, NOS) => C0009780 (Tissue, Connective) => C0005931 (Bones and Bone) => C0037303 (Bone structure of cranium)
+TYPE: g
+HERE (Compute Similarity) g (hand)
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+CUIS: C0018563
+g C0018563 CSP : part of the upper limb distal to the wrist including carpus, metacarpus and fingers.|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits. (NCI)|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits.|
+TYPE: g
+HERE (Compute Similarity) g (skull)
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+CUIS: C0037303
+g C0037303 MSH : The SKELETON of the HEAD including the FACIAL BONES and the bones enclosing the BRAIN.|UWDA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|CSP : bony part of the head including the facial bones and the bones enclosing the brain.|FMA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|NCI : The bones that form the head, made up of the bones of the braincase and face. (NCI)|NCI : The bones that form the head, made up of the bones of the braincase and face.|
+TYPE: r
+hand skull Compute Relatedness vector UMLS_ALL CUI/PAR/CHD/RB/RN
+In setInterface(UMLS_ALL, CUI/PAR/CHD/RB/RN, vector)
+FILENAME: /tmp/MTesEdsHdD
+
+CuiFinder User Options: 
+   --config option set
+
+
+UMLS-Interface Configuration Information
+  Sources (SABDEF):
+    AIR
+    AOD
+    AOT
+    CCS
+    CSP
+    CST
+    FMA
+    GO
+    HCPCS
+    HL7V2.5
+    HL7V3.0
+    HUGO
+    ICD10CM
+    ICD10PCS
+    ICD9CM
+    ICPC
+    LNC
+    MEDLINEPLUS
+    MSH
+    MTH
+    MTHCH
+    MTHHH
+    MTHHL7V2.5
+    MTHICD9
+    MTHMST
+    MTHSPL
+    NCBI
+    NCI
+    NDFRT
+    OMIM
+    PDQ
+    PNDS
+    RAM
+    RXNORM
+    SCTSPA
+    SNOMEDCT
+    SRC
+    TKMT
+    USPMG
+    UWDA
+    VANDF
+  Relations (RELDEF):
+    CHD
+    CUI
+    PAR
+    RB
+    RN
+  Database: 
+    umls (MMSYS-2010AB-20101022)
+
+
+
+PathFinder User Options:
+   --forcerun option set
+
+
+In getDefAllForms (hand)
+Forms (hand) : C0018563 C1281583 C1552290 C1552301 C1552914
+Returning Forms (hand) : C0018563 C1281583 C1552290 C1552301 C1552914
+In getDefAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+TYPE: g
+HERE (Compute Relatedness) g (hand)
+In getDefAllForms (hand)
+Forms (hand) : C0018563 C1281583 C1552290 C1552301 C1552914
+Returning Forms (hand) : C0018563 C1281583 C1552290 C1552301 C1552914
+CUIS: C0018563 C1281583 C1552290 C1552301 C1552914
+g C0018563 CSP : part of the upper limb distal to the wrist including carpus, metacarpus and fingers.|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits. (NCI)|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits.|
+g C1281583 
+g C1552290 
+g C1552301 
+g C1552914 NCI : A traditional unit of length equal to 4 inches or 10.16 centimeters.|HL7V3.0 : 4 [in_i]|HL7V3.0 : 4 [in_i]|
+TYPE: g
+HERE (Compute Relatedness) g (skull)
+In getDefAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+CUIS: C0037303
+g C0037303 MSH : The SKELETON of the HEAD including the FACIAL BONES and the bones enclosing the BRAIN.|UWDA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|CSP : bony part of the head including the facial bones and the bones enclosing the brain.|FMA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|NCI : The bones that form the head, made up of the bones of the braincase and face. (NCI)|NCI : The bones that form the head, made up of the bones of the braincase and face.|
+TYPE: r
+hand skull Compute Relatedness vector UMLS_ALL CUI
+In setInterface(UMLS_ALL, CUI, vector)
+FILENAME: /tmp/MTesEdsHdD
+
+CuiFinder User Options: 
+   --config option set
+
+
+UMLS-Interface Configuration Information
+  Sources (SABDEF):
+    AIR
+    AOD
+    AOT
+    CCS
+    CSP
+    CST
+    FMA
+    GO
+    HCPCS
+    HL7V2.5
+    HL7V3.0
+    HUGO
+    ICD10CM
+    ICD10PCS
+    ICD9CM
+    ICPC
+    LNC
+    MEDLINEPLUS
+    MSH
+    MTH
+    MTHCH
+    MTHHH
+    MTHHL7V2.5
+    MTHICD9
+    MTHMST
+    MTHSPL
+    NCBI
+    NCI
+    NDFRT
+    OMIM
+    PDQ
+    PNDS
+    RAM
+    RXNORM
+    SCTSPA
+    SNOMEDCT
+    SRC
+    TKMT
+    USPMG
+    UWDA
+    VANDF
+  Relations (RELDEF):
+    CUI
+  Database: 
+    umls (MMSYS-2010AB-20101022)
+
+
+
+PathFinder User Options:
+   --forcerun option set
+
+
+In getDefAllForms (hand)
+Forms (hand) : C0018563 C1281583 C1552290 C1552301 C1552914
+Returning Forms (hand) : C0018563 C1281583 C1552290 C1552301 C1552914
+In getDefAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+TYPE: g
+HERE (Compute Relatedness) g (hand)
+In getDefAllForms (hand)
+Forms (hand) : C0018563 C1281583 C1552290 C1552301 C1552914
+Returning Forms (hand) : C0018563 C1281583 C1552290 C1552301 C1552914
+CUIS: C0018563 C1281583 C1552290 C1552301 C1552914
+g C0018563 CSP : part of the upper limb distal to the wrist including carpus, metacarpus and fingers.|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits. (NCI)|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits.|
+g C1281583 
+g C1552290 
+g C1552301 
+g C1552914 NCI : A traditional unit of length equal to 4 inches or 10.16 centimeters.|HL7V3.0 : 4 [in_i]|HL7V3.0 : 4 [in_i]|
+TYPE: g
+HERE (Compute Relatedness) g (skull)
+In getDefAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+CUIS: C0037303
+g C0037303 MSH : The SKELETON of the HEAD including the FACIAL BONES and the bones enclosing the BRAIN.|UWDA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|CSP : bony part of the head including the facial bones and the bones enclosing the brain.|FMA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|NCI : The bones that form the head, made up of the bones of the braincase and face. (NCI)|NCI : The bones that form the head, made up of the bones of the braincase and face.|
+TYPE: r
+hand skull Compute Relatedness lesk UMLS_ALL CUI/PAR/CHD/RB/RN
+In setInterface(UMLS_ALL, CUI/PAR/CHD/RB/RN, lesk)
+FILENAME: /tmp/MTesEdsHdD
+
+CuiFinder User Options: 
+   --config option set
+
+
+UMLS-Interface Configuration Information
+  Sources (SABDEF):
+    AIR
+    AOD
+    AOT
+    CCS
+    CSP
+    CST
+    FMA
+    GO
+    HCPCS
+    HL7V2.5
+    HL7V3.0
+    HUGO
+    ICD10CM
+    ICD10PCS
+    ICD9CM
+    ICPC
+    LNC
+    MEDLINEPLUS
+    MSH
+    MTH
+    MTHCH
+    MTHHH
+    MTHHL7V2.5
+    MTHICD9
+    MTHMST
+    MTHSPL
+    NCBI
+    NCI
+    NDFRT
+    OMIM
+    PDQ
+    PNDS
+    RAM
+    RXNORM
+    SCTSPA
+    SNOMEDCT
+    SRC
+    TKMT
+    USPMG
+    UWDA
+    VANDF
+  Relations (RELDEF):
+    CHD
+    CUI
+    PAR
+    RB
+    RN
+  Database: 
+    umls (MMSYS-2010AB-20101022)
+
+
+
+PathFinder User Options:
+   --forcerun option set
+
+
+In getDefAllForms (hand)
+Forms (hand) : C0018563 C1281583 C1552290 C1552301 C1552914
+Returning Forms (hand) : C0018563 C1281583 C1552290 C1552301 C1552914
+In getDefAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+TYPE: g
+HERE (Compute Relatedness) g (hand)
+In getDefAllForms (hand)
+Forms (hand) : C0018563 C1281583 C1552290 C1552301 C1552914
+Returning Forms (hand) : C0018563 C1281583 C1552290 C1552301 C1552914
+CUIS: C0018563 C1281583 C1552290 C1552301 C1552914
+g C0018563 CSP : part of the upper limb distal to the wrist including carpus, metacarpus and fingers.|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits. (NCI)|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits.|
+g C1281583 
+g C1552290 
+g C1552301 
+g C1552914 NCI : A traditional unit of length equal to 4 inches or 10.16 centimeters.|HL7V3.0 : 4 [in_i]|HL7V3.0 : 4 [in_i]|
+TYPE: g
+HERE (Compute Relatedness) g (skull)
+In getDefAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+CUIS: C0037303
+g C0037303 MSH : The SKELETON of the HEAD including the FACIAL BONES and the bones enclosing the BRAIN.|UWDA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|CSP : bony part of the head including the facial bones and the bones enclosing the brain.|FMA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|NCI : The bones that form the head, made up of the bones of the braincase and face. (NCI)|NCI : The bones that form the head, made up of the bones of the braincase and face.|
+TYPE: r
+hand skull Compute Relatedness vector MSH CUI/PAR/CHD/RB/RN
+In setInterface(MSH, CUI/PAR/CHD/RB/RN, vector)
+FILENAME: /tmp/MTesEdsHdD
+
+CuiFinder User Options: 
+   --config option set
+
+
+UMLS-Interface Configuration Information
+  Sources (SABDEF):
+    MSH
+  Relations (RELDEF):
+    CHD
+    CUI
+    PAR
+    RB
+    RN
+  Database: 
+    umls (MMSYS-2010AB-20101022)
+
+
+
+PathFinder User Options:
+   --forcerun option set
+
+
+In getDefAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+In getDefAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+TYPE: g
+HERE (Compute Relatedness) g (hand)
+In getDefAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+CUIS: C0018563
+g C0018563 
+TYPE: g
+HERE (Compute Relatedness) g (skull)
+In getDefAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+CUIS: C0037303
+g C0037303 MSH : The SKELETON of the HEAD including the FACIAL BONES and the bones enclosing the BRAIN.|
+TYPE: r
+hand skull Compute Similarity path MSH PAR/CHD
+In setInterface(MSH, PAR/CHD, path)
+FILENAME: /tmp/MTesEdsHdD
+
+CuiFinder User Options: 
+   --config option set
+
+
+UMLS-Interface Configuration Information
+  Sources (SAB):
+    MSH
+  Relations (REL):
+    CHD
+    PAR
+  Database: 
+    umls (MMSYS-2010AB-20101022)
+
+
+
+PathFinder User Options:
+   --forcerun option set
+
+
+Setting measures
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+TYPE: p
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+HERE: C0018563 Hand, NOS C0037303 Bone structure of cranium
+p C0018563 (Hand, NOS)|C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS) => C1140618 (Extremity, Upper) => C0015385 (Limb structure) => C0005898 (Regions, Body) => C0002807 (Anatomy (MeSH Category)) => C0026860 (System, Musculoskeletal) => C0816871 (Skeletons) => C0005931 (Bones and Bone) => C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS)|C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS) => C1140618 (Extremity, Upper) => C0015385 (Limb structure) => C0005898 (Regions, Body) => C0002807 (Anatomy (MeSH Category)) => C0040300 (Body tissue, NOS) => C0009780 (Tissue, Connective) => C0005931 (Bones and Bone) => C0037303 (Bone structure of cranium)
+TYPE: g
+HERE (Compute Similarity) g (hand)
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+CUIS: C0018563
+g C0018563 CSP : part of the upper limb distal to the wrist including carpus, metacarpus and fingers.|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits. (NCI)|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits.|
+TYPE: g
+HERE (Compute Similarity) g (skull)
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+CUIS: C0037303
+g C0037303 MSH : The SKELETON of the HEAD including the FACIAL BONES and the bones enclosing the BRAIN.|UWDA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|CSP : bony part of the head including the facial bones and the bones enclosing the brain.|FMA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|NCI : The bones that form the head, made up of the bones of the braincase and face. (NCI)|NCI : The bones that form the head, made up of the bones of the braincase and face.|
+TYPE: r
+hand skull Compute Similarity path MSH PAR/CHD
+In setInterface(MSH, PAR/CHD, path)
+FILENAME: /tmp/MTesEdsHdD
+
+CuiFinder User Options: 
+   --config option set
+
+
+UMLS-Interface Configuration Information
+  Sources (SAB):
+    MSH
+  Relations (REL):
+    CHD
+    PAR
+  Database: 
+    umls (MMSYS-2010AB-20101022)
+
+
+
+PathFinder User Options:
+   --forcerun option set
+
+
+Setting measures
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+TYPE: p
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+HERE: C0018563 Hand, NOS C0037303 Bone structure of cranium
+p C0018563 (Hand, NOS)|C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS) => C1140618 (Extremity, Upper) => C0015385 (Limb structure) => C0005898 (Regions, Body) => C0002807 (Anatomy (MeSH Category)) => C0026860 (System, Musculoskeletal) => C0816871 (Skeletons) => C0005931 (Bones and Bone) => C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS)|C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS) => C1140618 (Extremity, Upper) => C0015385 (Limb structure) => C0005898 (Regions, Body) => C0002807 (Anatomy (MeSH Category)) => C0040300 (Body tissue, NOS) => C0009780 (Tissue, Connective) => C0005931 (Bones and Bone) => C0037303 (Bone structure of cranium)
+TYPE: g
+HERE (Compute Similarity) g (hand)
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+CUIS: C0018563
+g C0018563 CSP : part of the upper limb distal to the wrist including carpus, metacarpus and fingers.|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits. (NCI)|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits.|
+TYPE: g
+HERE (Compute Similarity) g (skull)
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+CUIS: C0037303
+g C0037303 MSH : The SKELETON of the HEAD including the FACIAL BONES and the bones enclosing the BRAIN.|UWDA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|CSP : bony part of the head including the facial bones and the bones enclosing the brain.|FMA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|NCI : The bones that form the head, made up of the bones of the braincase and face. (NCI)|NCI : The bones that form the head, made up of the bones of the braincase and face.|
+TYPE: r
+hand skull Compute Similarity path MSH PAR/CHD
+In setInterface(MSH, PAR/CHD, path)
+FILENAME: /tmp/MTesEdsHdD
+
+CuiFinder User Options: 
+   --config option set
+
+
+UMLS-Interface Configuration Information
+  Sources (SAB):
+    MSH
+  Relations (REL):
+    CHD
+    PAR
+  Database: 
+    umls (MMSYS-2010AB-20101022)
+
+
+
+PathFinder User Options:
+   --forcerun option set
+
+
+Setting measures
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+TYPE: p
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+HERE: C0018563 Hand, NOS C0037303 Bone structure of cranium
+p C0018563 (Hand, NOS)|C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS) => C1140618 (Extremity, Upper) => C0015385 (Limb structure) => C0005898 (Regions, Body) => C0002807 (Anatomy (MeSH Category)) => C0026860 (System, Musculoskeletal) => C0816871 (Skeletons) => C0005931 (Bones and Bone) => C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS)|C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS) => C1140618 (Extremity, Upper) => C0015385 (Limb structure) => C0005898 (Regions, Body) => C0002807 (Anatomy (MeSH Category)) => C0040300 (Body tissue, NOS) => C0009780 (Tissue, Connective) => C0005931 (Bones and Bone) => C0037303 (Bone structure of cranium)
+TYPE: g
+HERE (Compute Similarity) g (hand)
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+CUIS: C0018563
+g C0018563 CSP : part of the upper limb distal to the wrist including carpus, metacarpus and fingers.|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits. (NCI)|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits.|
+TYPE: g
+HERE (Compute Similarity) g (skull)
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+CUIS: C0037303
+g C0037303 MSH : The SKELETON of the HEAD including the FACIAL BONES and the bones enclosing the BRAIN.|UWDA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|CSP : bony part of the head including the facial bones and the bones enclosing the brain.|FMA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|NCI : The bones that form the head, made up of the bones of the braincase and face. (NCI)|NCI : The bones that form the head, made up of the bones of the braincase and face.|
+TYPE: r
+hand skull Compute Similarity path MSH PAR/CHD
+In setInterface(MSH, PAR/CHD, path)
+FILENAME: /tmp/MTesEdsHdD
+
+CuiFinder User Options: 
+   --config option set
+
+
+UMLS-Interface Configuration Information
+  Sources (SAB):
+    MSH
+  Relations (REL):
+    CHD
+    PAR
+  Database: 
+    umls (MMSYS-2010AB-20101022)
+
+
+
+PathFinder User Options:
+   --forcerun option set
+
+
+Setting measures
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+
+ICFinder User Options:
+  --icpropagation /var/www/umls_similarity/icpropagation/icprop.msh.par.chd
+
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+TYPE: p
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+HERE: C0018563 Hand, NOS C0037303 Bone structure of cranium
+p C0018563 (Hand, NOS)|C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS) => C1140618 (Extremity, Upper) => C0015385 (Limb structure) => C0005898 (Regions, Body) => C0002807 (Anatomy (MeSH Category)) => C0026860 (System, Musculoskeletal) => C0816871 (Skeletons) => C0005931 (Bones and Bone) => C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS)|C0037303 (Bone structure of cranium)|C0018563 (Hand, NOS) => C1140618 (Extremity, Upper) => C0015385 (Limb structure) => C0005898 (Regions, Body) => C0002807 (Anatomy (MeSH Category)) => C0040300 (Body tissue, NOS) => C0009780 (Tissue, Connective) => C0005931 (Bones and Bone) => C0037303 (Bone structure of cranium)
+TYPE: g
+HERE (Compute Similarity) g (hand)
+In getAllForms (hand)
+Forms (hand) : C0018563
+Returning Forms (hand) : C0018563
+CUIS: C0018563
+g C0018563 CSP : part of the upper limb distal to the wrist including carpus, metacarpus and fingers.|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits. (NCI)|NCI : The distal portion of the upper extremity. It consists of the carpus, metacarpus, and digits.|
+TYPE: g
+HERE (Compute Similarity) g (skull)
+In getAllForms (skull)
+Forms (skull) : C0037303
+Returning Forms (skull) : C0037303
+CUIS: C0037303
+g C0037303 MSH : The SKELETON of the HEAD including the FACIAL BONES and the bones enclosing the BRAIN.|UWDA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|CSP : bony part of the head including the facial bones and the bones enclosing the brain.|FMA : Subdivision of skeletal system which consists of the skeleton of the head and its joints.|NCI : The bones that form the head, made up of the bones of the braincase and face. (NCI)|NCI : The bones that form the head, made up of the bones of the braincase and face.|

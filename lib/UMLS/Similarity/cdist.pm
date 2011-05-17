@@ -124,28 +124,22 @@ of concepts in the UMLS by simple edge counting proposed by Rada, et. al.
 =head1 SYNOPSIS
 
   use UMLS::Interface;
-
   use UMLS::Similarity::cdist;
 
   my $umls = UMLS::Interface->new(); 
-
   die "Unable to create UMLS::Interface object.\n" if(!$umls);
 
   my $cdist = UMLS::Similarity::cdist->new($umls);
-
   die "Unable to create measure object.\n" if(!$cdist);
 
   my $cui1 = "C0005767";
-
   my $cui2 = "C0007634";
 
-  @ts1 = $umls->getTermList($cui1);
+  $ts1 = $umls->getTermList($cui1);
+  my $term1 = pop @{$ts1};
 
-  my $term1 = pop @ts1;
-
-  @ts2 = $umls->getTermList($cui2);
-
-  my $term2 = pop @ts2;
+  $ts2 = $umls->getTermList($cui2);
+  my $term2 = pop @{$ts2};
 
   my $value = $cdist->getRelatedness($cui1, $cui2);
 

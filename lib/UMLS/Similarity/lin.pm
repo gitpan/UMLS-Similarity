@@ -80,7 +80,7 @@ sub new
     if( (!defined $params->{"icpropagation"}) &&
 	(!defined $params->{"icfrequency"}) ) {
 	
-	print STDERR "Setting default propagation file\n";
+	print STDERR "Setting default propagation file (lin)\n";
 
 	#  get the icfrequency file
 	my $icfrequency = ""; foreach my $path (@INC) {
@@ -179,12 +179,7 @@ relatednessof concepts in the Unified Medical Language System
   use UMLS::Interface;
   use UMLS::Similarity::lin;
 
-  my $icpropagation = "samples/icpropagation";
-  my %option_hash   = ();
-
-  $option_hash{"icpropagation"} = $icpropagation;
-
-  my $umls = UMLS::Interface->new(\%option_hash); 
+  my $umls = UMLS::Interface->new(); 
   die "Unable to create UMLS::Interface object.\n" if(!$umls);
 
   my $lin = UMLS::Similarity::lin->new($umls);
@@ -193,11 +188,11 @@ relatednessof concepts in the Unified Medical Language System
   my $cui1 = "C0005767";
   my $cui2 = "C0007634";
 
-  @ts1 = $umls->getTermList($cui1);
-  my $term1 = pop @ts1;
+  $ts1 = $umls->getTermList($cui1);
+  my $term1 = pop @{$ts1};
 
-  @ts2 = $umls->getTermList($cui2);
-  my $term2 = pop @ts2;
+  $ts2 = $umls->getTermList($cui2);
+  my $term2 = pop @{$ts2};
 
   my $value = $lin->getRelatedness($cui1, $cui2);
 

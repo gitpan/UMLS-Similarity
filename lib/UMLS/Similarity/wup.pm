@@ -160,11 +160,11 @@ method described by Wu and Palmer (1994).
   my $cui1 = "C0005767";
   my $cui2 = "C0007634";
 
-  @ts1 = $umls->getTermList($cui1);
-  my $term1 = pop @ts1;
+  $ts1 = $umls->getTermList($cui1);
+  my $term1 = pop @{$ts1};
 
-  @ts2 = $umls->getTermList($cui2);
-  my $term2 = pop @ts2;
+  $ts2 = $umls->getTermList($cui2);
+  my $term2 = pop @{$ts2};
 
   my $value = $wup->getRelatedness($cui1, $cui2);
 

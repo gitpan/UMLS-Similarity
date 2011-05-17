@@ -33,9 +33,6 @@ my $cgi = CGI->new;
 my $text_color1 = 'black';
 my $text_color2 = '#d03000';
 
-# Mapping from hash-code to version
-my %versionMap = ('eOS9lXC6GvMWznF1wkZofDdtbBU' => '3.0', 'LL1BZMsWkr0YOuiewfbiL656+Q4' => '2.1');
-
 # print the HTTP header
 print $cgi->header;
 
@@ -763,8 +760,6 @@ This interface is based on the
 <br />E-mail: bthomson (at) umn (dot) edu
 <br>
 <td align="right"
-<a href="http://www2.clustrmaps.com/counter/maps.php?url=http://atlas.ahc.umn.edu/cgi-bin/umls_similarity.cgi" id="clustrMapsLink"><img src="http://www2.clustrmaps.com/counter/index2.php?url=http://atlas.ahc.umn.edu/cgi-bin/umls_similarity.cgi" style="border:0px;" alt="Locations of visitors to this page" title="Locations of visitors to this page" id="clustrMapsImg" onerror="this.onerror=null; this.src='http://clustrmaps.com/images/clustrmaps-back-soon.jpg'; document.getElementById('clustrMapsLink').href='http://clustrmaps.com';" />
-</a>
 </td></tbody></table>
 </div>
 </body>

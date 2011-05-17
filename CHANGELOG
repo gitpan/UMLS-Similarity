@@ -1,6 +1,17 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 1.09 to 1.11
+    1. modified the synopsis code in the measures
+
+    2. modified the web documentation
+
+    3. included the icpropagation and vectorfiles in the distribution for
+    the web interface
+
+    4. added a --url option to the query-umls-similarity-webinterface.pl
+    program.
+
   Changes from version 1.07 to 1.09
     1. added the --st option to create-icfrequency and create-icpropagation
     to propagation semantic types to find their probability using the is-a

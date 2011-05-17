@@ -7,6 +7,22 @@ cgi-bin directory:
 cgi-bin/umls_similarity.cgi
 cgi-bin/umls_wps.cgi
 
+A set of required html and style files in the docs directory:
+
+docs/faq.html       
+docs/index.html
+docs/instructions.html  
+docs/similarity_measures.html
+docs/relatedness_measures.html  
+docs/logo_black.gif     
+docs/sim-style.css
+
+As well as two directories containing the externam information content 
+and vector files, also in the docs directory:
+
+docs/icpropagation  
+docs/vectorfiles
+
 The code and documentation borrows heavly from the WordNet::Similarity 
 web interface written by Jason Michelizzi if you are familiar with it. 
 Any problems with this package though are due to my inabilities not 
@@ -67,12 +83,15 @@ your system somewhat organized, you may want to put them in a subdirectory
 in your cgi directory (e.g., /usr/local/apache2/cgi-bin/umls_similarity). 
 These  instructions generally assume the latter.  
 
-There are various html, style sheets, and images in the 'doc' directory  
+The various html, style sheets, and images in the 'docs' directory  
 of the distribution. These should be put wherever html documents go on  
 your webserver (e.g., /usr/local/apache2/htdocs). In order to keep your  
 system somewhat organized, you may want to put them in a subdirectory in  
 your html directory (e.g., /usr/local/apache2/htdocs/umls_similarity). 
 These instructions generally assume the latter. 
+
+The icpropagation and vectorfiles directories in the 'docs' directory
+should also be put wherever the html documents go on your server. 
 
 Note that if you are using Ubuntu Linux, your cgi-bin directory is 
 typically found at /usr/lib/cgi-bin and documents are found in /var/www

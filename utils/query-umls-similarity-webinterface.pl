@@ -21,6 +21,12 @@ The input are two terms or two CUIs associated to concepts in the UMLS.
 
 =head2 OPTIONS: 
 
+=head3 --url URL
+
+The url to the server hosting the webinterface. 
+
+  DEFAULT: http://atlas.ahc.umn.edu
+
 =head3 --sab SOURCES
 
 The UMLS source(s) used to obtain the similarity or relatedness values. 
@@ -165,7 +171,7 @@ use Getopt::Long;
 use URI::Escape;
 use LWP; 
 
-eval(GetOptions( "version", "help", "measure=s", "sab=s", "rel=s", "infile=s", "debug")) or die ("Please check the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "url=s", "measure=s", "sab=s", "rel=s", "infile=s", "debug")) or die ("Please check the above mentioned option(s).\n");
 
 # if debug is defined
 my $debug = 0;
@@ -205,6 +211,7 @@ my $rmeasure = "";
 my $smeasure = "";
 my $button   = "";
 my $measure  = "";
+my $url      = "";
 
 #  check the input options
 &checkOptions();
@@ -267,11 +274,12 @@ sub queryWebInterface
     
     if($debug) { print STDERR "In queryWebInterface($i1, $i2)\n"; }
     
-    my $url = "http://134.84.248.51/cgi-bin/umls_similarity.cgi?word1=$i1&word2=$i2&sab=$sab&rel=$rel&similarity=$smeasure&button=$button&sabdef=$sabdef&reldef=$reldef&relatedness=$rmeasure";
 
-    my $resp = $browser->get($url);   
+    my $qurl = "$url/cgi-bin/umls_similarity.cgi?word1=$i1&word2=$i2&sab=$sab&rel=$rel&similarity=$smeasure&button=$button&sabdef=$sabdef&reldef=$reldef&relatedness=$rmeasure";
+
+    my $resp = $browser->get($qurl);   
     if ($resp->is_success) { }   
-    else { print $resp->status_line, "$url \n"; }
+    else { print $resp->status_line, "$qurl \n"; }
     
     my $webpage = $resp->content;    
     
@@ -437,6 +445,14 @@ sub setOptions {
     my $default = "";
     my $set     = "";
 
+    #  set url
+    $url = "http://atlas.ahc.umn.edu/";
+    if(defined $opt_url) { 
+	$url = $opt_url;
+	$set .= "  --set $url\n";
+    }
+    else { $default .= "  --default $url\n"; }
+
     #  set file
     if(defined $opt_infile) {
 	$infile = $opt_infile;
@@ -544,6 +560,9 @@ sub showHelp() {
 
     print "General Options:\n\n";
 
+    print "--url URL                The url to the server hosting the webinterface\n";
+    print "                         DEFAULT: http://atlas.ahc.umn.edu\n\n";
+
     print "--measure MEASURE        The measure to use to calculate the\n";
     print "                         semantic similarity. (DEFAULT: path)\n\n";
 
@@ -567,7 +586,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: query-umls-similarity-webinterface.pl,v 1.5 2011/05/04 12:06:42 btmcinnes Exp $';
+    print '$Id: query-umls-similarity-webinterface.pl,v 1.6 2011/05/17 16:54:49 btmcinnes Exp $';
     print "\nCopyright (c) 2011, Ted Pedersen & Bridget McInnes\n";
 }
 

@@ -158,11 +158,11 @@ method described by Nguyen and Al-Mubaid (2006)
   my $cui1 = "C0005767";
   my $cui2 = "C0007634";
 
-  @ts1 = $umls->getTermList($cui1);
-  my $term1 = pop @ts1;
+  $ts1 = $umls->getTermList($cui1);
+  my $term1 = pop @{$ts1};
 
-  @ts2 = $umls->getTermList($cui2);
-  my $term2 = pop @ts2;
+  $ts2 = $umls->getTermList($cui2);
+  my $term2 = pop @{$ts2};
 
   my $value = $nam->getRelatedness($cui1, $cui2);
 

@@ -728,8 +728,6 @@ method described by Banerjee and Pedersen (2002).
 
 =head1 SYNOPSIS
 
-  #!/usr/bin/perl
-
   use UMLS::Interface;
   use UMLS::Similarity::lesk;
 
@@ -742,11 +740,11 @@ method described by Banerjee and Pedersen (2002).
   my $cui1 = "C0018563";
   my $cui2 = "C0037303";
 
-  @ts1 = $umls->getTermList($cui1);
-  my $term1 = pop @ts1;
+  $ts1 = $umls->getTermList($cui1);
+  my $term1 = pop @{$ts1};
 
-  @ts2 = $umls->getTermList($cui2);
-  my $term2 = pop @ts2;
+  $ts2 = $umls->getTermList($cui2);
+  my $term2 = pop @{$ts2};
 
   my $value = $lesk->getRelatedness($cui1, $cui2);
 

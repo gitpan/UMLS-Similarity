@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # umls_similarity_server.pl version 0.01
-# (Last updated $Id: umls_similarity_server.pl,v 1.12 2011/05/04 12:04:33 btmcinnes Exp $)
+# (Last updated $Id: umls_similarity_server.pl,v 1.13 2011/05/17 16:25:45 btmcinnes Exp $)
 #
 # ---------------------------------------------------------------------
 
@@ -241,6 +241,7 @@ while((my $client = $socket->accept) or $interrupted)
 	    $preferred = "UMLS_ROOT";
 	}
 	else {
+	    print STDERR "CUI: $cui\n";
 	    $preferred = $interface->getAllPreferredTerm($cui); 
 	}
 	
@@ -353,9 +354,9 @@ while((my $client = $socket->accept) or $interrupted)
 	    print STDERR "CUIS: @cuis\n";
 	}
 	foreach my $cui (@cuis) { 
-	    my @defs = $interface->getCuiDef($cui, 1);
+	    my $defs = $interface->getCuiDef($cui, 1);
 	    my $string = "";
-	    foreach my $def (@defs) { 
+	    foreach my $def (@{$defs}) { 
 		my @array = split/\s+/, $def;
 		my $sab = shift @array;
 		$string .= "$sab : @array|";
@@ -368,14 +369,14 @@ while((my $client = $socket->accept) or $interrupted)
 	
 	my (undef, $word1, $word2) = split/\|/, $request;
 	
-	my @cuis1 = ();	
+	my @cuis1 = ();
 	if($word1 =~/[Cc][0-9]+/) { 
 	    push @cuis1, uc($word1);
 	}
 	else {
 	    @cuis1 = getAllForms($word1, $interface);
 	}
-	
+
 	my @cuis2 = ();
 	if($word2 =~/[Cc][0-9]+/) { 
 	    push @cuis2, uc($word2);
@@ -387,10 +388,11 @@ while((my $client = $socket->accept) or $interrupted)
 	my $string = "";
 	foreach my $cui1 (@cuis1) { 
 	    my $t1 = $interface->getAllPreferredTerm($cui1);
-	    foreach my $cui2 (@cuis2) { 
+	    foreach my $cui2 (@cuis2) {
 		my $t2 = $interface->getAllPreferredTerm($cui2);
-		my @paths = $interface->findShortestPath($cui1, $cui2);
-		foreach my $path (@paths) { 
+		my $paths = $interface->findShortestPath($cui1, $cui2);
+		print STDERR "HERE: $cui1 $t1 $cui2 $t2\n";
+		foreach my $path (@{$paths}) { 
 		    my @array = split/\s+/, $path;
 		    $string .= "$cui1 ($t1)|$cui2 ($t2)|";
 		    foreach my $i (0..$#array) {
@@ -437,7 +439,8 @@ sub setInterface {
     my @rels = split/\//, $rel;
     my $rstring = join ", ", @rels;
     
-    
+    print STDERR "In setInterface($sab, $rel, $measure)\n";
+
     ## create config file
     my $fh = File::Temp->new();
     my $cfg = $fh->filename();
@@ -455,14 +458,15 @@ sub setInterface {
 
     print STDERR "FILENAME: $cfg\n";
 
-    if($measure=~/res|lin|jcn/) {
-	my $relname = join ".", @rels;
-	my $sabname = lc($sab);
-	$relname = lc($relname);
-	my $icfilename = "icprop.$sabname.$relname";
-	$option_hash{"icpropagation"} = "$doc_base/icpropagation/$icfilename";
-    }
-
+    #  set the information content default files
+    my %ic_options = ();
+    my $relname = join ".", @rels;
+    my $sabname = lc($sab);
+    $relname = lc($relname);
+    my $icfilename = "icprop.$sabname.$relname";
+    $ic_options{"icpropagation"} = "$doc_base/icpropagation/$icfilename";
+    
+    #  set the vector default files
     my %vector_options = ();
     $vector_options{"vectormatrix"} = "$doc_base/vectorfiles/mtx.remove75.uremove1k";
     $vector_options{"vectorindex"}  = "$doc_base/vectorfiles/idx.remove75.uremove1k";
@@ -474,12 +478,14 @@ sub setInterface {
     $interface = UMLS::Interface->new(\%option_hash);
 
     if($measure=~/path|lch|wup|res|lin|jcn|nam|cdist|random/) { 
+	print STDERR "Setting measures\n";
+	
 	$path   = UMLS::Similarity::path->new($interface);
 	$lch    = UMLS::Similarity::lch->new($interface);
 	$wup    = UMLS::Similarity::wup->new($interface);
-	$res    = UMLS::Similarity::res->new($interface);
-	$lin    = UMLS::Similarity::lin->new($interface);
-	$jcn    = UMLS::Similarity::jcn->new($interface);
+	$res    = UMLS::Similarity::res->new($interface, \%ic_options);
+	$lin    = UMLS::Similarity::lin->new($interface, \%ic_options);
+	$jcn    = UMLS::Similarity::jcn->new($interface, \%ic_options);
 	$nam    = UMLS::Similarity::nam->new($interface);
 	$cdist  = UMLS::Similarity::cdist->new($interface);
 	$random = UMLS::Similarity::random->new($interface);
@@ -495,22 +501,22 @@ sub setInterface {
 sub getCuis {
     my $word = shift;
 
-    my @forms = ();
+    my $forms = undef;
 
     # check if the string is a CUI just use it
-    if($word =~ m/C[0-9]+/) { push @forms, $word; }
+    if($word =~ m/C[0-9]+/) { push @{$forms}, $word; }
     
     # otherwise find the CUIs
     else {
 	getlock;
 	my @temp = $interface->getConceptList($word);
-	eval{@forms = $interface->getConceptList($word);};
+	eval{$forms = $interface->getConceptList($word);};
 	print(STDERR &timestamp("$@\n")) if($@);
 	releaselock;
-	return () unless scalar @forms;	 
+	return () unless scalar @{$forms};	 
     }
     #  return the forms
-    return @forms;
+    return @{$forms};
 }
 
 sub getAllForms ($ $)
@@ -519,23 +525,25 @@ sub getAllForms ($ $)
     my $umls = shift;
     
     print STDERR "In getAllForms ($word)\n";
-    my @forms = ();
+
+    my $forms = undef;
+
     
     # check if the string is a CUI just use it
-    if($word =~ m/[cC][0-9]+/) { $word = uc($word); push @forms, $word; }
+    if($word =~ m/[cC][0-9]+/) { $word = uc($word); push @{$forms}, $word; }
     
     # otherwise find the CUIs
     else {
 	getlock;
-	eval{@forms = $umls->getConceptList($word);};
-	print STDERR "Forms ($word) : @forms\n";
+	eval{$forms = $umls->getConceptList($word);};
+	print STDERR "Forms ($word) : @{$forms}\n";
 	print(STDERR &timestamp("$@\n")) if($@);
 	releaselock;
-	return () unless scalar @forms;	 
+	return () unless scalar @{$forms};	 
     }
     #  return the forms
-    print STDERR "Returning Forms ($word) : @forms\n";
-    return @forms;
+    print STDERR "Returning Forms ($word) : @{$forms}\n";
+    return @{$forms};
 }
 
 sub getAllDefForms ($ $)
@@ -544,23 +552,24 @@ sub getAllDefForms ($ $)
     my $umls = shift;
     
     print STDERR "In getDefAllForms ($word)\n";
-    my @forms = ();
+
+    my $forms = undef;
     
     # check if the string is a CUI just use it
-    if($word =~ m/[cC][0-9]+/) { $word = uc($word); push @forms, $word; }
+    if($word =~ m/[cC][0-9]+/) { $word = uc($word); push @{$forms}, $word; }
     
     # otherwise find the CUIs
     else {
 	getlock;
-	eval{@forms = $umls->getDefConceptList($word);};
-	print STDERR "Forms ($word) : @forms\n";
+	eval{$forms = $umls->getDefConceptList($word);};
+	print STDERR "Forms ($word) : @{$forms}\n";
 	print(STDERR &timestamp("$@\n")) if($@);
 	releaselock;
-	return () unless scalar @forms;	 
+	return () unless scalar @{$forms};	 
     }
     #  return the forms
-    print STDERR "Returning Forms ($word) : @forms\n";
-    return @forms;
+    print STDERR "Returning Forms ($word) : @{$forms}\n";
+    return @{$forms};
 }
 
 

@@ -908,26 +908,20 @@ method described by Patwardhan and Pedersen (2006).
   use UMLS::Interface;
   use UMLS::Similarity::vector;
 
-  my $vectormatrix = "samples/vectormatrix";
-  my $vectorindex  = "samples/vectorindex";
-
   my $umls = UMLS::Interface->new(); 
   die "Unable to create UMLS::Interface object.\n" if(!$umls);
 
-  $vectoroptions{"vectormatrix"} = $vectormatrix;
-  $vectoroptions{"vectorindex"} = $vectorindex;
-
-  my $vector = UMLS::Similarity::vector->new($umls, \%vectoroptions);
+  my $vector = UMLS::Similarity::vector->new($umls);
   die "Unable to create measure object.\n" if(!$vector);
 
   my $cui1 = "C0018563";
   my $cui2 = "C0037303";
 
-  @ts1 = $umls->getTermList($cui1);
-  my $term1 = pop @ts1;
+  $ts1 = $umls->getTermList($cui1);
+  my $term1 = pop @{$ts1};
 
-  @ts2 = $umls->getTermList($cui2);
-  my $term2 = pop @ts2;
+  $ts2 = $umls->getTermList($cui2);
+  my $term2 = pop @{$ts2};
 
   my $value = $vector->getRelatedness($cui1, $cui2);
 
