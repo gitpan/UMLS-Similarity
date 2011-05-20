@@ -95,15 +95,20 @@ __END__
 
 =head1 NAME
 
-wps.cgi
+wps.cgi - a CGI script implementing the obtaining of the concept definitions 
+for the web interface. 
 
 =head1 DESCRIPTION
 
-This script takes one parameter 'wps', which is a valid word#pos#sense string
-and produces a web page that displays the gloss of the synset to which that
-word sense belongs.
+This script takes two parameter 'button' and 'wps', in which button indicates 
+whether the similarity or relatedness is being obtained (SAB or SABDEF) and 
+'wps' is a term. The script produces a web page that displays the UMLS 
+definition for each possible CUI of the term.
 
 =head1 AUTHORS
+
+ Bridget T. McInnes, University of Minnesota
+ bthomson at umn.edu
 
  Ted Pedersen, University of Minnesota Duluth
  tpederse at d.umn.edu
@@ -116,7 +121,7 @@ None known.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2008, Ted Pedersen and Jason Michelizzi
+Copyright (c) 2010-2011, Bridget T. McInnes, Ted Pedersen and Jason Michelizzi
 
 This program is free software; you may redistribute and/or modify it under the
 terms of the GNU General Public License, version 2 or, at your option, any

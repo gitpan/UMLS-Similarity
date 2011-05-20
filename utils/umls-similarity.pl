@@ -15,9 +15,13 @@ Usage: umls-similarity.pl [OPTIONS] [CUI1|TERM1] [CUI2|TERM2]
 
 =head1 INPUT
 
-=head3 [CUI1|TERM1] [CUI2|TERM2]
+=head2 [CUI1|TERM1] [CUI2|TERM2]
 
 The input are two terms or two CUIs associated to concepts in the UMLS. 
+
+=head1 OPTIONS
+
+Optional command line arguements
 
 =head2 General Options:
 
@@ -1463,7 +1467,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.92 2011/05/04 18:33:57 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.93 2011/05/20 13:23:56 btmcinnes Exp $';
     print "\nCopyright (c) 2008-2011, Ted Pedersen & Bridget McInnes\n";
 }
 

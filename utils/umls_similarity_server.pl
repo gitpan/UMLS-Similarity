@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # umls_similarity_server.pl version 0.01
-# (Last updated $Id: umls_similarity_server.pl,v 1.13 2011/05/17 16:25:45 btmcinnes Exp $)
+# (Last updated $Id: umls_similarity_server.pl,v 1.14 2011/05/20 13:23:56 btmcinnes Exp $)
 #
 # ---------------------------------------------------------------------
 
@@ -17,8 +17,8 @@ use POSIX qw(setsid);     # to daemonize
 my $doc_base = '/var/www/umls_similarity';
 
 # Get the command-line options
-our($opt_port, $opt_logfile, $opt_maxchild, $opt_stoplist, $opt_version, $opt_help);
-&GetOptions("port=i", "logfile=s", "maxchild=i", "stoplist=s", "version",  "help");
+our($opt_port, $opt_logfile, $opt_maxchild, $opt_version, $opt_help);
+&GetOptions("port=i", "logfile=s", "maxchild=i", "version",  "help");
 
 # Check for version
 if(defined($opt_version))
@@ -32,7 +32,7 @@ if(defined($opt_version))
 # Check for help
 if(defined($opt_help))
 {
-  print "Usage: umls_similarity_server.pl [--port PORTNUMBER] [--logfile LOGFILE] [--maxchild NUM] [--stoplist STOPFILE]\n";
+  print "Usage: umls_similarity_server.pl [--port PORTNUMBER] [--logfile LOGFILE] [--maxchild NUM] \n";
 
   print "                            | --help\n";
   print "                            | --version\n";
@@ -46,8 +46,6 @@ if(defined($opt_help))
   print "              should be written out.\n";
   print "--maxchild    Specify the maximum number NUM of the processes that should\n";
   print "              be forked to handle the requests.\n";
-  print "--stoplist    A file STOPFILE of stop words to be provided to the lesk and\n";
-  print "              vector modules.\n";
   print "--help        Display this help message and quit.\n";
   print "--version     Display the version information and quit.\n";
   exit;
@@ -56,17 +54,12 @@ if(defined($opt_help))
 # Local variables
 my $localport = 31135;
 my $error_log = undef;
-my $stoplist;
 my $maxchild = 4; # max number of child processes at one time
 sub reaper;
 
 # Set the log file, if specified
 $error_log = $1 if(defined($opt_logfile) and $opt_logfile ne "" and $opt_logfile =~ /^(.*)$/);
 print STDERR "Error log = ".($error_log?$error_log:"<none>")."\n";
-
-# Set the stop list, if specified
-$stoplist = $1 if(defined($opt_stoplist) and $opt_stoplist ne "" and $opt_stoplist =~ /^(.*)$/);
-print STDERR "Stoplist = ".($stoplist?$stoplist:"<none>")."\n";
 
 # Set the port
 $localport = $opt_port if(defined($opt_port));
@@ -639,7 +632,7 @@ umls_similarity_server.pl - [Web] The backend WordNet::Similarity server for the
 
 =head1 SYNOPSIS
 
-Usage: umls_similarity_server.pl [--port PORTNUMBER] [--logfile LOGFILE] [--maxchild NUM] [--stoplist STOPFILE]
+Usage: umls_similarity_server.pl [--port PORTNUMBER] [--logfile LOGFILE] [--maxchild NUM] 
                             | --help
                             | --version
 
@@ -680,10 +673,6 @@ B<--logfile>=I<LOGFILE>
 B<--maxchild>=I<NUM>
     Specify the maximum number NUM of the processes that should be forked
     to handle the requests.
-
-B<--stoplist>=I<STOPFILE>
-    A file STOPFILE of stop words to be provided to the lesk and vector
-    modules.
 
 B<--help>
     Display the help message and quit.

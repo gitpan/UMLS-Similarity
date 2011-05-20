@@ -103,6 +103,71 @@ formats:
 
 =back
 
+=head1 CHEAT SHEET
+
+=head2 BASIC EXAMPLE
+
+The simplist case is:
+
+ query-umls-similarity-webinterface.pl hand skull
+
+which returns the similarity between 'hand' 'skull' using the
+path measure where the path information is obtained from the
+PAR/CHD relations in MSH.
+
+=head2 MODIFY THE DEFAULT MEASURE
+
+There are a number of additional similarity or relatedness measures
+that you can use:  Leacock & Chodorow (lch), Wu & Palmer (wup), Lin
+(lin) Resnik (res), Jiang & Conrath (jcn), Lesk (lesk and the Vector
+Measure (vector).
+
+To change the measure, use the --measure option. For example:
+
+ query-umls-similarity-webinterface.pl --measure lesk hand skull
+
+
+=head2 MODIFY THE DEFAULT SOURCE/RELATIONS
+
+There are also a number of additional SOURCE/RELATION options that
+you can use.
+
+For the similarity measures, you can use:
+
+      Source   Relations
+      -----------------------
+      SNOMEDCT PAR/CHD
+      SNOMEDCT RB/RN
+      MSH      PAR/CHD
+      MSH      RB/RN
+      FMA      PAR/CHD
+      FMA      RB/RN
+      OMIM     PAR/CHD
+      OMIM     RB/RN
+
+This means that the path information will be obtained from the specified
+source following the specified relations.
+
+For the relatedness measures, things are a little different because the
+relations refer to what relations the extended definition is derived
+from. In the interface, you can use:
+
+      Source   Relations
+      -----------------------
+      SNOMEDCT CUI/PAR/CHD/RB/RN
+      SNOMEDCT CUI
+      MSH      CUI/PAR/CHD/RB/RN
+      MSH      CUI
+      UMLS_ALL CUI/PAR/CHD/RB/RN
+      UMLS_ALL CUI
+
+If this is confusing, send me an email and I can explain in more detail.
+
+To change the source and relations, use the --sab and --rel options. For
+example:
+
+ query-umls-similarity-webinterface.pl --sab SNOMEDCT --rel PAR/CHD hand skull
+
 =head1 CONTACT US
    
   If you have any trouble installing and using UMLS-Similarity, 
@@ -238,14 +303,18 @@ foreach my $pair (@{$input}) {
 
     #  query the web interface
     my $page = &queryWebInterface($input1, $input2);
-    
+ 
     #  extract the similarity information
     my $output = &extractInformation($page);
     
     #  print output
     print "$output\n";
 
-    for my $i (0..10000000) { ; }
+    my $num = 2;
+    while($num--){
+	sleep(1);
+    }
+
 }
 
 sub extractInformation
@@ -277,13 +346,17 @@ sub queryWebInterface
 
     my $qurl = "$url/cgi-bin/umls_similarity.cgi?word1=$i1&word2=$i2&sab=$sab&rel=$rel&similarity=$smeasure&button=$button&sabdef=$sabdef&reldef=$reldef&relatedness=$rmeasure";
 
-    my $resp = $browser->get($qurl);   
-    if ($resp->is_success) { }   
-    else { print $resp->status_line, "$qurl \n"; }
+    while(1) { 
+	my $resp = $browser->get($qurl);   
+	if ($resp->is_success) { }   
+	else { print $resp->status_line, "$qurl \n"; }
     
-    my $webpage = $resp->content;    
+	my $webpage = $resp->content;    
     
-    return $webpage;
+	if(! ($webpage=~/View errors/) ) { 
+	    return $webpage;
+	}
+    }
 }
 
 sub loadInput {
@@ -586,7 +659,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: query-umls-similarity-webinterface.pl,v 1.6 2011/05/17 16:54:49 btmcinnes Exp $';
+    print '$Id: query-umls-similarity-webinterface.pl,v 1.8 2011/05/20 13:14:42 btmcinnes Exp $';
     print "\nCopyright (c) 2011, Ted Pedersen & Bridget McInnes\n";
 }
 

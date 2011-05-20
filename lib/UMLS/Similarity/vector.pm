@@ -383,18 +383,16 @@ sub getRelatedness
 	    
 	    $d1 .= $term1_def . " " if $term1_def ne ""; 
 
-=comment
 		# check the if the cui's assoicated terms are defined in the dictfile
-		@dictfile_term1 = $interface->getTermList($cui1);			
-		foreach my $t (@dictfile_term1)
-		{
-			if (defined $dictionary{$t})
-			{
-				my $term1_def = $dictionary{$t};
-				$d1 .= "$term1_def" . " ";
-			}
-		}
-=cut	    
+	    #@dictfile_term1 = $interface->getTermList($cui1);			
+		#foreach my $t (@dictfile_term1)
+		#{
+			#if (defined $dictionary{$t})
+			#{
+				#my $term1_def = $dictionary{$t};
+				#$d1 .= "$term1_def" . " ";
+			#}
+		#}
 
 	    if(defined $debugfile)
 	    {
@@ -450,18 +448,18 @@ sub getRelatedness
 	    
 	    $d2 .= $term2_def . " " if $term2_def ne ""; 
 	   
-=comment 
+
 		# check the if the cui's assoicated terms are defined in the dictfile
-		@dictfile_term2 = $interface->getTermList($cui2);			
-		foreach my $t (@dictfile_term2)
-		{
-			if (defined $dictionary{$t})
-			{
-				my $term2_def = $dictionary{$t}; 
-				$d2 .= "$term2_def" . " ";
-			}
-		}
-=cut
+		#@dictfile_term2 = $interface->getTermList($cui2);			
+		#foreach my $t (@dictfile_term2)
+		#{
+			#if (defined $dictionary{$t})
+			#{
+				#my $term2_def = $dictionary{$t}; 
+				#$d2 .= "$term2_def" . " ";
+			#}
+		#}
+
 	    if(defined $debugfile)
 	    {
 			print DEBUG "$i. $term2_def\n" if (defined $term2_def);

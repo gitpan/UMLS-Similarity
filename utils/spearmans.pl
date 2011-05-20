@@ -13,9 +13,9 @@ and calculates the Spearman's Rank Correlation.
 
 Usage: spearmans.pl [OPTIONS] FILE1 FILE2
 
-=head1 INPUT
+=head1 INPUT 
 
-=head3 FILE1 FILE2
+FILE1 FILE2
 
 Two files in the following format:
 
@@ -28,27 +28,26 @@ extracts the CUIs from the paranthesis, so no worries. If you are
 not using the CUI format or a umls-similarity.pl output file though, 
 use the --word option described below. 
 
-=head2 Optional Arguments:
-
+=head1 Optional Arguments:
 
 Displays the quick summary of program options.
 
-=head3 --word
+=head2 --word
 
 The format of the input files contains words rather than CUIs and/or 
 is not a umls-similarity.pl output file.
 
-=head3 --N 
+=head2 --N 
 
 displays N - the number of term pairs the correlation 
 is being calculated over. This would be any term pair 
 that has a score greater than or equal to zero.
 
-=head3 --precision NUMBER
+=head2 --precision NUMBER
 
 Displays values up to NUMBER places of decimal. Default is 4. 
 
-=head3 --version
+=head2 --version
 
 Displays the version information.
 
@@ -374,7 +373,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: spearmans.pl,v 1.10 2011/04/08 20:12:52 btmcinnes Exp $';
+    print '$Id: spearmans.pl,v 1.11 2011/05/20 13:23:56 btmcinnes Exp $';
     print "\nCopyright (c) 2009-2011, Ted Pedersen & Bridget McInnes\n";
 }
 

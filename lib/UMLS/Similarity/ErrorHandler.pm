@@ -1,5 +1,5 @@
 # UMLS::Similarity::ErrorHandler
-# (Last Updated $Id: ErrorHandler.pm,v 1.12 2011/05/03 18:52:10 btmcinnes Exp $)
+# (Last Updated $Id: ErrorHandler.pm,v 1.13 2011/05/18 13:08:08 btmcinnes Exp $)
 #
 # Perl module that provides a perl interface to the
 # Unified Medical Language System (UMLS)
@@ -71,8 +71,8 @@ sub _error {
 }
 
 #  checks the configuration file for the measure
-#  input : $config  <- string containing the configuration file
-#          $measure <- string containing the measure name
+#  input : $measure   <- string containing the measure name
+#          $interface <- UMLS::Interface handler
 #  output: 
 sub checkConfig {
     my $self      = shift;
@@ -88,9 +88,8 @@ sub checkConfig {
 }
 
 #  check the config file with the path-based and IC measures
-#  input : config   <- string containing the configuration file
-#             meaure <- string containing the measure 
-#  output: 
+#  input : $measure   <- string containing the measure name
+#          $interface <- UMLS::Interface handler
 sub   checkPathBasedMeasures {
     
     my $self      = shift;
@@ -138,10 +137,10 @@ sub   checkPathBasedMeasures {
 
 
 #  check the config file with the relatedness measures
-#  input : config   <- string containing the configuration file
-#             meaure <- string containing the measure 
+#  input : $measure   <- string containing the measure name
+#          $interface <- UMLS::Interface handler
 #  output: 
-sub   checkRelatednessMeasures {
+sub checkRelatednessMeasures {
     
     my $self      = shift;
     my $measure   = shift;
@@ -187,7 +186,8 @@ sub   checkRelatednessMeasures {
 }
 
 #  sets up the error handler module
-#  input : $parameters <- reference to a hash
+#  input : $measure   <- string containing the measure name
+#          $interface <- UMLS::Interface handler
 #  output: $self
 sub new {
 
@@ -224,25 +224,20 @@ documentation.
 
 =head1 SYNOPSIS
 
-  #!/usr/bin/perl
+  use UMLS::Interface;
+  use UMLS::Similarity::ErrorHandler;
 
-  use UMLS::Similarity::ErrorHandler();
+  my $umls = UMLS::Interface->new(); 
+  die "Unable to create UMLS::Interface object.\n" if(!$umls);
 
-  $errorhandler = UMLS::Similarity::ErrorHandler->new();
+  $errorhandler = UMLS::Similarity::ErrorHandler->new("lch", $umls);
   if(! defined $errorhandler) {
-    print STDERR "The error handler did not get passed properly.\n";
+    print STDERR "The error handler did not get loaded properly.\n";
     exit;
   }
-
-  $concept = "C012";
-  $pkg = "Package";
-  $function = "function";
-
-  if(! ($errorhandler->_validCui($concept)) ) {
-    $errorhandler->_error($pkg, 
-                          $function,   
-                          "Incorrect input value ($concept)", 
-                          6);
+  else {
+      print "This checks that the interface is set up for the measure. ";
+      print "All looks good.\n\n";
   }
 
 =head1 INSTALL

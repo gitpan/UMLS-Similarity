@@ -1,6 +1,11 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 1.11 to 1.13
+    1. modified the query-umls-similarity-webinterface.pl to retry the query
+    if an error is thrown due to a busy server rather than just return
+    ()<>()
+
   Changes from version 1.09 to 1.11
     1. modified the synopsis code in the measures
 

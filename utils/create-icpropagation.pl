@@ -186,7 +186,7 @@ the README file.
 =back
 
 =head1 CONTACT US
-   
+
   If you have any trouble installing and using CreatePropagationFile, 
   please contact us via the users mailing list :
     
@@ -665,7 +665,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: create-icpropagation.pl,v 1.11 2011/05/04 18:33:57 btmcinnes Exp $';
+    print '$Id: create-icpropagation.pl,v 1.12 2011/05/20 13:23:56 btmcinnes Exp $';
     print "\nCopyright (c) 2008-2011, Ted Pedersen & Bridget McInnes\n";
 }
 
