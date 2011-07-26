@@ -120,6 +120,13 @@ available measure are:
     8. Jiang and Conrath (1997) referred to as jcn
     9. The vector measure referred to as vector
 
+=head3 --original
+
+This returns the original score of the measures proposed by Rada, 
+et al (cdist), Nguyen & Al-Mubaid (nam) and Jiang \& Conrath (jcn).  
+The default returns the reciprocal of these measures in order to 
+use them as similarity measures. 
+
 =head3 --precision N
 
 Displays values up to N places of decimal.
@@ -214,7 +221,8 @@ Database contain UMLS DEFAULT: umls
 =head3 --undirected
 
 The shortest path is undirected. This is only available with
-the path measure itself
+the path measure itself using the --realtime option. It is also 
+currently limited to the RB/RN and/or PAR/CHD relations. 
 
 =head2 IC Measure Options:
 
@@ -447,7 +455,7 @@ this program; if not, write to:
 use UMLS::Interface;
 use Getopt::Long;
 
-eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "forcerun", "debug", "verbose", "icfrequency=s", "smooth", "st", "icpropagation=s", "undirected", "realtime", "stoplist=s", "stem", "debugfile=s", "vectormatrix=s", "vectorindex=s", "defraw", "dictfile=s", "doubledef=s", "compoundfile=s", "t")) or die ("Please check the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "original", "forcerun", "debug", "verbose", "icfrequency=s", "smooth", "st", "icpropagation=s", "undirected", "realtime", "stoplist=s", "stem", "debugfile=s", "vectormatrix=s", "vectorindex=s", "defraw", "dictfile=s", "doubledef=s", "compoundfile=s", "t")) or die ("Please check the above mentioned option(s).\n");
 
 
 my $debug = 0;
@@ -793,6 +801,34 @@ sub loadMeasures {
     
     my $meas;
 
+    #  initialize the ic and path options hash tables
+    my %icoptions = ();
+    my %pathoptions = ();
+
+    #  set the information content options if defined
+    if($measure=~/res|jcn|lin/) { 
+	if(defined $opt_st) {
+	    $icoptions{"st"} = $opt_st;
+	}
+	if(defined $opt_icpropagation) {
+	    $icoptions{"icpropagation"} = $opt_icpropagation;
+	}
+	if(defined $opt_icfrequency) { 
+	    $icoptions{"icfrequency"} = $opt_icfrequency;
+	}
+	if(defined $opt_smooth) { 
+	    $icoptions{"smooth"} = $opt_smooth;
+	}
+    }
+    
+
+    #  set the original options if defined
+    if(defined $opt_original) { 
+	if($measure=~/jcn/)       { $icoptions{"original"}   = $opt_original; }
+	if($measure=~/cdist|nam/) { $pathoptions{"original"} = $opt_original; }
+    }
+
+    #  set vector and its options
     if($measure eq "vector") {
 	require "UMLS/Similarity/vector.pm";
 
@@ -860,31 +896,15 @@ sub loadMeasures {
     #  (1989) called the Conceptual Distance measure
     if($measure eq "cdist") {
 	use UMLS::Similarity::cdist;
-	$meas = UMLS::Similarity::cdist->new($umls);
+	$meas = UMLS::Similarity::cdist->new($umls, \%pathoptions);
     }
     #  load the module implementing the Nguyen and 
     #  Al-Mubaid (2006) measure
     if($measure eq "nam") {
 	use UMLS::Similarity::nam;
-	$meas = UMLS::Similarity::nam->new($umls);
+	$meas = UMLS::Similarity::nam->new($umls, \%pathoptions);
     }
     
-    my %icoptions = ();
-    if($measure=~/res|jcn|lin/) { 
-	if(defined $opt_st) {
-	    $icoptions{"st"} = $opt_st;
-	}
-	if(defined $opt_icpropagation) {
-	    $icoptions{"icpropagation"} = $opt_icpropagation;
-	}
-	if(defined $opt_icfrequency) { 
-	    $icoptions{"icfrequency"} = $opt_icfrequency;
-	}
-	if(defined $opt_smooth) { 
-	    $icoptions{"smooth"} = $opt_smooth;
-	}
-    }
-
     #  load the module implementing the Resnik (1995) measure
     if($measure eq "res") {
 	use UMLS::Similarity::res;
@@ -1150,6 +1170,14 @@ sub checkOptions {
 	    exit;
 	}
     }
+
+    if(defined $opt_original) { 
+	if(! ($opt_measure=~/nam|cdist|jcn/) ) { 
+	    print STDERR "The --original option can only be used for the nam, cdist or jcn measures\n";
+	    &minimalUsageNotes();
+	    exit;
+	}
+    }
     
     if(defined $opt_realtime) { 
 	if($opt_measure=~/vector|lesk/) { 
@@ -1365,6 +1393,10 @@ sub showHelp() {
     print "--measure MEASURE        The measure to use to calculate the\n";
     print "                         semantic similarity. (DEFAULT: path)\n\n";
 
+    print "--original               Returns the original distance score of the nam,\n";
+    print "                         jcn or cdist measure (rather than the similarity \n";
+    print "                         score which is the default\n\n";
+
     print "--precision N            Displays values upto N places of decimal.\n\n";
 
     print "--allsenses              This option prints out all the possible\n";
@@ -1467,7 +1499,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.93 2011/05/20 13:23:56 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.95 2011/07/26 14:21:33 btmcinnes Exp $';
     print "\nCopyright (c) 2008-2011, Ted Pedersen & Bridget McInnes\n";
 }
 

@@ -1,6 +1,14 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 1.13 to 1.15
+    1. added the --original option which will return the original distance
+    score between the two cuis rather than the similarity score (this is for
+    nam, cdist and jcn)
+
+    2. fixed cdist and nam to return a -1 for lack of sufficient path
+    information
+
   Changes from version 1.11 to 1.13
     1. modified the query-umls-similarity-webinterface.pl to retry the query
     if an error is thrown due to a busy server rather than just return

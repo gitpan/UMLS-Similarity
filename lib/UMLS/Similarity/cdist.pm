@@ -50,15 +50,18 @@ $VERSION = '0.07';
 
 my $debug = 0;
 
+my $originaloption = undef;
+
 sub new
 {
     my $className = shift;
+    my $interface = shift;
+    my $params    = shift;
+
     return undef if(ref $className);
     
     if($debug) { print STDERR "In UMLS::Similarity::cdist->new()\n"; }
-    
-    my $interface = shift;
-    
+        
     my $self = {};
         
     # Bless the object.
@@ -73,7 +76,11 @@ sub new
 	print STDERR "The UMLS::Similarity::ErrorHandler did not load properly\n";
 	exit;
     }
-    
+
+    #  check if the original distance score should be returned rather 
+    #  than the similarity score
+    if( defined $params->{"original"} ) { $originaloption = 1; }
+
     return $self;
 }
 
@@ -95,9 +102,14 @@ sub getRelatedness
     my $length = $interface->findShortestPathLength($concept1, $concept2);
     
     #  if there are no paths return nothing
-    if($length < 0) { return 0; }
-    
-    return $length;
+    if($length < 0) { return -1; }
+
+    if(defined $originaloption) { 
+	return $length;
+    }
+    else {
+	return (1/$length);
+    }
 }
 
 1;

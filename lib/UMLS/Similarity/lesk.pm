@@ -761,6 +761,10 @@ adaptation of Lesk's dictionary-based word sense disambiguation algorithm.
 This is a flag for the lesk measure. The definitions 
 used are 'cleaned'. If the --defraw flag is set they will not be cleaned, 
 and it will leave the definitions in their "raw" form. 
+If the --defraw and --stem option use together, the --stem option
+will cancel the request for "raw" defintion which is set by 
+--defraw. 
+
 
 --dictfile option 
 

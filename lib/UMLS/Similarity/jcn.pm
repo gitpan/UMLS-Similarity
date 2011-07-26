@@ -49,8 +49,8 @@ use vars qw($VERSION);
 $VERSION = '0.09';
 
 my $debug    = 0;
-my $stoption = 0;
 
+my $originaloption = undef;
 sub new
 {
     my $className = shift;
@@ -112,7 +112,10 @@ sub new
 	#  propagate the counts
 	my $phash = $interface->propagateCounts($fhash);
     }
-    
+
+    #  check if the original distance score should be returned rather 
+    #  than the similarity score
+    if(defined $params->{"original"}) { $originaloption = 1; }
     return $self;
 }
 
@@ -187,6 +190,9 @@ sub getRelatedness
 	    return 0;
 	}
     }
+
+    
+    if(defined $originaloption) { return $distance; }
     
     #  now calculate the similarity score
     my $score = 0;

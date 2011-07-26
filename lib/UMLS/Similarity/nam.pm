@@ -50,14 +50,18 @@ $VERSION = '0.07';
 
 my $debug = 0;
 
+my $originaloption = undef;
+
 sub new
 {
     my $className = shift;
+    my $interface = shift;
+    my $params    = shift;
+
     return undef if(ref $className);
 
     if($debug) { print STDERR "In UMLS::Similarity::nam->new()\n"; }
 
-    my $interface = shift;
 
     my $self = {};
      
@@ -73,6 +77,10 @@ sub new
 	print STDERR "The UMLS::Similarity::ErrorHandler did not load properly\n";
 	exit;
     }
+
+    #  check if the original distance score should be returned rather
+    #  than the similarity score
+    if(defined $params->{"original"}) { $originaloption = 1; }
     
     return $self;
 }
@@ -94,7 +102,7 @@ sub getRelatedness
     my $c2_depth  = $interface->findMinimumDepth($concept2);
 
     if( !(defined $c1_depth) or	!(defined $c2_depth)) {
-	return 0;
+	return -1;
     }
     
     #  find the lcses
@@ -109,7 +117,7 @@ sub getRelatedness
     }
     
     #  if the lcs depth is zero just return zero
-    if($lcs_depth < 0) { return 0; }
+    if($lcs_depth < 0) { return -1; }
 
     #  find the shortest path between the concepts
     my $l = $interface->findShortestPathLength($concept1, $concept2);
@@ -118,8 +126,8 @@ sub getRelatedness
     my $D = $interface->depth();
     my $score = log( $l * ($D-$lcs_depth) + 2 ) / log(2);    
     
-    return $score;
-    #return (1/$score);
+    if(defined $originaloption) { return $score;     }
+    else                        { return (1/$score); }
 }
 
 
