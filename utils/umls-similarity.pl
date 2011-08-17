@@ -29,9 +29,9 @@ Optional command line arguements
 
 This is the configuration file. There are six configuration options 
 that can be used depending on which measure you are using. The 
-path, wup, lch, lin, jcn and res measures require the SAB and REL 
-options to be set while the vector and lesk measures require the 
-SABDEF and RELDEF options. 
+path, wup, zhong, lch, lin, jcn and res measures require the SAB 
+and REL options to be set while the vector and lesk measures require 
+the SABDEF and RELDEF options. 
 
 The SAB and REL options are used to determine which sources and 
 relations the path information is to be obtained from. The format 
@@ -112,6 +112,7 @@ Use the MEASURE module to calculate the semantic similarity. The
 available measure are: 
     1. Leacock and Chodorow (1998) referred to as lch
     2. Wu and Palmer (1994) referred to as  wup
+    3. Zhong, et al. (2002) referred to as zhong
     3. The basic path measure referred to as path
     4. Rada, et. al. (1989) referred to as cdist
     5. Nguyan and Al-Mubaid (2006) referred to as nam
@@ -824,8 +825,12 @@ sub loadMeasures {
 
     #  set the original options if defined
     if(defined $opt_original) { 
-	if($measure=~/jcn/)       { $icoptions{"original"}   = $opt_original; }
-	if($measure=~/cdist|nam/) { $pathoptions{"original"} = $opt_original; }
+	if($measure=~/jcn/) { 
+	    $icoptions{"original"}   = $opt_original; 
+	}
+	if($measure=~/cdist|nam|zhong/) { 
+	    $pathoptions{"original"} = $opt_original; 
+	}
     }
 
     #  set vector and its options
@@ -884,6 +889,12 @@ sub loadMeasures {
     if($measure eq "wup") {
 	use UMLS::Similarity::wup;	
 	$meas = UMLS::Similarity::wup->new($umls);
+    }    
+    #  loading the module implementing the Zhong
+    #  et al (2002) measure
+    if($measure eq "zhong") {
+	use UMLS::Similarity::zhong;	
+	$meas = UMLS::Similarity::zhong->new($umls, \%pathoptions);
     }    
     #  loading the module implementing the simple edge counting 
     #  measure of semantic relatedness.
@@ -1018,7 +1029,7 @@ sub checkOptions {
     }
 
     if(defined $opt_measure) {
-	if($opt_measure=~/\b(path|wup|lch|cdist|nam|vector|res|lin|random|jcn|lesk)\b/) {
+	if($opt_measure=~/\b(path|wup|zhong|lch|cdist|nam|vector|res|lin|random|jcn|lesk)\b/) {
 	    #  good to go
 	}
 	else {
@@ -1172,7 +1183,7 @@ sub checkOptions {
     }
 
     if(defined $opt_original) { 
-	if(! ($opt_measure=~/nam|cdist|jcn/) ) { 
+	if(! ($opt_measure=~/nam|cdist|jcn|zhong/) ) { 
 	    print STDERR "The --original option can only be used for the nam, cdist or jcn measures\n";
 	    &minimalUsageNotes();
 	    exit;
@@ -1371,8 +1382,8 @@ sub showHelp() {
     print "This is a utility that takes as input either two terms \n";
     print "or two CUIs from the command line or a file and returns \n";
     print "the similarity between the two using either Leacock and \n";
-    print "Chodorow, 1998 (lch), Wu and Palmer, 1994 (wup) or the \n";
-    print "basic path measure (path)\n\n";
+    print "Chodorow, 1998 (lch), Wu and Palmer, 1994 (wup), Zhong et\n";
+    print "al, 2002 (zhong) or the basic path measure (path)\n\n";
   
     print "Usage: umls-similarity.pl [OPTIONS] TERM1 TERM2\n\n";
 
@@ -1499,7 +1510,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.95 2011/07/26 14:21:33 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.96 2011/08/17 15:00:46 btmcinnes Exp $';
     print "\nCopyright (c) 2008-2011, Ted Pedersen & Bridget McInnes\n";
 }
 

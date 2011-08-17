@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # umls_similarity_server.pl version 0.01
-# (Last updated $Id: umls_similarity_server.pl,v 1.14 2011/05/20 13:23:56 btmcinnes Exp $)
+# (Last updated $Id: umls_similarity_server.pl,v 1.15 2011/08/17 15:00:46 btmcinnes Exp $)
 #
 # ---------------------------------------------------------------------
 
@@ -38,7 +38,7 @@ if(defined($opt_help))
   print "                            | --version\n";
 
   print "\nStarts the similarity server, which listens for requests on a predefined\n";
-  print "port. It presents a netork interface to the WordNet::Similarity moduels.\n\n";
+  print "port. It presents a network interface to the UMLS::Similarity modules.\n\n";
   print "Options:\n";
 
   print "--port        Specify the port PORTNUMBER for the server to listen on.\n";
@@ -628,7 +628,7 @@ __END__
 
 =head1 NAME
 
-umls_similarity_server.pl - [Web] The backend WordNet::Similarity server for the Web Interface
+umls_similarity_server.pl - [Web] The backend UMLS::Similarity server for the Web Interface
 
 =head1 SYNOPSIS
 
@@ -639,8 +639,7 @@ Usage: umls_similarity_server.pl [--port PORTNUMBER] [--logfile LOGFILE] [--maxc
 
 =head1 DESCRIPTION
 
-This script implements the backend of the web interface for
-WordNet::Similarity.
+This script implements the backend of the web interface for UMLS::Similarity.
 
 This script listens to a port waiting for a request form similarity.cgi or
 wps.cgi.  The client script sends a message to this script as series of
@@ -716,18 +715,12 @@ The messages sent from this server will be in the following formats:
 
 =head1 BUGS
 
-Report to WordNet::Similarity mailing list :
- L<http://groups.yahoo.com/group/wn-similarity>
+Report to UMLS::Similarity mailing list :
+ L<http://groups.yahoo.com/group/umls-similarity>
 
 =head1 SEE ALSO
 
-L<WordNet::Similarity>
-
-WordNet home page : 
- L<http://wordnet.princeton.edu>
-
-WordNet::Similarity home page (provides link to web interface):
- L<http://wn-similarity.sourceforge.net>
+L<UMLS::Similarity>
 
 =head1 AUTHORS
 

@@ -1,6 +1,12 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 1.15 to 1.17
+    1. added the measure proposed by Zhong, et al 2002 to the
+    UMLS::Similarity package. You can use it by using the --measure zhong
+    option in the umls-similarity.pl program. I will add this to the web
+    interface shortly. If you are in a hurry though, let me know :-)
+
   Changes from version 1.13 to 1.15
     1. added the --original option which will return the original distance
     score between the two cuis rather than the similarity score (this is for

@@ -16,6 +16,7 @@ lib/UMLS/Similarity/random.pm
 lib/UMLS/Similarity/res.pm
 lib/UMLS/Similarity/vector.pm
 lib/UMLS/Similarity/wup.pm
+lib/UMLS/Similarity/zhong.pm
 lib/UMLS/vector-index.dat
 lib/UMLS/vector-matrix.dat
 Makefile.PL
@@ -78,6 +79,8 @@ t/key/MMSYS-2010AB-20101022/vector.fma.par-chd
 t/key/MMSYS-2010AB-20101022/vector.msh.par-chd
 t/key/MMSYS-2010AB-20101022/wup.fma.par-chd
 t/key/MMSYS-2010AB-20101022/wup.msh.par-chd
+t/key/MMSYS-2010AB-20101022/zhong.fma.par-chd
+t/key/MMSYS-2010AB-20101022/zhong.msh.par-chd
 t/key/static/index
 t/key/static/matrix
 t/lesk.t
