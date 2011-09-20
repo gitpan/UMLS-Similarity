@@ -1,6 +1,10 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 1.17 to 1.19
+    1. added a --word option to sim2r.pl in order to use it with files that
+    do not contain CUIs as the term pairs.
+
   Changes from version 1.15 to 1.17
     1. added the measure proposed by Zhong, et al 2002 to the
     UMLS::Similarity package. You can use it by using the --measure zhong

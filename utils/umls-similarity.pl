@@ -1124,7 +1124,7 @@ sub checkOptions {
     #  make ceratin if the undirected option is specified that
     #  it is only for the path option
     if($opt_undirected) { 
-	if( (defined $opt_measure) && (!($opt_measure=~/path/)) ) { 
+	if( (defined $opt_measure) && (!($opt_measure=~/(path|lch|nam)/)) ) { 
 	    print STDERR "The --undirected option can only be used with\n";
 	    print STDERR "the path measure\n";
 	    &minimalUsageNotes();

@@ -41,6 +41,11 @@ file.
 
 =head2 Options:
 
+=head3 --word
+
+The format of hte input files contains words rather than CUIs or is not 
+a umls-simmilarity.pl output file.
+
 =head3 --help
 
 Displays the quick summary of program options.
@@ -130,7 +135,7 @@ this program; if not, write to:
 use UMLS::Interface;
 use Getopt::Long;
 
-eval(GetOptions( "version", "help")) or die ("Please check the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "word")) or die ("Please check the above mentioned option(s).\n");
 
 #  if help is defined, print out help
 if( defined $opt_help ) {
@@ -163,11 +168,20 @@ while(<GOLD>) {
     chomp;
     my ($score, $t1, $t2) = split/<>/;
 
-    $t1=~/(C[0-9][0-9][0-9][0-9][0-9][0-9][0-9])/;
-    $cui1 = $1;
+    my $cui1 = ""; my $cui2 = "";
 
-    $t2=~/(C[0-9][0-9][0-9][0-9][0-9][0-9][0-9])/;
-    $cui2 = $1;
+    if(defined $opt_word) { 
+	$cui1 = $t1;
+	$cui2 = $t2;
+    }
+    else { 
+	$t1=~/(C[0-9][0-9][0-9][0-9][0-9][0-9][0-9])/;
+	$cui1 = $1;
+
+	$t2=~/(C[0-9][0-9][0-9][0-9][0-9][0-9][0-9])/;
+	$cui2 = $1;
+    }
+    
     $gold{"$cui1 $cui2"} = $score;
     $gcounter++;
 }
@@ -190,14 +204,22 @@ foreach my $file (@ARGV) {
     while(<FILE>) { 
 	chomp;
 	my ($score, $t1, $t2) = split/<>/;
-	
-	$t1=~/(C[0-9][0-9][0-9][0-9][0-9][0-9][0-9])/;
-	$cui1 = $1;
-	
-	$t2=~/(C[0-9][0-9][0-9][0-9][0-9][0-9][0-9])/;
-	$cui2 = $1;
-	$hash{$header}{"$cui1 $cui2"} = $score;
 
+	my $cui1 = ""; my $cui2 = "";
+	
+	if(defined $opt_word) { 
+	    $cui1 = $t1; 
+	    $cui2 = $t2;
+	}
+	else {
+	    $t1=~/(C[0-9][0-9][0-9][0-9][0-9][0-9][0-9])/;
+	    $cui1 = $1;
+	
+	    $t2=~/(C[0-9][0-9][0-9][0-9][0-9][0-9][0-9])/;
+	    $cui2 = $1;
+	}
+
+	$hash{$header}{"$cui1 $cui2"} = $score;
 	$counter++;
 
 	if($score < 0) { $remove{"$cui1 $cui2"}++; }
@@ -257,6 +279,10 @@ sub showHelp() {
 
     print "Options:\n\n";
 
+    print "--word                   The format of the input files contains words\n";
+    print "                         rathar than CUIs or is not a umls-similarity.pl\n";
+    print "                         output file.\n\n";
+
     print "--version                Prints the version number\n\n";
     
     print "--help                   Prints this help message.\n\n";
@@ -267,7 +293,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: sim2r.pl,v 1.6 2011/01/06 16:09:00 btmcinnes Exp $';
+    print '$Id: sim2r.pl,v 1.7 2011/08/29 22:56:31 btmcinnes Exp $';
     print "\nCopyright (c) 2007-2011, Ted Pedersen & Bridget McInnes\n";
 }
 
