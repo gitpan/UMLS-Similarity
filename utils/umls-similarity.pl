@@ -178,6 +178,17 @@ This option returns a matrix of similarity scores given a file
 containing a list of CUIs. The file is passed using the --infile
 option
 
+=head3 --loadcache FILE
+
+FILE containing similarity scores of cui pairs in the following 
+format: 
+
+  score<>CUI1<>CUI2
+
+=head3 --getcache FILE
+
+Outputs the cache into FILE once the program has finished. 
+
 =head2 Debug Options: 
 
 =head3 --debug
@@ -456,7 +467,7 @@ this program; if not, write to:
 use UMLS::Interface;
 use Getopt::Long;
 
-eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "original", "forcerun", "debug", "verbose", "icfrequency=s", "smooth", "st", "icpropagation=s", "undirected", "realtime", "stoplist=s", "stem", "debugfile=s", "vectormatrix=s", "vectorindex=s", "defraw", "dictfile=s", "doubledef=s", "compoundfile=s", "t")) or die ("Please check the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "original", "forcerun", "debug", "verbose", "icfrequency=s", "smooth", "st", "icpropagation=s", "undirected", "realtime", "stoplist=s", "stem", "debugfile=s", "vectormatrix=s", "vectorindex=s", "defraw", "dictfile=s", "doubledef=s", "compoundfile=s", "t", "loadcache=s", "getcache=s")) or die ("Please check the above mentioned option(s).\n");
 
 
 my $debug = 0;
@@ -495,6 +506,8 @@ my $umls        = "";
 my $noscore     = "";
 my $infile      = "";
 
+my %similarityHash = ();    
+
 my @input_array = ();
 
 &checkOptions       ();
@@ -506,13 +519,14 @@ my $meas = &loadMeasures();
 &loadInput          ();
 &calculateSimilarity();
 
+if(defined $opt_getcache) { &getCache(); }
+
 sub calculateSimilarity {
     
     if($debug) { print STDERR "In calculateSimilarity\n"; }
     
     if(defined $opt_matrix) { print "@input_array\n"; }
 
-    my %similarityHash = ();    
     my @secondary_array = @input_array;
 
     foreach my $input1 (@input_array) {
@@ -1352,6 +1366,26 @@ sub setOptions {
 	$set .= "  --info\n";
     }
 
+    if(defined $opt_getcache) { 
+	$set .= "  --getcache $opt_getcache\n";
+    }
+    
+    #  set cache if defined
+    if(defined $opt_loadcache) { 
+	if($debug) { print STDERR "Loading Cache\n"; }
+	
+	open(CACHE, $opt_loadcache) || die "Could not open cache $opt_loadcache\n";
+	while(<CACHE>) { 
+	    chomp;
+	    my ($score, $c1, $c2) = split/<>/;
+	    $similarityHash{$c1}{$c2} = $score;
+	    $similarityHash{$c2}{$c1} = $score;
+	}
+        if($debug) { print STDERR "Finished Loading Cache\n"; }
+	close CACHE;
+	$set .= "  --loadcache $opt_loadcache\n";
+    }
+
     #  check settings
     if($default eq "") { $default = "  No default settings\n"; }
     if($set     eq "") { $set     = "  No user defined settings\n"; }
@@ -1364,6 +1398,19 @@ sub setOptions {
     print STDERR "$set\n";
 }
 
+#  method dumps cache to given file
+sub getCache {
+
+    open(CACHE, ">$opt_getcache") || die "\n\n ERROR: Could not open cachefile $opt_getcache\n";
+    
+    foreach my $c1 (sort keys %similarityHash) { 
+	foreach my $c2 (sort keys %{$similarityHash{$c1}}) {
+	    print CACHE "$similarityHash{$c1}{$c2}<>$c1<>$c2\n";
+	}
+    }
+    close CACHE;
+}
+    
 ##############################################################################
 #  function to output minimal usage notes
 ##############################################################################
@@ -1400,6 +1447,10 @@ sub showHelp() {
     print "                         such as asking if you would like to continue\n";
     print "                         with the index creation. Necessary only for the\n";
     print "                         path based and ic similarity measures\n\n";
+
+    print "--loadcache FILE         FILE containing similarity scores of cui pairs.\n\n";
+    
+    print "--getcache FILE         Outputs the cache into FILE \n\n";
 
     print "--measure MEASURE        The measure to use to calculate the\n";
     print "                         semantic similarity. (DEFAULT: path)\n\n";
@@ -1510,7 +1561,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.96 2011/08/17 15:00:46 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.97 2011/11/02 13:36:32 btmcinnes Exp $';
     print "\nCopyright (c) 2008-2011, Ted Pedersen & Bridget McInnes\n";
 }
 
