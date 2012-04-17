@@ -1,6 +1,10 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 1.21 to 1.23
+    1. modified query-umls-similarity-webinterface.pl to return -1 when one
+    or both input terms/cuis is unknown.
+
   Changes from version 1.19 to 1.21
     1. added a --loadcache and --getcache option to speed things up if
     desired

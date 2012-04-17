@@ -321,17 +321,27 @@ sub extractInformation
 {
     my $page = shift;
     
-    $page=~/<p class=\"results\">The (similarity|relatedness) of (.*?) \(<a href=\"\#\" onclick=\"showWindow \(\'umls\_wps\.cgi\?wps=(C[0-9]+)(|.*?\')?\, \'\'\); return false;\">(C[0-9]+)<\/a> \) and (.*?) \(<a href=\"\#\" onclick=\"showWindow \(\'umls\_wps\.cgi\?wps=(C[0-9]+)(|.*?\')\, \'\'\); return false;\">(C[0-9]+)<\/a> \) using (.*?) \(.*?\) is (.*?)\.<\/p>/;
+    if($page=~/View errors/) { 
+	$page=~/<input type=\"text\" name="word1\" id=\"word1in\" value=\"(.*?)\" \/>/;
+	my $word1 = $1;
+	$page=~/<input type=\"text\" name="word2\" id=\"word2in\" value=\"(.*?)\" \/>/;
+	my $word2 = $1;
+
+	return "-1<>$word1<>$word2";
+    }
+    else {
+	$page=~/<p class=\"results\">The (similarity|relatedness) of (.*?) \(<a href=\"\#\" onclick=\"showWindow \(\'umls\_wps\.cgi\?wps=(C[0-9]+)(|.*?\')?\, \'\'\); return false;\">(C[0-9]+)<\/a> \) and (.*?) \(<a href=\"\#\" onclick=\"showWindow \(\'umls\_wps\.cgi\?wps=(C[0-9]+)(|.*?\')\, \'\'\); return false;\">(C[0-9]+)<\/a> \) using (.*?) \(.*?\) is (.*?)\.<\/p>/;
     
-    my $word1 = $2;
-    my $cui1  = $3;
-    
-    my $word2 = $6;
-    my $cui2  = $7;
-    
-    my $score = $11;
-    
-    return "$score<>$word1($cui1)<>$word2($cui2)";
+	my $word1 = $2;
+	my $cui1  = $3;
+	
+	my $word2 = $6;
+	my $cui2  = $7;
+	
+	my $score = $11;
+	
+	return "$score<>$word1($cui1)<>$word2($cui2)";
+    }
     
 }
     
@@ -350,12 +360,11 @@ sub queryWebInterface
 	my $resp = $browser->get($qurl);   
 	if ($resp->is_success) { }   
 	else { print $resp->status_line, "$qurl \n"; }
-    
+
 	my $webpage = $resp->content;    
-    
-	if(! ($webpage=~/View errors/) ) { 
-	    return $webpage;
-	}
+
+	return $webpage;
+	
     }
 }
 
@@ -659,7 +668,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: query-umls-similarity-webinterface.pl,v 1.8 2011/05/20 13:14:42 btmcinnes Exp $';
+    print '$Id: query-umls-similarity-webinterface.pl,v 1.9 2012/04/17 11:45:01 btmcinnes Exp $';
     print "\nCopyright (c) 2011, Ted Pedersen & Bridget McInnes\n";
 }
 
