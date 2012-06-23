@@ -372,13 +372,14 @@ The sample file, stoplist-nsp.regex, is under the samples directory.
 
 =head3 --compoundfile FILE
 
-This is a compound word file for the vector measure. It contains
-the compound words which we want to consider them as one word
-when we compare the relatedness. Each compound word is a line in 
-the file and compound words are seperated by space. When use this 
-option, make sure the vectormatrix and vectorindex file are based 
-on the corpus proprocessed by replacing the compound words in the 
-Text-NSP package. An example is under /sample/compoundword.txt 
+This is a compound word file for the vector and lesks measures. 
+It containsthe compound words which we want to consider them as 
+one wordwhen we compare the relatedness. Each compound word is 
+a line in the file and compound words are seperated by space. 
+When using this option with vector, make sure the vectormatrix 
+and vectorindex file are based on the corpus proprocessed by 
+replacing the compound words in the Text-NSP package. An example 
+is under /sample/compoundword.txt 
 
 =head3 --stem 
 
@@ -533,8 +534,8 @@ sub calculateSimilarity {
 
 	if(! (defined $opt_matrix) ) {
 	    my ($i1, $i2) = split/<>/, $input1;
-	    $i1=~s/^\s+//g;	    $i2=~s/\s+$//g;
-	    $i1=~s/^\s+//g;	    $i2=~s/\s+$//g;
+	    $i1=~s/^\s+//g;	    $i1=~s/\s+$//g;
+	    $i2=~s/^\s+//g;	    $i2=~s/\s+$//g;
 
 	    $input1 = $i1;
 	    @secondary_array = ();
@@ -750,16 +751,17 @@ sub loadInput {
 	if($debug) { print STDERR "FILE ($opt_infile) DEFINED\n"; }
 
 	open(FILE, $infile) || die "Could not open file: $infile\n";
-	my $linecounter = 1;
+	my $linecounter = 0;
 	while(<FILE>) {
 	    chomp;
+	    $linecounter++; 
 	    if($_=~/^\s*$/) { next; }
 	    if($_=~/C[0-9]+/) {
 		push @input_array, $_;
 	    }
 	    else {
 		print STDERR "There is an error in the input file ($infile)\n";
-		print STDERR "one line $linecounter. The input is not in the\n";
+		print STDERR "on line $linecounter. The input is not in the\n";
 		print STDERR "correct format. Here is the input line:\n";
 		print STDERR "$_\n\n";
 		exit;
@@ -773,9 +775,10 @@ sub loadInput {
 	if($debug) { print STDERR "FILE ($opt_infile) DEFINED\n"; }
 
 	open(FILE, $infile) || die "Could not open file: $infile\n";
-	my $linecounter = 1;
+	my $linecounter = 0;
 	while(<FILE>) {
 	    chomp;
+	    $linecounter++; 
 	    if($_=~/^\s*$/) { next; }
 	    if($_=~/\<\>/) {
 		#  escape the ' character on input if it exists
@@ -785,7 +788,7 @@ sub loadInput {
 	    }
 	    else {
 		print STDERR "There is an error in the input file ($infile)\n";
-		print STDERR "one line $linecounter. The input is not in the\n";
+		print STDERR "on line $linecounter. The input is not in the\n";
 		print STDERR "correct format. Here is the input line:\n";
 		print STDERR "$_\n\n";
 		exit;
@@ -1182,7 +1185,7 @@ sub checkOptions {
 
 
     if(defined $opt_icpropagation and defined $opt_icfrequency) { 
-	print STDERR "You can specify both the --icpropagation and\n";
+	print STDERR "You can not specify both the --icpropagation and\n";
 	print STDERR "--icfrequency options at the same time.\n\n";
 	&minimalUsageNotes();
 	exit;
@@ -1198,7 +1201,7 @@ sub checkOptions {
 
     if(defined $opt_original) { 
 	if(! ($opt_measure=~/nam|cdist|jcn|zhong/) ) { 
-	    print STDERR "The --original option can only be used for the nam, cdist or jcn measures\n";
+	    print STDERR "The --original option can only be used for the nam, cdist, jcn or zhong measures\n";
 	    &minimalUsageNotes();
 	    exit;
 	}
@@ -1303,7 +1306,7 @@ sub setOptions {
     #  set the zero score with appropriate precision
     $noscore = sprintf $floatformat, -1;
 
-    #  set databasee options
+    #  set database options
     if(defined $opt_username) {
 
 	if(defined $opt_username) {
@@ -1541,9 +1544,9 @@ sub showHelp() {
     print "                         of the concept and construct the expanded definition.\n\n";
 
     print "--compoundfile FILE      This is a compound word file for the vector and lesk\n";
-    print "                         measure. It contains the compound word lists. For the\n";
-    print "                         definitions which comtain those compound words, they \n";
-    print "                         are treated as one word.\n\n";
+    print "                         measure. It contains the compound word lists.\n";
+    print "                         For the compounds words in the definitions \n";
+    print "                         are treated as a single unit.\n\n";
 
     print "--stoplist FILE          A file containing a list of words to be excluded\n";
     print "                         from the features in the vector and lesk method.\n\n";

@@ -145,7 +145,7 @@ sub getRelatedness
     #  get the lcses of the concepts
     my $lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
     
-    #  get the IC of the lcs with the lowest IC 
+    #  get the IC of the lcs that is the lowest in the hierarchy
     my $iclcs = 0;
     foreach my $lcs (@{$lcses}) {
 	my $value = $interface->getIC($lcs);

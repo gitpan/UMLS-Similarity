@@ -101,7 +101,7 @@ sub new
 	    chomp;
 	    my ($cui, $freq) = split/<>/;
 	    if(exists ${$fhash}{$cui}) { 
-		${$fhash}{$cui} = $freq;
+		${$fhash}{$cui} += $freq;
 	    }
 	}
 	
@@ -132,13 +132,13 @@ sub getRelatedness
     #  get the lcses
     my $lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
     
-    #  get the ic of the lcs with the lowest ic score
+    #  get the ic of the lcs that is the lowest on the hierarchy
     my $iclcs = 0; my $l = "";
     foreach my $lcs (@{$lcses}) {
 	my $value = $interface->getIC($lcs);
 	if($iclcs < $value) { $iclcs = $value; $l = $lcs; }
     }
-    
+
     #  if it is zero just return -1
     if($iclcs <= 0) { return -1; }
 

@@ -4,7 +4,7 @@
 # based on the measure proposed by Patwardhan and Pedersen 
 # (2006)
 #
-# Copyright (c) 2009-2011,
+# Copyright (c) 2009-2012,
 #
 # Bridget T McInnes, University of Minnesota, Twin Cities
 # bthomson at umn.edu
@@ -79,8 +79,11 @@ my %complist 	  = ();
 
 local(*DEBUG);
 
-sub new
-{
+###########################################################################
+#  initializes the vector parameters
+###########################################################################
+sub new { 
+
     my $className = shift;
 
     return undef if(ref $className);
@@ -107,6 +110,7 @@ sub new
     
     $params = {} if(!defined $params);
 
+    # set the vector parameters
     $vectorindex  = $params->{'vectorindex'};
     $vectormatrix = $params->{'vectormatrix'};
     $config       = $params->{'config'};
@@ -117,13 +121,10 @@ sub new
     $stoplist	  = $params->{'stoplist'};
     $stem         = $params->{'stem'};
     
-    my $defraw       = $params->{'defraw'};
-    
-    if(defined $defraw) { 
-	$defraw_option = 1;
-    }
+    my $defraw    = $params->{'defraw'};
+    if(defined $defraw) { $defraw_option = 1; } 
    
-	# read in the doubledef for --doubledef option 
+    # read in the doubledef for --doubledef option 
     if (defined $doubledef) {
 	open(DDEF, "$doubledef")
 	    or die("Error: cannot open doubledef file ($doubledef).\n");
@@ -141,7 +142,7 @@ sub new
 	}
 	close DDEF;
     }
-
+    
 
     # read in the dictfile for --dictfile option 
     if (defined $dictfile) {
@@ -162,7 +163,7 @@ sub new
 	}
 	close DICT;
     }
-
+    
     #  if the vector index is not defined - get the default
     if(! (defined $vectorindex) ) { 
 	foreach my $path (@INC) {
@@ -174,13 +175,13 @@ sub new
 	    }
 	}
     }
-
+    
     #  check to make certain that you found the vector index file
     if(! (defined $vectorindex) ) { 
 	print STDERR "Error: can not find the default vector index file (vector-index.dat).\n";
 	exit;
     }
-
+    
     #  if the vector matrix is not defined - get the default
     if(! (defined $vectormatrix) ) { 
 	foreach my $path (@INC) {
@@ -198,7 +199,7 @@ sub new
 	print STDERR "Error: can not find the default vector matrix file (vector-matrix.dat).\n";
 	exit;
     }
-	
+    
     # read in the vectorindex file
     open(INDX, "<$vectorindex")
         or die("Error: cannot open file '$vectorindex' for output index.\n");
@@ -215,6 +216,7 @@ sub new
     }
     close INDX;
     
+    #  set the debug file
     if(defined $debugfile) { 
 	if(-e $debugfile) {
 	    print "Debug file $debugfile already exists! Overwrite (Y/N)? ";
@@ -227,6 +229,7 @@ sub new
 	open(DEBUG, ">$debugfile") || die "Could not open debug file: $debugfile\n";
     }
     
+    #  read in the stoplist
     if (defined $stoplist) {
 	
 	open(STP, "$stoplist")
@@ -238,47 +241,46 @@ sub new
 	    if($_ ne ""){
         	$_=~s/\///g;
         	$stopregex .= "$_|";
-		}
+	    }
 	}   
 	chop $stopregex; $stopregex .= ")";
 	close STP;
-	
     }
-
-	if(defined $compoundfile) {
     
+    #  read in the file of compound words
+    if(defined $compoundfile) {
+	
 	#replace the compound words in the definition
 	open(LST, "$compoundfile") or die ("Error: cannot open file $compoundfile for input.\n");
-
+	
 	# read the compound txt and put them in the hash array. 
-	while (my $line = <LST>)
-	{
-		chomp($line);
-		my $lower_case = lc($line);
-		my @string = split('_', $lower_case);
-		my $head = shift(@string);
-
-		my $rest = join (' ', @string);
-		push (@{$complist{$head}}, $rest);
+	while (my $line = <LST>) {
+	    chomp($line);
+	    my $lower_case = lc($line);
+	    my @string = split('_', $lower_case);
+	    my $head = shift(@string);
+	    
+	    my $rest = join (' ', @string);
+	    push (@{$complist{$head}}, $rest);
 	}
 	close LST;
-		
+	
 	# sort the compound txt 
-	foreach my $h (sort (keys (%complist)) )
-	{
-		my @sort_list = sort(@{$complist{$h}});
-		for my $i (0..$#sort_list)
-		{
-			$complist{$h}[$i] = $sort_list[$i];
-		}
+	foreach my $h (sort (keys (%complist)) ) {
+	    my @sort_list = sort(@{$complist{$h}});
+	    for my $i (0..$#sort_list) {
+		$complist{$h}[$i] = $sort_list[$i];
+	    }
 	}
-	}
+    }
+
     return $self;
 }
 
-
-sub getRelatedness
-{
+###########################################################################
+#  sub routine that returns the relatedness score between two concepts
+###########################################################################
+sub getRelatedness {
     my $self = shift;
     
     return undef if(!defined $self || !ref $self);
@@ -287,17 +289,22 @@ sub getRelatedness
     my $concept2 = shift;
     
     if(defined $debugfile) {
-	print DEBUG "$concept1<>$concept2\n";
+	print DEBUG "PROCESSING CONCEPTS: $concept1 and $concept2\n";
+	print DEBUG "=============================================\n"; 
     }
-   
-    my $interface = $self->{'interface'};
     
+    my $interface = $self->{'interface'};
+
+    #  these are the definition variables
     my $d1 = "";
     my $d2 = "";
+
     
+    ###########################################################################
+    #  Get the definitions based on the user defined parameters
+    ###########################################################################
     if (!defined $dictfile) {
-	if ($concept1 =~ /C[0-9]+/)
-	{	
+	if ($concept1 =~ /C[0-9]+/) {	
 	    my $defs1 = $interface->getExtendedDefinition($concept1);
 	    if(defined $debugfile) {
 		print DEBUG "DEFINITIONS FOR CONCEPT 1 $concept1: \n";
@@ -311,15 +318,11 @@ sub getRelatedness
 		$def=~/(C[0-9]+) ([A-Za-z]+) ([A-Za-z0-9]+) ([A-Za-z0-9\.]+) \s*\:\s*(.*?)$/;
 		$d1 .= $5 . " ";
 	    }
-
+	    
 	    #if the definition is empty, return -1
-	    if ($d1 eq "") 
-	    {
-			return -1;
-	    }
+	    if ($d1 eq "") { return -1; }
 	}
-	if($concept2 =~ /C[0-9]+/)
-	{
+	if($concept2 =~ /C[0-9]+/) {
 	    my $defs2 = $interface->getExtendedDefinition($concept2);
 	    if(defined $debugfile) {
 		print DEBUG "DEFINITIONS FOR CONCEPT 2 $concept2: \n";
@@ -335,30 +338,25 @@ sub getRelatedness
 	    }
 	    
 	    #if the definition is empty, return -1
-	    if ($d2 eq "") 
-	    {
-			return -1;
-	    }
+	    if ($d2 eq "") { return -1; }
 	}
     } # end of without --dictfile option 
     
-    if (defined $dictfile)
-    { 
+    if (defined $dictfile) {
 	my $defs1;
 	my $defs2;
 	my $term1;
 	my $term2;
 	my $term1_def = "";
 	my $term2_def = "";
-
+	
 	my @dictfile_term1;
 	my @dictfile_term2;
 	
 	if(defined $debugfile) { print DEBUG "DEFINITIONS FOR CONCEPT 1: $concept1\n"; }
 
 	# the input format is cui#term	
-	if($concept1 =~ /^(C[0-9]+)(\#)(.*?)$/)
-	{
+	if($concept1 =~ /^(C[0-9]+)(\#)(.*?)$/) {
 	    my $cui1 = $1;
 	    $term1 = $3;
 	    
@@ -383,30 +381,15 @@ sub getRelatedness
 	    
 	    $d1 .= $term1_def . " " if $term1_def ne ""; 
 
-		# check the if the cui's assoicated terms are defined in the dictfile
-	    #@dictfile_term1 = $interface->getTermList($cui1);			
-		#foreach my $t (@dictfile_term1)
-		#{
-			#if (defined $dictionary{$t})
-			#{
-				#my $term1_def = $dictionary{$t};
-				#$d1 .= "$term1_def" . " ";
-			#}
-		#}
-
-	    if(defined $debugfile)
-	    {
-			print DEBUG "$i. $term1_def\n" if (defined $term1_def);
+	    if(defined $debugfile) { 
+		print DEBUG "$i. $term1_def\n" if (defined $term1_def);
 	    }
 	    
 	    #if the definition is empty, return -1
-	    if ($d1 eq "") 
-	    {
-			return -1;
-	    }
+	    if ($d1 eq "")  { return -1; } 
 	}
-	else #the input concept is a term 
-	{
+	else {  #the input concept is a term 
+	    
 	    if (defined $dictionary{$concept1}) {
 		$d1 = $dictionary{$concept1};
 		if (defined $debugfile) {
@@ -447,93 +430,74 @@ sub getRelatedness
 	    }	   
 	    
 	    $d2 .= $term2_def . " " if $term2_def ne ""; 
-	   
-
-		# check the if the cui's assoicated terms are defined in the dictfile
-		#@dictfile_term2 = $interface->getTermList($cui2);			
-		#foreach my $t (@dictfile_term2)
-		#{
-			#if (defined $dictionary{$t})
-			#{
-				#my $term2_def = $dictionary{$t}; 
-				#$d2 .= "$term2_def" . " ";
-			#}
-		#}
-
-	    if(defined $debugfile)
-	    {
-			print DEBUG "$i. $term2_def\n" if (defined $term2_def);
+	    
+	    if(defined $debugfile) { 
+		print DEBUG "$i. $term2_def\n" if (defined $term2_def);
 	    }
 	    
 	    #if the definition is empty, return -1
-	    if ($d2 eq "") 
-	    {
-			return -1;
-	    }
+	    if ($d2 eq "") { return -1; }
 	}
-	else
-	{
+	else { 
+
 	    if (defined $dictionary{$concept2}) {
 		$d2 = $dictionary{$concept2};
 		if (defined $debugfile) {
 		    print DEBUG "$concept2: $d2\n"; }
 	    }
-	    else{
+	    else {
 		if (defined $debugfile) {
-		    print DEBUG "$concept2: not defined\n"; }
-		return -1; }
+		    print DEBUG "$concept2: not defined\n"; 
+		}
+		return -1; 
+	    }
 	}
 	
     } #end of defined --dictfile option
-
-
-	# if define --doubledef option
-	if (defined $doubledef)
-	{
-		my @def1 = split(/\s/, $d1);	
-		my @def2 = split(/\s/, $d2);	
+    
+    
+    # if define --doubledef option
+    if (defined $doubledef) { 
 	
-		my %unique = (); # for every word, only check its definition once	
-		foreach my $w (@def1)
-		{
-			$unique{$w}++;	
-			if ((defined $ddef{$w}) and ($unique{$w}==1))
-			{
-				my $def = $ddef{$w}; 
-				if (defined $debugfile) 
-				{
-		    		print DEBUG "ddef1 $w: $def\n"; 
-				}
-				$d1 .= "$def" . " ";
-			}
-		}		
+	my @def1 = split(/\s/, $d1);	
+	my @def2 = split(/\s/, $d2);	
+	
+	my %unique = (); 
 
-		%unique = ();	
-		foreach my $w (@def2)
-		{
-			$unique{$w}++;	
-			if ((defined $ddef{$w}) and ($unique{$w}==1))
-			{
-				my $def = $ddef{$w}; 
-				if (defined $debugfile) 
-				{
-		    		print DEBUG "ddef2 $w: $def\n"; 
-				}
-				$d2 .= "$def" . " ";
-			}
-		}		
-
-		if (defined $debugfile)
-		{
-			print DEBUG "after --doubledef processing\n";
-			print DEBUG "concept 1: $d1\n";
-			print DEBUG "concept 2: $d2\n";
+	# for every word, only check its definition once	
+	foreach my $w (@def1) { 
+	    $unique{$w}++;	
+	    if ((defined $ddef{$w}) and ($unique{$w}==1)) { 
+		my $def = $ddef{$w}; 
+		if (defined $debugfile) { 
+		    print DEBUG "ddef1 $w: $def\n"; 
 		}
-
-
-	} #end of defined --doubledef option
-   
- 
+		$d1 .= "$def" . " ";
+	    }
+	}		
+	
+	%unique = ();	
+	foreach my $w (@def2) { 
+	    $unique{$w}++;	
+	    if ((defined $ddef{$w}) and ($unique{$w}==1)) { 
+		my $def = $ddef{$w}; 
+		if (defined $debugfile) { 
+		    print DEBUG "ddef2 $w: $def\n"; 
+		}
+		$d2 .= "$def" . " ";
+	    }
+	}		
+	
+	if (defined $debugfile) { 
+	    print DEBUG "AFTER --doubledef PROCESSING\n";
+	    print DEBUG "  concept 1: $d1\n";
+	    print DEBUG "  concept 2: $d2\n";
+	}
+	
+	
+    } #end of defined --doubledef option
+    
+    
     #  if the --defraw option is not set clean up the defintions
     if($defraw_option == 0) {
 	$d1 = lc($d1); $d2 = lc($d2);
@@ -541,33 +505,29 @@ sub getRelatedness
 	# remove punctuation doesn't contain '<' and '>' and '_'    
 	$d1=~s/[\.\,\?\/\'\"\;\:\[\]\{\}\!\@\#\$\%\^\&\*\(\)\-\+\-\=]//g;
 	$d2=~s/[\.\,\?\/\'\"\;\:\[\]\{\}\!\@\#\$\%\^\&\*\(\)\-\+\-\=]//g;
-
-	if (defined $debugfile)
-	{
-		print DEBUG "after --defraw processing\n";
-		print DEBUG "concept 1: $d1\n";
-		print DEBUG "concept 2: $d2\n";
+	
+	if (defined $debugfile) { 
+	    print DEBUG "AFTER --defraw PROCESSING\n";
+	    print DEBUG "  concept 1: $d1\n";
+	    print DEBUG "  concept 2: $d2\n";
 	}
     }
-   
+    
 
-	# find compound words
-	if(defined $compoundfile)
-	{
-		$d1 = findCompoundWord($d1, \%complist);
-		$d2 = findCompoundWord($d2, \%complist);
-		if (defined $debugfile)
-		{
-			print DEBUG "after --compoundfile processing\n";
-			print DEBUG "concept 1: $d1\n";
-			print DEBUG "concept 2: $d2\n";
-		}
+    # find compound words
+    if(defined $compoundfile) { 
+	$d1 = findCompoundWord($d1, \%complist);
+	$d2 = findCompoundWord($d2, \%complist);
+	if (defined $debugfile) { 
+	    print DEBUG "AFTER --compoundfile PROCESSING\n";
+	    print DEBUG "  concept 1: $d1\n";
+	    print DEBUG "  concept 2: $d2\n";
 	}
-
-
+    }
+    
+    
     # if --stopword option is set remove stop words
-    if (defined $stoplist) 
-    {
+    if (defined $stoplist) { 
 	my @def1 = split(/\s/, $d1);	
 	my @def2 = split(/\s/, $d2);	
 	my @new_def1 = ();
@@ -583,35 +543,34 @@ sub getRelatedness
 	
 	$d1 = join (" ", @new_def1);	
 	$d2 = join (" ", @new_def2);	
-
-	if (defined $debugfile)
-	{
-		print DEBUG "after --stoplist processing\n";
-		print DEBUG "concept 1: $d1\n";
-		print DEBUG "concept 2: $d2\n";
+	
+	if (defined $debugfile) { 
+	    print DEBUG "AFTER --stoplist PROCESSING\n";
+	    print DEBUG "  concept 1: $d1\n";
+	    print DEBUG "  concept 2: $d2\n";
 	}
     } #end of stoplist option
-
-
-    if(defined $stem) 
-    {
-		my @def_words1 = split(/\s/, $d1);
-		my $stemmed_words1 = Lingua::Stem::En::stem({ -words => \@def_words1, -locale => 'en'});
-		$d1 = join(" ", @{$stemmed_words1});
-		
-		my @def_words2 = split(/\s/, $d2);
-		my $stemmed_words2 = Lingua::Stem::En::stem({ -words => \@def_words2, -locale => 'en'});
-		$d2 = join(" ", @{$stemmed_words2});
-
-		if (defined $debugfile)
-		{
-			print DEBUG "after --stem processing\n";
-			print DEBUG "concept 1: $d1\n";
-			print DEBUG "concept 2: $d2\n";
-		}
+    
+    
+    if(defined $stem) { 
+	my @def_words1 = split(/\s/, $d1);
+	my $stemmed_words1 = Lingua::Stem::En::stem({ -words => \@def_words1, -locale => 'en'});
+	$d1 = join(" ", @{$stemmed_words1});
+	
+	my @def_words2 = split(/\s/, $d2);
+	my $stemmed_words2 = Lingua::Stem::En::stem({ -words => \@def_words2, -locale => 'en'});
+	$d2 = join(" ", @{$stemmed_words2});
+	
+	if (defined $debugfile) { 
+	    print DEBUG "AFTER --stem PROCESSING\n";
+	    print DEBUG "  concept 1: $d1\n";
+	    print DEBUG "  concept 2: $d2\n";
+	}
     }
     
-
+    ###########################################################################
+    #  We have the definitions in $d1 and $d2 -- now create the vector
+    ###########################################################################
     open(MATX, "<$vectormatrix")
         or die("Error: cannot open file '$vectormatrix' for output index.\n");
     
@@ -619,259 +578,242 @@ sub getRelatedness
     my %vector2 = ();
     my @defs1 = split(" ", $d1);	
     my @defs2 = split(" ", $d2);	
-   
+    
     my $def1_length = 0 ;
     
-    foreach my $def_term1 (@defs1){
-	if (defined $index{$def_term1})
-	{
+    foreach my $def_term1 (@defs1) { 
+	if(defined $debugfile) { 
+	    print DEBUG "PROCESSING DEF 1 TERM: $def_term1\n";
+	}
+	if (defined $index{$def_term1}) { 
 	    my $index_term = $index{$def_term1};
 	    my $p = $position{$index_term};
 	    my $l = $length{$index_term};
 	    
-	    if (($p==0) and (!defined $l))
-	    {
-			next;
-	    }
-	    else
-	    {
-			$def1_length++;
+	    if (($p==0) and (!defined $l)) { next; } 
+	    else { 
+		$def1_length++;
+		
+		my ($data, $n);
+		seek MATX, $p, 0;
+		if (($n = read MATX, $data, $l) != 0) { 
+		    if (defined $debugfile) { print DEBUG "  WORD VECTOR FOR $def_term1: "; } 
+		    
+		    chomp($data);
+		    my @word_vector = split (' ', $data);
+		    my $index = shift @word_vector;
+		    $index =~ m/^(\d+)\:$/;
+		    
+		    if ($index_term == $1) { 
+			for (my $z=0; $z<@word_vector; ) { 
+			    $vector1{$word_vector[$z]} += $word_vector[$z+1];
+			    
+			    if (defined $debugfile) { 
+				if(defined $word_vector[$z]) {
+				    print DEBUG "$reverse_index{$word_vector[$z]} ";
+				}
+			    } 	
+			    
+			    $z += 2;
+			}
 			
-			my ($data, $n);
-			seek MATX, $p, 0;
-			if (($n = read MATX, $data, $l) != 0)
-			{
-				if (defined $debugfile) {
-				print DEBUG "$def_term1: ";
-				}
-				
-				chomp($data);
-				my @word_vector = split (' ', $data);
-				my $index = shift @word_vector;
-				$index =~ m/^(\d+)\:$/;
-				
-				if ($index_term == $1)
-				{
-					for (my $z=0; $z<@word_vector; )
-					{
-						$vector1{$word_vector[$z]} += $word_vector[$z+1];
-						
-						if (defined $debugfile) { 
-						if(defined $word_vector[$z]) {
-							print DEBUG "$reverse_index{$word_vector[$z]} ";
-						}
-						} 	
-					
-						$z += 2;
-					}
-				
-					if (defined $debugfile) 
-					{
-						print DEBUG "\n";
-					} 	
-				}
-				else 
-				{
-					print STDERR "$def_term1 is not a correct word!\n";
-					exit;
-				}
-			}	
+			if (defined $debugfile) { print DEBUG "\n"; } 
+		    }
+		    else { 
+			print STDERR "$def_term1 is not a correct word!\n";
+			exit;
+		    }
+		}	
 	    }
 	}
     } # end of def1
     
-    if (defined $debugfile) {
-	print DEBUG "def1 length: $def1_length\n";
-    } 	
+    if (defined $debugfile) { 	
+	print DEBUG "FINISHED PROCESSING DEF1\n";
+	print DEBUG "DEF1 LENGTH: $def1_length\n"; 
+    } 
     
     my $def2_length = 0 ;
-    foreach my $def_term2 (@defs2)
-    {
-
-	if (defined $index{$def_term2})
-	{
+    foreach my $def_term2 (@defs2) {
+	if(defined $debugfile) { 
+	    print DEBUG "PROCESSING DEF 2 TERM: $def_term2\n";
+	}
+	if (defined $index{$def_term2}) {
 	    my $index_term = $index{$def_term2};
             my $p = $position{$index_term};
             my $l = $length{$index_term};
 	    
-	    if (($p==0) and (!defined $l))
-	    {
-			next;
-	    }
-	    else
-	    {
-			$def2_length++;
+	    if (($p==0) and (!defined $l)) { next; }
+	    else { 
+		$def2_length++;
 		
-            my ($data, $n);
-            seek MATX, $p, 0;
-            if (($n = read MATX, $data, $l) != 0)
-            {
-		    	if (defined $debugfile) {
-				print DEBUG "$def_term2: ";
-		    	}
-		    	chomp($data);
-		    	my @word_vector = split (' ', $data);
-		    	my $index = shift @word_vector;
-                $index =~ m/^(\d+)\:$/;
-		    
-                if ($index_term == $1)
-		    	{
-                  	for (my $z=0; $z<@word_vector; )
-                    {
-			    		$vector2{$word_vector[$z]} += $word_vector[$z+1];
-			    
-			    		if (defined $debugfile) {
-						if(defined $word_vector[$z]) {
-				    	print DEBUG "$reverse_index{$word_vector[$z]} "; }
-			    		} 	
+		my ($data, $n);
+		seek MATX, $p, 0;
+		if (($n = read MATX, $data, $l) != 0)
+		{
+		    if (defined $debugfile) { print DEBUG "  WORD VECTOR FOR $def_term2: "; } 
 
-			    		$z += 2;
-                    }
+		    chomp($data);
+
+		    my @word_vector = split (' ', $data);
+		    my $index = shift @word_vector;
+		    $index =~ m/^(\d+)\:$/;
+		    
+		    if ($index_term == $1) { 
+                  	for (my $z=0; $z<@word_vector; ) { 
+			    $vector2{$word_vector[$z]} += $word_vector[$z+1];
+			    
+			    if (defined $debugfile) {
+				if(defined $word_vector[$z]) {
+				    print DEBUG "$reverse_index{$word_vector[$z]} "; }
+			    } 	
+			    
+			    $z += 2;
+			}
 			
-					if (defined $debugfile) {
-			    	print DEBUG "\n"; } 	
-                }
-                else
-                {
-					print STDERR "$def_term2 is not a correct word!\n";
-					exit;
-                }
-           }
+			if (defined $debugfile) { print DEBUG "\n"; } 	
+		    }
+		    else { 
+			print STDERR "$def_term2 is not a correct word!\n";
+			exit;
+		    }
+		}
 	    }
 	}
     }
     
     
     if (defined $debugfile) {
-	print DEBUG "def2 length: $def2_length\n";
+	print DEBUG "FINISHED PROCESSING DEF2\n";
+	print DEBUG "DEF2 LENGTH: $def2_length\n";
     } 	
     
-    #  normalize
-    my $vec1 = &norm(\%vector1);
-    my $vec2 = &norm(\%vector2);
+    ###########################################################################    
+    #  We have the vectors -- now calculate the cosine between them
+     ###########################################################################
+
+     #  normalize the vectors
+     if(defined $debugfile) { print DEBUG "NORMALIZING VECTOR 1\n"; } 
+     my $vec1 = &norm(\%vector1);
+     if(defined $debugfile) { print DEBUG "NORMALIZING VECTOR 2\n"; } 
+     my $vec2 = &norm(\%vector2);
+
+     #  calculate the dot product
+     my $score = &_inner($vec1, $vec2);
+
+     #  return the dot product
+     if(defined $debugfile) { print DEBUG "=============================================\n"; }
+     return $score;
+ }
+
+###########################################################################
+# Subroutine to identify the compound words in the definition
+###########################################################################
+sub findCompoundWord {
+    my $def = shift;
+    my $ref_complist = shift;
+    my $new_def = "";
     
-    #  cosine
-    my $score = &_inner($vec1, $vec2);
+    my @words = split(' ', $def);
+    my $size_line = @words;
+    for (my $i=0; $i<$size_line; $i++) { 
+	
+	my $w            = $words[$i];
+	my $flag_print_w = 0;
+	my $flag_comp    = 0;
+	
+	if(defined $ref_complist->{$w}) { 
+	    # get the compound list start with word $w
+	    my @comps = @{$ref_complist->{$w}};
+	    
+	    #compare the rest of the compound word  
+	    foreach my $c (@comps) { 
+		my @string = split(' ', $c);
+		my $count = 1;
+		foreach my $s (@string) {
+		    if (($i+$count)<$size_line) {
+			if ($s eq $words[$i+$count]) {
+			    $flag_comp = 1;
+			    $count++;
+			}
+			else {
+			    $flag_comp = 0;
+			    last;
+			}
+		    }
+		} # test one compound word start by $w           
+		
+		 # connect the compound word     
+		if ($flag_comp==1) {
+		    unshift(@string, "$w");
+		    my $comp = join('_', @string);
+		    $new_def .= "$comp ";
+		    if (defined $debugfile) { print DEBUG "compounds: $comp\n"; } 
+		    my $skip = @string-1;
+		    $i = $i + $skip;
+		    last;
+		}
+	    } # test all the compound word start by $w  
+	    
+	    # print out the $w if it doesn't match any compound words
+	    if (($flag_print_w==0) and ($flag_comp==0)) {
+		$new_def .= "$w ";
+		$flag_print_w = 1;
+	    }
+	    
+	} # end of defined compound word start by $w
+	
+	if(!defined $ref_complist->{$w}) {
+	    $new_def .= "$w ";
+	}
+    } # end of one definition 
     
-    return $score;
+     return $new_def;   
 }
 
-sub findCompoundWord
-{
-	my $def = shift;
-	my $ref_complist = shift;
-	my $new_def = "";
-
-	my @words = split(' ', $def);
-	my $size_line = @words;
-    for (my $i=0; $i<$size_line; $i++)
-    {
-        my $w = $words[$i];
-        my $flag_print_w = 0;
-        my $flag_comp = 0;
-        if(defined $ref_complist->{$w})
-        {
-            # get the compound list start with word $w
-            my @comps = @{$ref_complist->{$w}};
-            foreach my $c (@comps)
-            {
-                #compare the rest of the compound word  
-                my @string = split(' ', $c);
-
-                my $count = 1;
-                foreach my $s (@string)
-                {
-                    if (($i+$count)<$size_line)
-                    {
-                        if ($s eq $words[$i+$count])
-                        {
-                            $flag_comp = 1;
-                            $count++;
-                        }
-                        else
-                        {
-                            $flag_comp = 0;
-                            last;
-                        }
-                    }
-                } # test one compound word start by $w           
-				
-				# connect the compound word     
-                if ($flag_comp==1)
-                {
-                    unshift(@string, "$w");
-                    my $comp = join('_', @string);
-					$new_def .= "$comp ";
-					if (defined $debugfile)
-					{ 
-                    	print DEBUG "compounds: $comp\n";
-					}
-                    my $skip = @string-1;
-                    $i = $i + $skip;
-                    last;
-                }
-            } # test all the compound word start by $w  
-
-            # print out the $w if it doesn't match any compound words
-            if (($flag_print_w==0) and ($flag_comp==0))
-            {
-                $new_def .= "$w ";
-                $flag_print_w = 1;
-            }
-
-        } # end of defined compound word start by $w
-
-        if(!defined $ref_complist->{$w})
-        {
-            $new_def .= "$w ";
-        }
-	} # end of one definition 
-	
-	return $new_def;
-	
-}
-
-
-# Subroutine to normalize a vector.
-sub norm
-{
-    my $vec = shift;
-    my $out = {};
+###########################################################################
+# Subroutine to normalize a vector
+###########################################################################
+sub norm {
+    my $vec  = shift;
+    my $out  = {};
     my $lent = 0;
-    my $ind = 0;
+    my $ind  = 0;
 
     return {} if(!defined $vec);
-    foreach $ind (keys %{$vec})
-    {
+
+    foreach $ind (keys %{$vec})  {
 	$lent += (($vec->{$ind}) * ($vec->{$ind}));
     }
+
     $lent = sqrt($lent);
-    if($lent)
-    {
-	foreach $ind (keys %{$vec})
-	{
+    if($lent) { 
+	foreach $ind (keys %{$vec}) { 
+	    if(defined $debugfile) { print DEBUG "$ind $vec->{$ind} $lent\n"; }
 	    $out->{$ind} = $vec->{$ind}/$lent;
 	}    
     }
-
+    
     return $out;
 }
 
+###########################################################################
+# Subroutine to find the dot-product of two vectors
+###########################################################################
+sub _inner {
 
-# Subroutine to find the dot-product of two vectors.
-sub _inner
-{
     my $a = shift;
     my $b = shift;
     my $ind;
     my $dotProduct = 0;
-
+    
     return 0 if(!defined $a || !defined $b);
-    foreach $ind (keys %{$a})
-    {
+    foreach $ind (keys %{$a}) { 
 	$dotProduct += $a->{$ind} * $b->{$ind} if(defined $a->{$ind} && defined $b->{$ind});
     }
-
+    
+    if(defined $debugfile) { print DEBUG "DOT PRODUCT: $dotProduct\n"; }
+    
     return $dotProduct;
 }
 

@@ -244,29 +244,29 @@ while (my $line = <BIGM>)
 
         if ($word ne "")
         {
-			$bigrams .= "\n";
-           	my $length = length($bigrams);
+	    $bigrams .= "\n";
+	    my $length = length($bigrams);
             $position_length[$index{$word}] = "$position" . " $length";
-           	$position += $length;
+	    $position += $length;
             $bigrams = "";
-			printf MATX "\n";
+	    printf MATX "\n";
         }
-
-		# for a new term, print the term and its first bigrams frequency
-		$word = $terms[0];
-		$bigrams .= "$index{$word}: $index{$terms[1]} $freqs[0] ";
-		printf MATX "$index{$word}: $index{$terms[1]} $freqs[0] ";
+	
+	# for a new term, print the term and its first bigrams frequency
+	$word = $terms[0];
+	$bigrams .= "$index{$word}: $index{$terms[1]} $freqs[0] ";
+	printf MATX "$index{$word}: $index{$terms[1]} $freqs[0] ";
 	}
-		# reach the end of the bigrams file, record the 
-		# vector position and length of the last term.	
-		if (eof(BIGM))
-		{
-			$bigrams .= "\n";
-           	my $length = length($bigrams);
+	# reach the end of the bigrams file, record the 
+	# vector position and length of the last term.	
+	if (eof(BIGM))
+	{
+	    $bigrams .= "\n";
+	    my $length = length($bigrams);
             $position_length[$index{$word}] = "$position" . " $length";
-			printf MATX "\n";
-		}
-
+	    printf MATX "\n";
+	}
+	
 }
 close MATX;
 close BIGM;
