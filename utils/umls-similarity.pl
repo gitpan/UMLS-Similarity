@@ -557,7 +557,7 @@ sub calculateSimilarity {
 	    #  will take the terms as input - don't map them to cuis in the umls. 
 	    #  the definitions used by these measures are coming from the dictfile
 	    #  not the umls therefore the actual terms are required by the measures.
-	    if( ($measure=~/(lesk|vector)/) && (defined $opt_dictfile) ) {
+	    if( ($measure=~/(lesk|vector|o1vector)/) && (defined $opt_dictfile) ) {
 		if( (defined $opt_dictfile) && (defined $opt_config) ) {
 		    
 		    if($input1=~/C[0-9]+/) { push @{$c1}, $input1; }
@@ -586,7 +586,7 @@ sub calculateSimilarity {
 		    push @{$c1}, $input1;
 		    $cui_flag1 = 1;
 		}
-		elsif($measure=~/lesk|vector/) { 
+		elsif($measure=~/lesk|vector|o1vector/) { 
 		    $c1 = $umls->getDefConceptList($input1); 
 		}
 		else {
@@ -598,7 +598,7 @@ sub calculateSimilarity {
 		    push @{$c2}, $input2;
 		    $cui_flag2 = 1;
 		}
-		elsif($measure=~/lesk|vector/) { 
+		elsif($measure=~/lesk|vector|o1vector/) { 
 		    $c2 = $umls->getDefConceptList($input2); 
 		}
 		else {
@@ -993,6 +993,42 @@ sub loadMeasures {
         $meas = UMLS::Similarity::lesk->new($umls,\%leskoptions);  
     }
 
+    if($measure eq "o1vector") {
+	use UMLS::Similarity::o1vector;
+	my %o1vectoroptions = ();
+	
+	if(defined $opt_compoundfile) {
+	    $o1vectoroptions{"compoundfile"} = $opt_compoundfile;
+	}
+	if(defined $opt_config) {
+	    $o1vectoroptions{"config"} = $opt_config;
+	}
+	if(defined $opt_smooth) {
+	    $o1vectoroptions{"smooth"} = $opt_smooth;
+	}
+	if(defined $opt_stoplist) {
+	    $o1vectoroptions{"stoplist"} = $opt_stoplist;
+	}
+	if(defined $opt_stem) {
+	    $o1vectoroptions{"stem"} = $opt_stem;
+	}
+	if(defined $opt_debugfile) {
+	    $o1vectoroptions{"debugfile"} = $opt_debugfile;
+	}
+	
+	if(defined $opt_defraw) { 
+	    $o1vectoroptions{"defraw"} = $opt_defraw;
+	}
+	if(defined $opt_dictfile) {
+	    $o1vectoroptions{"dictfile"} = $opt_dictfile;
+	}
+	if(defined $opt_doubledef) {
+	    $o1vectoroptions{"doubledef"} = $opt_doubledef;
+	}
+	
+        $meas = UMLS::Similarity::o1vector->new($umls,\%o1vectoroptions);  
+    }
+
 
     die "Unable to create measure object.\n" if(!$meas);
 
@@ -1046,7 +1082,7 @@ sub checkOptions {
     }
 
     if(defined $opt_measure) {
-	if($opt_measure=~/\b(path|wup|zhong|lch|cdist|nam|vector|res|lin|random|jcn|lesk)\b/) {
+	if($opt_measure=~/\b(path|wup|zhong|lch|cdist|nam|vector|res|lin|random|jcn|lesk|o1vector)\b/) {
 	    #  good to go
 	}
 	else {
@@ -1058,45 +1094,45 @@ sub checkOptions {
     }
     
     if(defined $opt_stoplist) { 
-	if(! ($opt_measure=~/vector|lesk/) ) {
+	if(! ($opt_measure=~/vector|lesk|o1vector/) ) {
 	    print STDERR "The --stoplist option is only available\n";
-	    print STDERR "when using the lesk or vector measure.\n\n";
+	    print STDERR "when using the lesk, o1vector or vector measure.\n\n";
 	    &minimalUsageNotes();
 	    exit;
 	}
     }    
 
     if(defined $opt_stem) { 
-	if(! ($opt_measure=~/vector|lesk/) ) {
+	if(! ($opt_measure=~/vector|lesk|o1vector/) ) {
 	    print STDERR "The --stem option is only available\n";
-	    print STDERR "when using the lesk or vector measure.\n\n";
+	    print STDERR "when using the lesk, o1vector  or vector measure.\n\n";
 	    &minimalUsageNotes();
 	    exit;
 	}
     }    
 
     if(defined $opt_dictfile) { 
-	if(! ($opt_measure=~/vector|lesk/) ) {
+	if(! ($opt_measure=~/vector|lesk|o1vector/) ) {
 	    print STDERR "The --dictfile option is only available\n";
-	    print STDERR "when using the lesk or vector measure.\n\n";
+	    print STDERR "when using the lesk, o1vector or vector measure.\n\n";
 	    &minimalUsageNotes();
 	    exit;
 	}
     }    
 
     if(defined $opt_doubledef) { 
-	if(! ($opt_measure=~/vector|lesk/) ) {
+	if(! ($opt_measure=~/vector|lesk|o1vector/) ) {
 	    print STDERR "The --doubledef option is only available\n";
-	    print STDERR "when using the lesk or vector measure.\n\n";
+	    print STDERR "when using the lesk, o1vector or vector measure.\n\n";
 	    &minimalUsageNotes();
 	    exit;
 	}
     }    
 
     if(defined $opt_debugfile) { 
-	if(! ($opt_measure=~/(vector|lesk)/) ) {
+	if(! ($opt_measure=~/(vector|lesk|o1vector)/) ) {
 	    print STDERR "The --debugfile option is only available\n";
-	    print STDERR "when using the lesk or vector measure.\n\n";
+	    print STDERR "when using the lesk, o1vector or vector measure.\n\n";
 	    &minimalUsageNotes();
 	    exit;
 	}
@@ -1121,7 +1157,9 @@ sub checkOptions {
     }    
 
     if(defined $opt_compoundfile) { 
-	if((!($opt_measure=~/vector/)) and (! ($opt_measure=~/lesk/))) {
+	if((!($opt_measure=~/vector/)) and 
+	   (!($opt_measure=~/lesk/))   and 
+	   (!($opt_measure=~/o1vector/)) ) {
 	    print STDERR "The --compoundfile option is only available\n";
 	    print STDERR "when using the vector or lesk measure. \n\n";
 	    &minimalUsageNotes();
@@ -1208,7 +1246,7 @@ sub checkOptions {
     }
     
     if(defined $opt_realtime) { 
-	if($opt_measure=~/vector|lesk/) { 
+	if($opt_measure=~/vector|lesk|o1vector/) { 
 	    print STDERR "The --realtime option is only available for the similarity measures\n";
 	    &minimalUsageNotes();
 	    exit;

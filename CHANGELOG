@@ -1,6 +1,9 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 1.25 to 1.27
+    1. added o1vector measure
+
   Changes from version 1.23 to 1.25
     1. updated documentation
 
