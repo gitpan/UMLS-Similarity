@@ -45,6 +45,7 @@ use UMLS::Similarity::ErrorHandler;
 use vars qw($VERSION);
 $VERSION = '0.07';
 
+my $intrinsic = undef; 
 my $debug = 0;
 
 sub new
@@ -72,43 +73,47 @@ sub new
 	exit;
     }
        
-    # set the propagation/frequency information
-    $interface->setPropagationParameters($params);
-    
-    #  if the icpropagation or icfrequency option is not 
-    #  defined set the default options for icpropagation
-    if( (!defined $params->{"icpropagation"}) &&
-	(!defined $params->{"icfrequency"}) ) {
-	
-	print STDERR "Setting default propagation file (lin)\n";
-
-	#  get the icfrequency file
-	my $icfrequency = ""; foreach my $path (@INC) {
-	    if(-e $path."/UMLS/icfrequency.default.dat") { 
-		$icfrequency = $path."/UMLS/icfrequency.default.dat";
-	    }
-	    elsif(-e $path."\\UMLS\\icfrequency.default.dat") { 
-		$icfrequency =  $path."\\UMLS\\icfrequency.default.dat";
-	    }
-	}
-	
-	#  set the cuilist
-	my $fhash = $interface->getCuiList();
-	
-	#  load the frequency counts
-	open(FILE, $icfrequency) || die "Could not open $icfrequency\n";
-	while(<FILE>) { 
-	    chomp;
-	    my ($cui, $freq) = split/<>/;
-	    if(exists ${$fhash}{$cui}) { 
-		${$fhash}{$cui} += $freq;
-	    }
-	}
-	
-	#  propagate the counts
-	my $phash = $interface->propagateCounts($fhash);
+    if(defined $params->{"intrinsic"}) { 
+	$intrinsic = $params->{"intrinsic"}; 
     }
-    
+    else { 
+	# set the propagation/frequency information
+	$interface->setPropagationParameters($params);
+	
+	#  if the icpropagation or icfrequency option is not 
+	#  defined set the default options for icpropagation
+	if( (!defined $params->{"icpropagation"}) &&
+	    (!defined $params->{"icfrequency"}) ) {
+	    
+	    print STDERR "Setting default propagation file (lin)\n";
+	    
+	    #  get the icfrequency file
+	    my $icfrequency = ""; foreach my $path (@INC) {
+		if(-e $path."/UMLS/icfrequency.default.dat") { 
+		    $icfrequency = $path."/UMLS/icfrequency.default.dat";
+		}
+		elsif(-e $path."\\UMLS\\icfrequency.default.dat") { 
+		    $icfrequency =  $path."\\UMLS\\icfrequency.default.dat";
+		}
+	    }
+	    
+	    #  set the cuilist
+	    my $fhash = $interface->getCuiList();
+	    
+	    #  load the frequency counts
+	    open(FILE, $icfrequency) || die "Could not open $icfrequency\n";
+	    while(<FILE>) { 
+		chomp;
+		my ($cui, $freq) = split/<>/;
+		if(exists ${$fhash}{$cui}) { 
+		    ${$fhash}{$cui} = $freq;
+		}
+	    }
+	    
+	    #  propagate the counts
+	    my $phash = $interface->propagateCounts($fhash);
+	}
+    }	
     return $self;
 }
 
@@ -122,23 +127,48 @@ sub getRelatedness
 
     #  set up the interface
     my $interface = $self->{'interface'};
+    
+    my $ic1; my $ic2; 
+    if(defined $intrinsic) {
 
-    #  get the ic of the concepts
-    my $ic1 = $interface->getIC($concept1);
-    my $ic2 = $interface->getIC($concept2);
-
+	if($intrinsic=~/sanchez/) { 
+	    $ic1 = $interface->getSanchezIntrinsicIC($concept1);
+	    $ic2 = $interface->getSanchezIntrinsicIC($concept2);
+	}
+	else { 
+	    $ic1 = $interface->getSecoIntrinsicIC($concept1);
+	    $ic2 = $interface->getSecoIntrinsicIC($concept2);
+	}
+    }
+    else { 
+	$ic1 = $interface->getIC($concept1);
+	$ic2 = $interface->getIC($concept2);
+    }
+    
     #  if any of the concepts have an ic of zero return -1
     if( ($ic1 <= 0) || ($ic2 <= 0) ) { return -1; }
     #  get the lcses
     my $lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
     
-    #  get the ic of the lcs that is the lowest on the hierarchy
+    #  get the ic of the lcs with the lowest ic score
     my $iclcs = 0; my $l = "";
     foreach my $lcs (@{$lcses}) {
-	my $value = $interface->getIC($lcs);
+	my $value;
+	if(defined $intrinsic) { 
+
+	    if($intrinsic=~/sanchez/) { 
+		$value = $interface->getSanchezIntrinsicIC($lcs);
+	    }
+	    else {
+		$value = $interface->getSecoIntrinsicIC($lcs);
+	    }
+	}
+	else { 
+	    $value = $interface->getIC($lcs);
+	}
 	if($iclcs < $value) { $iclcs = $value; $l = $lcs; }
     }
-
+    
     #  if it is zero just return -1
     if($iclcs <= 0) { return -1; }
 

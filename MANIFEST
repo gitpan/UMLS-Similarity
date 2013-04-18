@@ -11,7 +11,6 @@ lib/UMLS/Similarity/lch.pm
 lib/UMLS/Similarity/lesk.pm
 lib/UMLS/Similarity/lin.pm
 lib/UMLS/Similarity/nam.pm
-lib/UMLS/Similarity/o1vector.pm
 lib/UMLS/Similarity/path.pm
 lib/UMLS/Similarity/random.pm
 lib/UMLS/Similarity/res.pm

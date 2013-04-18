@@ -1,15 +1,10 @@
 NAME
     UMLS::Similarity CHANGES
 
-  Changes from version 1.25 to 1.27
-    1. added o1vector measure
-
   Changes from version 1.23 to 1.25
-    1. updated documentation
-
-    2. modified umls-similarity.pl to return an error if the icfrequency
-    information does not match the configuration file -- similar to what we
-    do with the icpropagation option
+    1. added --intrinsic option to umls-similarity.pl and the IC measure
+    modules to allow for the Intrinisic IC to be used rather than the corpus
+    based IC.
 
   Changes from version 1.21 to 1.23
     1. modified query-umls-similarity-webinterface.pl to return -1 when one

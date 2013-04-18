@@ -49,8 +49,9 @@ use vars qw($VERSION);
 $VERSION = '0.09';
 
 my $debug    = 0;
-
+my $intrinsic = undef; 
 my $originaloption = undef;
+
 sub new
 {
     my $className = shift;
@@ -76,50 +77,54 @@ sub new
 	exit;
     }
 
-    # set the propagation/frequency information
-    $interface->setPropagationParameters($params);
-    
-    #  if the icpropagation or icfrequency option is not 
-    #  defined set the default options for icpropagation
-    if( (!defined $params->{"icpropagation"}) &&
-	(!defined $params->{"icfrequency"}) ) {
-	
-	print STDERR "Setting default propagation file (jcn)\n";
-	
-	#  get the icfrequency file
-	my $icfrequency = ""; foreach my $path (@INC) {
-	    if(-e $path."/UMLS/icfrequency.default.dat") { 
-		$icfrequency = $path."/UMLS/icfrequency.default.dat";
-	    }
-	    elsif(-e $path."\\UMLS\\icfrequency.default.dat") { 
-		$icfrequency =  $path."\\UMLS\\icfrequency.default.dat";
-	    }
-	}
-	
-	#  set the cuilist
-	my $fhash = $interface->getCuiList();
-	
-	#  load the frequency counts
-	open(FILE, $icfrequency) || die "Could not open $icfrequency\n";
-	while(<FILE>) { 
-	    chomp;
-	    my ($cui, $freq) = split/<>/;
-	    if(exists ${$fhash}{$cui}) { 
-		${$fhash}{$cui} = $freq;
-	    }
-	}
-	
-	#  propagate the counts
-	my $phash = $interface->propagateCounts($fhash);
+    if(defined $params->{"intrinsic"}) { 
+	$intrinsic = $params->{"intrinsic"}; 
     }
-
+    else { 
+	# set the propagation/frequency information
+	$interface->setPropagationParameters($params);
+	
+	#  if the icpropagation or icfrequency option is not 
+	#  defined set the default options for icpropagation
+	if( (!defined $params->{"icpropagation"}) &&
+	    (!defined $params->{"icfrequency"}) ) {
+	    
+	    print STDERR "Setting default propagation file (jcn)\n";
+	    
+	    #  get the icfrequency file
+	    my $icfrequency = ""; foreach my $path (@INC) {
+		if(-e $path."/UMLS/icfrequency.default.dat") { 
+		    $icfrequency = $path."/UMLS/icfrequency.default.dat";
+		}
+		elsif(-e $path."\\UMLS\\icfrequency.default.dat") { 
+		    $icfrequency =  $path."\\UMLS\\icfrequency.default.dat";
+		}
+	    }
+	    
+	    #  set the cuilist
+	    my $fhash = $interface->getCuiList();
+	    
+	    #  load the frequency counts
+	    open(FILE, $icfrequency) || die "Could not open $icfrequency\n";
+	    while(<FILE>) { 
+		chomp;
+		my ($cui, $freq) = split/<>/;
+		if(exists ${$fhash}{$cui}) { 
+		    ${$fhash}{$cui} = $freq;
+		}
+	    }
+	    
+	    #  propagate the counts
+	    my $phash = $interface->propagateCounts($fhash);
+	}
+    }
     #  check if the original distance score should be returned rather 
     #  than the similarity score
     if(defined $params->{"original"}) { $originaloption = 1; }
     return $self;
 }
 
-
+    
 sub getRelatedness
 {
     my $self = shift;
@@ -130,13 +135,23 @@ sub getRelatedness
     my $concept2 = shift;
     
     my $interface = $self->{'interface'};
- 
-
-    #  get the IC of each of the concepts
-    my $ic1 = $interface->getIC($concept1);
-    my $ic2 = $interface->getIC($concept2);
     
- 
+    my $ic1; my $ic2; 
+    if(defined $intrinsic) {
+	if($intrinsic=~/sanchez/) { 
+	    $ic1 = $interface->getSanchezIntrinsicIC($concept1);
+	    $ic2 = $interface->getSanchezIntrinsicIC($concept2);
+	}
+	else { 
+	    $ic1 = $interface->getSecoIntrinsicIC($concept1);
+	    $ic2 = $interface->getSecoIntrinsicIC($concept2);
+	}
+    }
+    else { 
+	$ic1 = $interface->getIC($concept1);
+	$ic2 = $interface->getIC($concept2);
+    }
+    
     #  Check to make certain that the IC for each of the
     #  concepts is greater than zero otherwise return zero
     #  for lack of data
@@ -145,18 +160,27 @@ sub getRelatedness
     #  get the lcses of the concepts
     my $lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
     
-    #  get the IC of the lcs that is the lowest in the hierarchy
+    #  get the IC of the lcs with the lowest IC 
     my $iclcs = 0;
     foreach my $lcs (@{$lcses}) {
-	my $value = $interface->getIC($lcs);
+	my $value = 0;  
+	if(defined $intrinsic) { 
+	    if($intrinsic=~/sanchez/) { 
+		$value = $interface->getSanchezIntrinsicIC($lcs);
+	    }
+	    else {
+		$value = $interface->getSecoIntrinsicIC($lcs);
+	    }
+	}
+	else { 
+	    $value = $interface->getIC($lcs);
+	}
 	if($iclcs < $value) { $iclcs = $value; }
     }
     
-    #  if there is no lcs or the IC of the lcs is zero then there is 
-    #  not enough information to calculate the information content so
     #  return -1
     if($iclcs <= 0) { return -1; }
-
+    
     #  calculate the distance
     my $distance = $ic1 + $ic2 - (2 * $iclcs);
 
@@ -190,10 +214,10 @@ sub getRelatedness
 	    return 0;
 	}
     }
+    
+    if(defined $originaloption)  { return $distance; }
+    if($intrinsic=~/seco/) { return $distance; }
 
-    
-    if(defined $originaloption) { return $distance; }
-    
     #  now calculate the similarity score
     my $score = 0;
     if($distance > 0) { 

@@ -245,6 +245,11 @@ res measures. If the --icpropagation or --icfrequency files are specified
 they must contain the probability or frequency counts of the semantic types. 
 If they aren't specified the defaults will be used. 
 
+=head3 --intrinsic [seco|sanchez]
+
+Uses intrinic information content of the CUIs defined by Sanchez and 
+Betet 2011 or Seco, et al 2004.
+
 =head3 --icpropagation FILE
 
 FILE containing the propagation counts of the CUIs. This file must be 
@@ -468,7 +473,7 @@ this program; if not, write to:
 use UMLS::Interface;
 use Getopt::Long;
 
-eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "original", "forcerun", "debug", "verbose", "icfrequency=s", "smooth", "st", "icpropagation=s", "undirected", "realtime", "stoplist=s", "stem", "debugfile=s", "vectormatrix=s", "vectorindex=s", "defraw", "dictfile=s", "doubledef=s", "compoundfile=s", "t", "loadcache=s", "getcache=s")) or die ("Please check the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "freqfile=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "original", "forcerun", "debug", "verbose", "icfrequency=s", "smooth", "st", "intrinsic=s", "icpropagation=s", "undirected", "realtime", "stoplist=s", "stem", "debugfile=s", "vectormatrix=s", "vectorindex=s", "defraw", "dictfile=s", "doubledef=s", "compoundfile=s", "t", "loadcache=s", "getcache=s")) or die ("Please check the above mentioned option(s).\n");
 
 
 my $debug = 0;
@@ -497,15 +502,16 @@ if( !(defined $opt_infile) and (scalar(@ARGV) < 2) ) {
 
 #  initialize variables
 my $icpropagation = "";
-my $precision   = "";
-my $floatformat = "";
-my $database    = "";
-my $hostname    = "";
-my $socket      = "";    
-my $measure     = "";
-my $umls        = "";
-my $noscore     = "";
-my $infile      = "";
+my $precision     = "";
+my $floatformat   = "";
+my $database      = "";
+my $hostname      = "";
+my $socket        = "";    
+my $measure       = "";
+my $umls          = "";
+my $noscore       = "";
+my $infile        = "";
+my $intrinsic     = ""; 
 
 my %similarityHash = ();    
 
@@ -557,7 +563,7 @@ sub calculateSimilarity {
 	    #  will take the terms as input - don't map them to cuis in the umls. 
 	    #  the definitions used by these measures are coming from the dictfile
 	    #  not the umls therefore the actual terms are required by the measures.
-	    if( ($measure=~/(lesk|vector|o1vector)/) && (defined $opt_dictfile) ) {
+	    if( ($measure=~/(lesk|vector)/) && (defined $opt_dictfile) ) {
 		if( (defined $opt_dictfile) && (defined $opt_config) ) {
 		    
 		    if($input1=~/C[0-9]+/) { push @{$c1}, $input1; }
@@ -586,7 +592,7 @@ sub calculateSimilarity {
 		    push @{$c1}, $input1;
 		    $cui_flag1 = 1;
 		}
-		elsif($measure=~/lesk|vector|o1vector/) { 
+		elsif($measure=~/(lesk|vector)/) { 
 		    $c1 = $umls->getDefConceptList($input1); 
 		}
 		else {
@@ -598,7 +604,7 @@ sub calculateSimilarity {
 		    push @{$c2}, $input2;
 		    $cui_flag2 = 1;
 		}
-		elsif($measure=~/lesk|vector|o1vector/) { 
+		elsif($measure=~/(lesk|vector)/) { 
 		    $c2 = $umls->getDefConceptList($input2); 
 		}
 		else {
@@ -756,16 +762,16 @@ sub loadInput {
 	    chomp;
 	    $linecounter++; 
 	    if($_=~/^\s*$/) { next; }
-	    if($_=~/C[0-9]+/) {
+	    #if($_=~/C[0-9]+/) {
 		push @input_array, $_;
-	    }
-	    else {
-		print STDERR "There is an error in the input file ($infile)\n";
-		print STDERR "on line $linecounter. The input is not in the\n";
-		print STDERR "correct format. Here is the input line:\n";
-		print STDERR "$_\n\n";
-		exit;
-	    }
+	    #}
+	    #else {
+		#print STDERR "There is an error in the input file ($infile)\n";
+		#print STDERR "on line $linecounter. The input is not in the\n";
+		#print STDERR "correct format. Here is the input line:\n";
+		#print STDERR "$_\n\n";
+		#exit;
+	    #}
 	}
     }
     
@@ -827,6 +833,9 @@ sub loadMeasures {
     if($measure=~/res|jcn|lin/) { 
 	if(defined $opt_st) {
 	    $icoptions{"st"} = $opt_st;
+	}
+	if(defined $opt_intrinsic) {
+	    $icoptions{"intrinsic"} = $opt_intrinsic;
 	}
 	if(defined $opt_icpropagation) {
 	    $icoptions{"icpropagation"} = $opt_icpropagation;
@@ -993,45 +1002,8 @@ sub loadMeasures {
         $meas = UMLS::Similarity::lesk->new($umls,\%leskoptions);  
     }
 
-    if($measure eq "o1vector") {
-	use UMLS::Similarity::o1vector;
-	my %o1vectoroptions = ();
-	
-	if(defined $opt_compoundfile) {
-	    $o1vectoroptions{"compoundfile"} = $opt_compoundfile;
-	}
-	if(defined $opt_config) {
-	    $o1vectoroptions{"config"} = $opt_config;
-	}
-	if(defined $opt_smooth) {
-	    $o1vectoroptions{"smooth"} = $opt_smooth;
-	}
-	if(defined $opt_stoplist) {
-	    $o1vectoroptions{"stoplist"} = $opt_stoplist;
-	}
-	if(defined $opt_stem) {
-	    $o1vectoroptions{"stem"} = $opt_stem;
-	}
-	if(defined $opt_debugfile) {
-	    $o1vectoroptions{"debugfile"} = $opt_debugfile;
-	}
-	
-	if(defined $opt_defraw) { 
-	    $o1vectoroptions{"defraw"} = $opt_defraw;
-	}
-	if(defined $opt_dictfile) {
-	    $o1vectoroptions{"dictfile"} = $opt_dictfile;
-	}
-	if(defined $opt_doubledef) {
-	    $o1vectoroptions{"doubledef"} = $opt_doubledef;
-	}
-	
-        $meas = UMLS::Similarity::o1vector->new($umls,\%o1vectoroptions);  
-    }
-
-
     die "Unable to create measure object.\n" if(!$meas);
-
+    
     return $meas;
 }
 
@@ -1082,7 +1054,7 @@ sub checkOptions {
     }
 
     if(defined $opt_measure) {
-	if($opt_measure=~/\b(path|wup|zhong|lch|cdist|nam|vector|res|lin|random|jcn|lesk|o1vector)\b/) {
+	if($opt_measure=~/\b(path|wup|zhong|lch|cdist|nam|vector|res|lin|random|jcn|lesk)\b/) {
 	    #  good to go
 	}
 	else {
@@ -1094,45 +1066,45 @@ sub checkOptions {
     }
     
     if(defined $opt_stoplist) { 
-	if(! ($opt_measure=~/vector|lesk|o1vector/) ) {
+	if(! ($opt_measure=~/vector|lesk/) ) {
 	    print STDERR "The --stoplist option is only available\n";
-	    print STDERR "when using the lesk, o1vector or vector measure.\n\n";
+	    print STDERR "when using the lesk or vector measure.\n\n";
 	    &minimalUsageNotes();
 	    exit;
 	}
     }    
 
     if(defined $opt_stem) { 
-	if(! ($opt_measure=~/vector|lesk|o1vector/) ) {
+	if(! ($opt_measure=~/vector|lesk/) ) {
 	    print STDERR "The --stem option is only available\n";
-	    print STDERR "when using the lesk, o1vector  or vector measure.\n\n";
+	    print STDERR "when using the lesk or vector measure.\n\n";
 	    &minimalUsageNotes();
 	    exit;
 	}
     }    
 
     if(defined $opt_dictfile) { 
-	if(! ($opt_measure=~/vector|lesk|o1vector/) ) {
+	if(! ($opt_measure=~/vector|lesk/) ) {
 	    print STDERR "The --dictfile option is only available\n";
-	    print STDERR "when using the lesk, o1vector or vector measure.\n\n";
+	    print STDERR "when using the lesk or vector measure.\n\n";
 	    &minimalUsageNotes();
 	    exit;
 	}
     }    
 
     if(defined $opt_doubledef) { 
-	if(! ($opt_measure=~/vector|lesk|o1vector/) ) {
+	if(! ($opt_measure=~/vector|lesk/) ) {
 	    print STDERR "The --doubledef option is only available\n";
-	    print STDERR "when using the lesk, o1vector or vector measure.\n\n";
+	    print STDERR "when using the lesk or vector measure.\n\n";
 	    &minimalUsageNotes();
 	    exit;
 	}
     }    
 
     if(defined $opt_debugfile) { 
-	if(! ($opt_measure=~/(vector|lesk|o1vector)/) ) {
+	if(! ($opt_measure=~/(vector|lesk)/) ) {
 	    print STDERR "The --debugfile option is only available\n";
-	    print STDERR "when using the lesk, o1vector or vector measure.\n\n";
+	    print STDERR "when using the lesk or vector measure.\n\n";
 	    &minimalUsageNotes();
 	    exit;
 	}
@@ -1158,8 +1130,7 @@ sub checkOptions {
 
     if(defined $opt_compoundfile) { 
 	if((!($opt_measure=~/vector/)) and 
-	   (!($opt_measure=~/lesk/))   and 
-	   (!($opt_measure=~/o1vector/)) ) {
+	   (!($opt_measure=~/lesk/)) ) {
 	    print STDERR "The --compoundfile option is only available\n";
 	    print STDERR "when using the vector or lesk measure. \n\n";
 	    &minimalUsageNotes();
@@ -1228,6 +1199,20 @@ sub checkOptions {
 	&minimalUsageNotes();
 	exit;
     }    
+
+    if(defined $opt_icpropagation and defined $opt_intrinsic) { 
+	print STDERR "You can not specify both the --icpropagation and\n";
+	print STDERR "--intrinsic options at the same time.\n\n";
+	&minimalUsageNotes();
+	exit;
+    }    
+
+    if(defined $opt_icfrequency and defined $opt_intrinsic) { 
+	print STDERR "You can not specify both the --icfrequency and\n";
+	print STDERR "--intrinsic options at the same time.\n\n";
+	&minimalUsageNotes();
+	exit;
+    }    
     
     if(defined $opt_precision) {
 	if ($opt_precision !~ /^\d+$/) {
@@ -1246,7 +1231,7 @@ sub checkOptions {
     }
     
     if(defined $opt_realtime) { 
-	if($opt_measure=~/vector|lesk|o1vector/) { 
+	if($opt_measure=~/vector/) { 
 	    print STDERR "The --realtime option is only available for the similarity measures\n";
 	    &minimalUsageNotes();
 	    exit;
@@ -1266,10 +1251,14 @@ sub setOptions {
 	$set .= "  --undirected\n";
     }
 
+    if(defined $opt_intrinsic) { 
+	$set .= "  --intrinsic $opt_intrinsic\n";
+    }
+
     if(defined $opt_icpropagation) {
 	$set .= "  --icpropagation $opt_icpropagation\n";
     }
-
+    
     if(defined $opt_icfrequency) {
 	$set .= "  --icfrequency $opt_icfrequency\n";
     }
@@ -1313,6 +1302,12 @@ sub setOptions {
     if(defined $opt_config) {
 	$config = $opt_config;
 	$set .= "  --config $config\n";
+    }
+
+    #  check instrinsic file
+    if(defined $opt_instrinsic) {
+	$instrinsic = $opt_instrinsic;
+	$set .= "  --instrinsic \n";
     }
 
     #  set file
@@ -1552,6 +1547,9 @@ sub showHelp() {
     print "--st                     Use the information content of the CUIs\n";
     print "                         semantic type to calculate the res measure\n\n";
 
+    print "--intrinsic [seco|sanchez] Use the intrinsic IC defined either by\n";
+    print "                           Seco et al 2004 or Sanchez et al 2011\n\n";
+
     print "--icpropagation FILE     File containing the information content\n";
     print "                         of the CUIs.\n\n";
 
@@ -1602,7 +1600,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.98 2011/11/02 16:07:11 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.104 2013/04/17 14:54:54 btmcinnes Exp $';
     print "\nCopyright (c) 2008-2011, Ted Pedersen & Bridget McInnes\n";
 }
 

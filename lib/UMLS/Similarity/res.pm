@@ -50,6 +50,7 @@ $VERSION = '0.07';
 
 my $debug    = 0;
 my $stoption = 0;
+my $intrinsic= undef; 
 
 sub new
 {
@@ -76,8 +77,11 @@ sub new
 	exit;
     }
 
+    if(defined $params->{"intrinsic"}) { 
+	$intrinsic = $params->{"intrinsic"}; 
+    }
     #  load the propagation information for semantic types
-    if(defined $params->{"st"}) { 
+    elsif(defined $params->{"st"}) { 
 	#  set the st option
 	$stoption = 1;
 	
@@ -192,7 +196,7 @@ sub getRelatedness
     #  get the lcses of the concepts
     my $lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
     
-    #  get the ic of the lcs that is the lowest in the hierarchy
+    #  get the ic of the lcs with the lowest ic score
     my $score = 0; my $l = "";
     if($stoption  == 1) { 
 	foreach my $lcs (@{$lcses}) {
@@ -201,6 +205,18 @@ sub getRelatedness
 		my $value = $interface->getStIC($st);
 		if($score < $value) { $score = $value; $l = $lcs; }
 	    }
+	}
+    }
+    elsif(defined $intrinsic) {
+	foreach my $lcs (@{$lcses}) {
+	    my $value; 
+	    if($intrinsic=~/sanchez/) { 
+		$value = $interface->getSanchezIntrinsicIC($lcs);
+	    }
+	    else { 
+		$value = $interface->getSecoIntrinsicIC($lcs);
+	    }
+	    if($score < $value) { $score = $value; $l = $lcs; }
 	}
     }
     else {
@@ -212,8 +228,6 @@ sub getRelatedness
     
     #  if the information content is less then zero return -1
     if($score <= 0) { return -1; }
-
-    my $lprob = $interface->getProbability($l);
     
     #  return that score
     return $score

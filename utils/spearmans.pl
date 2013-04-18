@@ -134,7 +134,7 @@ this program; if not, write to:
 
 use Getopt::Long;
 
-eval(GetOptions( "version", "help", "word", "N", "precision=s")) or die ("Please check the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "word", "N", "precision=s", "t")) or die ("Please check the above mentioned option(s).\n");
 
 #  if help is defined, print out help
 if( defined $opt_help ) {
@@ -171,8 +171,6 @@ if( scalar(@ARGV) < 2 ) {
 }
 
 #  initialize variables
-my $propagation = "";
-
 my $xfile = shift;
 my $yfile = shift;
 
@@ -191,8 +189,10 @@ my %yhash = ();
 
 my %xlist = ();
 my %ylist = ();
+
 my $xnegative = 0;
 my $ynegative = 0;
+
 my $xtotal = 0;
 my $ytotal = 0;
 
@@ -317,6 +317,12 @@ foreach my $term (sort keys %xrank) {
 
 my $denominator = sqrt($xdenom * $ydenom);
 
+
+if($denominator <= 0) { 
+    print STDERR "Correlation can not be calculated.\n";
+    print STDERR "Files do not contain similar ngrams.\n";
+    exit;
+}
 my $pearsons = $numerator / $denominator;
 
 my $score = sprintf $floatformat, $pearsons;
@@ -327,8 +333,16 @@ my $xN= $xtotal - $xnegative;
 my $N = $yN;
 if($xN < $yN){ $N = $xN; }
 
+#  calculate tscore 
+my $t = $score/(sqrt( (1-$score**2)/($N-2) ));
+
+#  calculate z-score
+my $Fr = .5 * log((1+$score)/(1-$score));
+my $z  = sqrt(($N-3)/1.06) * $Fr;
+
 print "Spearman's Rank Correlation: $score "; 
 if(defined $opt_N)     { print "(N: $N) "; }
+if(defined $opt_t)     { print "(t: $t) "; }
 print "\n";
 
 ##############################################################################
@@ -373,7 +387,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: spearmans.pl,v 1.11 2011/05/20 13:23:56 btmcinnes Exp $';
+    print '$Id: spearmans.pl,v 1.12 2013/02/15 22:51:39 btmcinnes Exp $';
     print "\nCopyright (c) 2009-2011, Ted Pedersen & Bridget McInnes\n";
 }
 

@@ -1,7 +1,7 @@
 #!/usr/bin/perl -wT
 
 # umls_similarity_server.pl version 0.01
-# (Last updated $Id: umls_similarity_server.pl,v 1.15 2011/08/17 15:00:46 btmcinnes Exp $)
+# (Last updated $Id: umls_similarity_server.pl,v 1.16 2013/04/16 23:29:40 btmcinnes Exp $)
 #
 # ---------------------------------------------------------------------
 
@@ -96,6 +96,7 @@ use UMLS::Similarity::lin;
 use UMLS::Similarity::jcn;
 use UMLS::Similarity::cdist;
 use UMLS::Similarity::nam;
+use UMLS::Similarity::zhong;
 use UMLS::Similarity::vector;
 use UMLS::Similarity::lesk;
 use UMLS::Similarity::random;
@@ -150,6 +151,7 @@ our $res;
 our $lin;
 our $jcn;
 our $nam;
+our $zhong;
 our $cdist;
 our $vector;
 our $lesk;
@@ -274,7 +276,7 @@ while((my $client = $socket->accept) or $interrupted)
 	    goto EXIT_CHILD;
 	}
 	my $module;
-	if($measure =~ /^(?:path|lch|wup|res|lin|jcn|nam|cdist|lesk|vector|random)$/){
+	if($measure =~ /^(?:path|lch|wup|res|lin|jcn|nam|zhong|cdist|lesk|vector|random)$/){
 	    no strict 'refs';
 	    $module = $$measure;
 	    unless(defined $module) {
@@ -470,7 +472,7 @@ sub setInterface {
 
     $interface = UMLS::Interface->new(\%option_hash);
 
-    if($measure=~/path|lch|wup|res|lin|jcn|nam|cdist|random/) { 
+    if($measure=~/path|lch|wup|res|lin|jcn|nam|zhong|cdist|random/) { 
 	print STDERR "Setting measures\n";
 	
 	$path   = UMLS::Similarity::path->new($interface);
@@ -480,6 +482,7 @@ sub setInterface {
 	$lin    = UMLS::Similarity::lin->new($interface, \%ic_options);
 	$jcn    = UMLS::Similarity::jcn->new($interface, \%ic_options);
 	$nam    = UMLS::Similarity::nam->new($interface);
+	$zhong  = UMLS::Similarity::zhong->new($interface);
 	$cdist  = UMLS::Similarity::cdist->new($interface);
 	$random = UMLS::Similarity::random->new($interface);
     }
@@ -488,7 +491,7 @@ sub setInterface {
 	$vector = UMLS::Similarity::vector->new($interface, \%vector_options);
     }
 
-    @measures = ($path, $wup, $lch, $res, $lin, $jcn, $nam, $cdist, $lesk, $vector, $random);
+    @measures = ($path, $wup, $lch, $res, $lin, $jcn, $nam, $zhong, $cdist, $lesk, $vector, $random);
 }
 
 sub getCuis {
