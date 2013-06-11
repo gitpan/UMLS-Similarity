@@ -79,6 +79,10 @@ sub new
 
     if(defined $params->{"intrinsic"}) { 
 	$intrinsic = $params->{"intrinsic"}; 
+
+	# set the propagation/frequency information
+	$interface->setPropagationParameters($params);
+	
     }
     #  load the propagation information for semantic types
     elsif(defined $params->{"st"}) { 

@@ -79,6 +79,10 @@ sub new
 
     if(defined $params->{"intrinsic"}) { 
 	$intrinsic = $params->{"intrinsic"}; 
+
+	# set the propagation/frequency information
+	$interface->setPropagationParameters($params);
+
     }
     else { 
 	# set the propagation/frequency information
@@ -161,7 +165,7 @@ sub getRelatedness
     my $lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
     
     #  get the IC of the lcs with the lowest IC 
-    my $iclcs = 0;
+    my $iclcs = 0; my $l;
     foreach my $lcs (@{$lcses}) {
 	my $value = 0;  
 	if(defined $intrinsic) { 
@@ -175,15 +179,21 @@ sub getRelatedness
 	else { 
 	    $value = $interface->getIC($lcs);
 	}
-	if($iclcs < $value) { $iclcs = $value; }
+	if($iclcs < $value) { $iclcs = $value; $l = $lcs; }
     }
     
     #  return -1
     if($iclcs <= 0) { return -1; }
-    
-    #  calculate the distance
-    my $distance = $ic1 + $ic2 - (2 * $iclcs);
 
+    $iclcs++; 
+
+    #  calculate the distance
+    my $distance = ($ic1 + $ic2) - (2 * $iclcs);
+
+    return (1/$distance); 
+
+    print STDERR "$concept1 : $concept2 : $ic1 : $ic2 : $iclcs : $distance\n";
+    
     # if the distance is zero 
     # implies ic1 == ic2 == ic3 (most probably all three represent
     # the same concept)... i.e. maximum relatedness... i.e. infinity...
@@ -200,7 +210,8 @@ sub getRelatedness
     # root for computing ic1...
     # sim = 1/ic1
     # sim = 1/(-log((freq(root) - 0.01)/freq(root)))
-    if($distance == 0) { 
+=comment   
+    if($distance <= 0) { 
 	my $root = $interface->root();
 
 	my $rootFreq = $interface->getFrequency($root);
@@ -211,15 +222,14 @@ sub getRelatedness
 	}
 	# otherwise the root frequency is 0 so return 0 for lack of data
 	else {
-	    return 0;
+	    return -1;
 	}
     }
-    
-    if(defined $originaloption)  { return $distance; }
-    if($intrinsic=~/seco/) { return $distance; }
+=cut
+    if(defined $originaloption)    { return $distance; }
 
     #  now calculate the similarity score
-    my $score = 0;
+    my $score = -1;
     if($distance > 0) { 
 	$score = 1 / $distance;
     }

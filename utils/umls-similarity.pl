@@ -846,6 +846,9 @@ sub loadMeasures {
 	if(defined $opt_smooth) { 
 	    $icoptions{"smooth"} = $opt_smooth;
 	}
+	if(defined $opt_realtime) { 
+	    $icoptions{"realtime"} = $opt_realtime;
+	}
     }
     
 
@@ -1600,7 +1603,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.104 2013/04/17 14:54:54 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.105 2013/04/21 23:37:33 btmcinnes Exp $';
     print "\nCopyright (c) 2008-2011, Ted Pedersen & Bridget McInnes\n";
 }
 

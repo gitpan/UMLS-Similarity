@@ -75,6 +75,10 @@ sub new
        
     if(defined $params->{"intrinsic"}) { 
 	$intrinsic = $params->{"intrinsic"}; 
+
+	# set the propagation/frequency information
+	$interface->setPropagationParameters($params);
+
     }
     else { 
 	# set the propagation/frequency information
@@ -168,14 +172,15 @@ sub getRelatedness
 	}
 	if($iclcs < $value) { $iclcs = $value; $l = $lcs; }
     }
-    
+
     #  if it is zero just return -1
     if($iclcs <= 0) { return -1; }
-
 
     #  calculate lin
     my $score = 0;
     if($ic1 > 0 and $ic2 > 0) { 
+	my $a = 2 * $iclcs; 
+	my $b = $ic1 + $ic2; 
 	$score = (2 * $iclcs) / ($ic1 + $ic2);
     }
     
