@@ -137,7 +137,9 @@ sub getRelatedness
 
     my $concept1 = shift;
     my $concept2 = shift;
-    
+
+    if($concept1 eq $concept2) { return 1; }
+
     my $interface = $self->{'interface'};
     
     my $ic1; my $ic2; 
@@ -185,15 +187,11 @@ sub getRelatedness
     #  return -1
     if($iclcs <= 0) { return -1; }
 
-    $iclcs++; 
-
     #  calculate the distance
     my $distance = ($ic1 + $ic2) - (2 * $iclcs);
-
-    return (1/$distance); 
-
-    print STDERR "$concept1 : $concept2 : $ic1 : $ic2 : $iclcs : $distance\n";
-    
+    my $a = $ic1 + $ic2;
+    my $b = 2 * $iclcs;
+    my $c = 1 / $distance; 
     # if the distance is zero 
     # implies ic1 == ic2 == ic3 (most probably all three represent
     # the same concept)... i.e. maximum relatedness... i.e. infinity...
@@ -210,11 +208,8 @@ sub getRelatedness
     # root for computing ic1...
     # sim = 1/ic1
     # sim = 1/(-log((freq(root) - 0.01)/freq(root)))
-=comment   
     if($distance <= 0) { 
-	my $root = $interface->root();
-
-	my $rootFreq = $interface->getFrequency($root);
+	my $rootFreq = $interface->getFrequency($l);
 	
 	#  if the root frequency is greater than zero
 	if ($rootFreq > 0.01) {
@@ -225,7 +220,7 @@ sub getRelatedness
 	    return -1;
 	}
     }
-=cut
+
     if(defined $originaloption)    { return $distance; }
 
     #  now calculate the similarity score

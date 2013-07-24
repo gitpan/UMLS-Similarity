@@ -129,6 +129,8 @@ sub getRelatedness
     my $concept1 = shift;
     my $concept2 = shift;
 
+    if($concept1 eq $concept2) { return 1; }
+
     #  set up the interface
     my $interface = $self->{'interface'};
     

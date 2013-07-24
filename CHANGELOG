@@ -1,6 +1,9 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 1.31 to 1.33
+    1. ensure that jcn returns 1 if both concepts are equal
+
   Changes from version 1.29 to 1.31
     1. updated --intrinsic option to umls-similarity.pl and the IC measure
     modules to store the parameters required to calculate Intrinisic IC in
