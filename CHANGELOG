@@ -1,6 +1,11 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 1.33 to 1.35
+1. updated test case config files for the SNOMEDCT name 
+    change
+    2. updated the web documents to account for the name change as well
+
   Changes from version 1.31 to 1.33
     1. ensure that jcn returns 1 if both concepts are equal
 

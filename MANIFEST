@@ -16,6 +16,7 @@ lib/UMLS/Similarity/random.pm
 lib/UMLS/Similarity/res.pm
 lib/UMLS/Similarity/vector.pm
 lib/UMLS/Similarity/wup.pm
+lib/UMLS/Similarity/closeness.pm
 lib/UMLS/Similarity/zhong.pm
 lib/UMLS/vector-index.dat
 lib/UMLS/vector-matrix.dat
@@ -136,3 +137,4 @@ web/docs/vectorfiles/idx.remove75.uremove1k
 web/docs/vectorfiles/mtx.remove75.uremove1k
 web/index.html
 web/README
+META.json                                Module JSON meta-data (added by MakeMaker)

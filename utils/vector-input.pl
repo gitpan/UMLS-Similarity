@@ -187,22 +187,21 @@ my $index_num1 = 1;
 my $total = <BIGM>;
 while (my $line = <BIGM>)
 {
-	chomp($line);
-	my @terms = split('<>', $line);
-
-	# index every term of the bigram list
-	if(!defined $index{$terms[0]})
-	{
-		$index{$terms[0]} = $index_num1;
-		$index_num1++;
-	}
-	if(!defined $index{$terms[1]})
-	{
-		$index{$terms[1]} = $index_num1;
-		$index_num1++;
-	}	
+    chomp($line);
+    my @terms = split('<>', $line);
+    
+    # index every term of the bigram list
+    if(!defined $index{$terms[0]})
+    {
+	$index{$terms[0]} = $index_num1;
+	$index_num1++;
+    }
+    if(!defined $index{$terms[1]})
+    {
+	$index{$terms[1]} = $index_num1;
+	$index_num1++;
+    }	
 }
-
 
 # sort the index terms of %index and 
 # initilize the position length array 
@@ -211,9 +210,9 @@ my @position_length;
 $position_length[0] = 0; #index starts from 1
 foreach my $t (sort (keys %index))
 {
-	$index{$t} = $index_num2;
-	$position_length[$index_num2] = 0;
-	$index_num2++;
+    $index{$t} = $index_num2;
+    $position_length[$index_num2] = 0;
+    $index_num2++;
 }
 
 # go the beginning of the bigrams file
@@ -224,24 +223,24 @@ my $bigrams = "";
 $total = <BIGM>;
 while (my $line = <BIGM>)
 {
-	chomp($line);
-	my @terms = split('<>', $line);
-	my @freqs = split (' ', $terms[2]);	
-
-	# if it is still the same term. 	
-	# print out the vector to the matrix file 
-	if( $word eq $terms[0] )
-	{
-		#print "word: $word\n";
-		$bigrams .= "$index{$terms[1]} $freqs[0] ";
-		printf MATX "$index{$terms[1]} $freqs[0] ";	
-	}
-	else
-	{
-		# the first term of the bigrams changes, record 
-		# the vector position and length of the term
-
-
+    chomp($line);
+    my @terms = split('<>', $line);
+    my @freqs = split (' ', $terms[2]);	
+    
+    # if it is still the same term. 	
+    # print out the vector to the matrix file 
+    if( $word eq $terms[0] )
+    {
+	#print "word: $word\n";
+	$bigrams .= "$index{$terms[1]} $freqs[0] ";
+	printf MATX "$index{$terms[1]} $freqs[0] ";	
+    }
+    else
+    {
+	# the first term of the bigrams changes, record 
+	# the vector position and length of the term
+	
+	
         if ($word ne "")
         {
 	    $bigrams .= "\n";
@@ -256,17 +255,17 @@ while (my $line = <BIGM>)
 	$word = $terms[0];
 	$bigrams .= "$index{$word}: $index{$terms[1]} $freqs[0] ";
 	printf MATX "$index{$word}: $index{$terms[1]} $freqs[0] ";
-	}
-	# reach the end of the bigrams file, record the 
-	# vector position and length of the last term.	
-	if (eof(BIGM))
-	{
-	    $bigrams .= "\n";
-	    my $length = length($bigrams);
-            $position_length[$index{$word}] = "$position" . " $length";
-	    printf MATX "\n";
-	}
-	
+    }
+    # reach the end of the bigrams file, record the 
+    # vector position and length of the last term.	
+    if (eof(BIGM))
+    {
+	$bigrams .= "\n";
+	my $length = length($bigrams);
+	$position_length[$index{$word}] = "$position" . " $length";
+	printf MATX "\n";
+    }
+    
 }
 close MATX;
 close BIGM;
@@ -274,7 +273,7 @@ close BIGM;
 # out put the index file 
 foreach my $t (sort (keys %index))
 {
-	printf INDX "$t $index{$t} $position_length[$index{$t}]\n"
+    printf INDX "$t $index{$t} $position_length[$index{$t}]\n"
 }
 close INDX;
 
@@ -302,16 +301,16 @@ sub showHelp
 {
     print "\n";
     print "Usage: vector-input.pl INDEX MATRIX BIGRAMFILE\n\n";
-
+    
     print "build the index file for each term of the bigrams file and\n";
     print "create the co-occurence matrix.INDEX is the output index file.\n";
     print "MATRIX is the output matrix file. BIGRAMFILE is the output of\n"; 
-	print "huge-count.pl of Text-NSP. \n\n";
+    print "huge-count.pl of Text-NSP. \n\n";
     
     print "OPTIONS:\n\n";
-
+    
     print "  --version          Prints the version number.\n\n";
-
+    
     print "  --help             Prints this help message.\n\n";
 }
 
@@ -321,9 +320,5 @@ sub showVersion
     print STDERR "vector-input.pl      -        version 0.02\n";
     print STDERR "Copyright (C) 2009, Ying Liu\n";
     print STDERR "Date of Last Update 03/23/10\n";
-
+    
 }
-
-
-
-

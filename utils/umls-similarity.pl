@@ -919,6 +919,12 @@ sub loadMeasures {
 	use UMLS::Similarity::wup;	
 	$meas = UMLS::Similarity::wup->new($umls);
     }    
+    #  loading the module implementing closeness
+    #  modification of wup
+    if($measure eq "closeness") {
+	use UMLS::Similarity::closeness;	
+	$meas = UMLS::Similarity::closeness->new($umls);
+    }    
     #  loading the module implementing the Zhong
     #  et al (2002) measure
     if($measure eq "zhong") {
@@ -1057,7 +1063,7 @@ sub checkOptions {
     }
 
     if(defined $opt_measure) {
-	if($opt_measure=~/\b(path|wup|zhong|lch|cdist|nam|vector|res|lin|random|jcn|lesk)\b/) {
+	if($opt_measure=~/\b(path|wup|closeness|zhong|lch|cdist|nam|vector|res|lin|random|jcn|lesk)\b/) {
 	    #  good to go
 	}
 	else {
@@ -1603,7 +1609,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.105 2013/04/21 23:37:33 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.106 2013/08/14 10:22:20 btmcinnes Exp $';
     print "\nCopyright (c) 2008-2011, Ted Pedersen & Bridget McInnes\n";
 }
 

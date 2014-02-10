@@ -6,7 +6,7 @@ use strict;
 # note I put in my local host information just to give you an idea.
 # you should add your own though if you are using another server
 # you need to change the $remote_host and the $doc_base
-my $remote_host = 'localhost';
+my $remote_host = 'atlas.ahc.umn.edu';
 my $remote_port = '31135';
 my $doc_base = '/umls_similarity/';
 
@@ -640,7 +640,7 @@ EOT
     my @sabs = (['MSH', 'MSH'],
 		['FMA', 'FMA'],
 		['OMIM', 'OMIM'],
-	  	['SNOMEDCT', 'SNOMEDCT']);
+	  	['SNOMEDCT_US', 'SNOMEDCT']);
 
     foreach (@sabs) {
 	my $selected = $_->[0] eq $arg4 ? 'selected="selected"' : '';
@@ -697,7 +697,7 @@ EOFORM
       'onchange="sabdefChanged();">', "\n";
     my @sabdefs = (['UMLS_ALL', 'UMLS_ALL'],
 		   ['MSH', 'MSH'],
-		   ['SNOMEDCT', 'SNOMEDCT']);
+		   ['SNOMEDCT_US', 'SNOMEDCT']);
 
     foreach (@sabdefs) {
 	my $selected = $_->[0] eq $arg6 ? 'selected="selected"' : '';
@@ -760,7 +760,8 @@ This interface is based on the
 <br />E-mail: bthomson (at) umn (dot) edu
 <br>
 <td align="right"
-</td></tbody></table>
+<div id="clustrmaps-widget"></div><script type="text/javascript">var _clustrmaps = {'url' : 'http://atlas.ahc.umn.edu/cgi-bin/umls_similarity.cgi', 'user' : 873181, 'server' : '2', 'id' : 'clustrmaps-widget', 'version' : 1, 'date' : '2011-08-15', 'lang' : 'en', 'corners' : 'square' };(function (){ var s = document.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = 'http://www2.clustrmaps.com/counter/map.js'; var x = document.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x);})();</script><noscript><a href="http://www2.clustrmaps.com/user/d8ed52dd"><img src="http://www2.clustrmaps.com/stats/maps-no_clusters/atlas.ahc.umn.edu-cgi-bin-umls_similarity.cgi-thumb.jpg" alt="Locations of visitors to this page" /></a></noscript>
+</td>
 </div>
 </body>
 </html>
