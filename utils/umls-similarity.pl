@@ -113,13 +113,14 @@ available measure are:
     1. Leacock and Chodorow (1998) referred to as lch
     2. Wu and Palmer (1994) referred to as  wup
     3. Zhong, et al. (2002) referred to as zhong
-    3. The basic path measure referred to as path
-    4. Rada, et. al. (1989) referred to as cdist
-    5. Nguyan and Al-Mubaid (2006) referred to as nam
-    6. Resnik (1996) referred to as res
-    7. Lin (1988) referred to as lin
-    8. Jiang and Conrath (1997) referred to as jcn
-    9. The vector measure referred to as vector
+    4. The basic path measure referred to as path
+    5. The undirected path measure referred to as upath
+    6. Rada, et. al. (1989) referred to as cdist
+    7. Nguyan and Al-Mubaid (2006) referred to as nam
+    8. Resnik (1996) referred to as res
+    9. Lin (1988) referred to as lin
+    10 Jiang and Conrath (1997) referred to as jcn
+    11. The vector measure referred to as vector
 
 =head3 --original
 
@@ -563,7 +564,7 @@ sub calculateSimilarity {
 	    #  will take the terms as input - don't map them to cuis in the umls. 
 	    #  the definitions used by these measures are coming from the dictfile
 	    #  not the umls therefore the actual terms are required by the measures.
-	    if( ($measure=~/(lesk|vector)/) && (defined $opt_dictfile) ) {
+	    if( ($measure=~/(lesk|vector|o1vector)/) && (defined $opt_dictfile) ) {
 		if( (defined $opt_dictfile) && (defined $opt_config) ) {
 		    
 		    if($input1=~/C[0-9]+/) { push @{$c1}, $input1; }
@@ -592,7 +593,7 @@ sub calculateSimilarity {
 		    push @{$c1}, $input1;
 		    $cui_flag1 = 1;
 		}
-		elsif($measure=~/(lesk|vector)/) { 
+		elsif($measure=~/(lesk|vector|o1vector)/) { 
 		    $c1 = $umls->getDefConceptList($input1); 
 		}
 		else {
@@ -604,7 +605,7 @@ sub calculateSimilarity {
 		    push @{$c2}, $input2;
 		    $cui_flag2 = 1;
 		}
-		elsif($measure=~/(lesk|vector)/) { 
+		elsif($measure=~/(lesk|vector|o1vector)/) { 
 		    $c2 = $umls->getDefConceptList($input2); 
 		}
 		else {
@@ -829,6 +830,7 @@ sub loadMeasures {
     my %icoptions = ();
     my %pathoptions = ();
 
+
     #  set the information content options if defined
     if($measure=~/res|jcn|lin/) { 
 	if(defined $opt_st) {
@@ -937,6 +939,12 @@ sub loadMeasures {
 	use UMLS::Similarity::path;
 	$meas = UMLS::Similarity::path->new($umls);
     }
+    #  loading the module implementing the undirected edge counting 
+    #  measure of semantic relatedness.
+    if($measure eq "upath") {
+	use UMLS::Similarity::upath;
+	$meas = UMLS::Similarity::upath->new($umls);
+    }
 
     #  load the module implementing the Rada, et. al.
     #  (1989) called the Conceptual Distance measure
@@ -974,7 +982,6 @@ sub loadMeasures {
     }
     
     #  load the module implementing the lesk measure
-
     if($measure eq "lesk") {
 	use UMLS::Similarity::lesk;
 	my %leskoptions = ();
@@ -1009,6 +1016,42 @@ sub loadMeasures {
 	}
 	
         $meas = UMLS::Similarity::lesk->new($umls,\%leskoptions);  
+    }
+
+    if($measure eq "o1vector") {
+	use UMLS::Similarity::o1vector;
+	my %o1vectoroptions = ();
+	
+	if(defined $opt_compoundfile) {
+	    $o1vectoroptions{"compoundfile"} = $opt_compoundfile;
+	}
+	if(defined $opt_config) {
+	    $o1vectoroptions{"config"} = $opt_config;
+	}
+	if(defined $opt_smooth) {
+	    $o1vectoroptions{"smooth"} = $opt_smooth;
+	}
+	if(defined $opt_stoplist) {
+	    $o1vectoroptions{"stoplist"} = $opt_stoplist;
+	}
+	if(defined $opt_stem) {
+	    $o1vectoroptions{"stem"} = $opt_stem;
+	}
+	if(defined $opt_debugfile) {
+	    $o1vectoroptions{"debugfile"} = $opt_debugfile;
+	}
+	
+	if(defined $opt_defraw) { 
+	    $o1vectoroptions{"defraw"} = $opt_defraw;
+	}
+	if(defined $opt_dictfile) {
+	    $o1vectoroptions{"dictfile"} = $opt_dictfile;
+	}
+	if(defined $opt_doubledef) {
+	    $o1vectoroptions{"doubledef"} = $opt_doubledef;
+	}
+	
+        $meas = UMLS::Similarity::o1vector->new($umls,\%o1vectoroptions);  
     }
 
     die "Unable to create measure object.\n" if(!$meas);
@@ -1063,7 +1106,7 @@ sub checkOptions {
     }
 
     if(defined $opt_measure) {
-	if($opt_measure=~/\b(path|wup|closeness|zhong|lch|cdist|nam|vector|res|lin|random|jcn|lesk)\b/) {
+	if($opt_measure=~/\b(path|upath|wup|closeness|zhong|lch|cdist|nam|vector|res|lin|random|jcn|lesk|o1vector)\b/) {
 	    #  good to go
 	}
 	else {
@@ -1075,7 +1118,7 @@ sub checkOptions {
     }
     
     if(defined $opt_stoplist) { 
-	if(! ($opt_measure=~/vector|lesk/) ) {
+	if(! ($opt_measure=~/vector|lesk|o1vector/) ) {
 	    print STDERR "The --stoplist option is only available\n";
 	    print STDERR "when using the lesk or vector measure.\n\n";
 	    &minimalUsageNotes();
@@ -1084,7 +1127,7 @@ sub checkOptions {
     }    
 
     if(defined $opt_stem) { 
-	if(! ($opt_measure=~/vector|lesk/) ) {
+	if(! ($opt_measure=~/vector|lesk|o1vector/) ) {
 	    print STDERR "The --stem option is only available\n";
 	    print STDERR "when using the lesk or vector measure.\n\n";
 	    &minimalUsageNotes();
@@ -1093,7 +1136,7 @@ sub checkOptions {
     }    
 
     if(defined $opt_dictfile) { 
-	if(! ($opt_measure=~/vector|lesk/) ) {
+	if(! ($opt_measure=~/vector|lesk|o1vector/) ) {
 	    print STDERR "The --dictfile option is only available\n";
 	    print STDERR "when using the lesk or vector measure.\n\n";
 	    &minimalUsageNotes();
@@ -1102,7 +1145,7 @@ sub checkOptions {
     }    
 
     if(defined $opt_doubledef) { 
-	if(! ($opt_measure=~/vector|lesk/) ) {
+	if(! ($opt_measure=~/vector|lesk|o1vector/) ) {
 	    print STDERR "The --doubledef option is only available\n";
 	    print STDERR "when using the lesk or vector measure.\n\n";
 	    &minimalUsageNotes();
@@ -1111,7 +1154,7 @@ sub checkOptions {
     }    
 
     if(defined $opt_debugfile) { 
-	if(! ($opt_measure=~/(vector|lesk)/) ) {
+	if(! ($opt_measure=~/(vector|lesk|o1vector)/) ) {
 	    print STDERR "The --debugfile option is only available\n";
 	    print STDERR "when using the lesk or vector measure.\n\n";
 	    &minimalUsageNotes();
@@ -1139,7 +1182,8 @@ sub checkOptions {
 
     if(defined $opt_compoundfile) { 
 	if((!($opt_measure=~/vector/)) and 
-	   (!($opt_measure=~/lesk/)) ) {
+	   (!($opt_measure=~/lesk/)) and 
+	   (!($opt_measure=~/o1vector/)) ) {
 	    print STDERR "The --compoundfile option is only available\n";
 	    print STDERR "when using the vector or lesk measure. \n\n";
 	    &minimalUsageNotes();
@@ -1473,9 +1517,18 @@ sub showHelp() {
         
     print "This is a utility that takes as input either two terms \n";
     print "or two CUIs from the command line or a file and returns \n";
-    print "the similarity between the two using either Leacock and \n";
-    print "Chodorow, 1998 (lch), Wu and Palmer, 1994 (wup), Zhong et\n";
-    print "al, 2002 (zhong) or the basic path measure (path)\n\n";
+    print "the similarity between the following measures: \n";
+    print "  1. Leacock and Chodorow (1998) referred to as lch\n";
+    print "  2. Wu and Palmer (1994) referred to as  wup\n";
+    print "  3. Zhong, et al. (2002) referred to as zhong\n";
+    print "  4. The basic path measure referred to as path\n";
+    print "  5. The undirected path measure referred to as upath\n";
+    print "  6. Rada, et. al. (1989) referred to as cdist\n";
+    print "  7. Nguyan and Al-Mubaid (2006) referred to as nam\n";
+    print "  8. Resnik (1996) referred to as res\n";
+    print "  9. Lin (1988) referred to as lin\n";
+    print "  10. Jiang and Conrath (1997) referred to as jcn\n";
+    print "  11. The vector measure referred to as vector\n\n";
   
     print "Usage: umls-similarity.pl [OPTIONS] TERM1 TERM2\n\n";
 
@@ -1609,7 +1662,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.106 2013/08/14 10:22:20 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.108 2014/06/27 13:32:07 btmcinnes Exp $';
     print "\nCopyright (c) 2008-2011, Ted Pedersen & Bridget McInnes\n";
 }
 

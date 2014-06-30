@@ -56,6 +56,14 @@ save lots of execute time.
 
 =head3 Other Options:
 
+=head4 --stat
+
+The bigram file is from statistics.pl rather than count.pl
+
+=head4 --cutoff SCORE
+
+Only use those ngrams that are greater than SCORE
+
 =head4 --help
 
 Displays the help information.
@@ -109,7 +117,7 @@ if ( $#ARGV == -1 )
 }
 
 # now get the options!
-GetOptions( "version", "help" );
+GetOptions( "version", "help", "stat", "cutoff=s" );
 
 # if help has been requested, print out help!
 if ( defined $opt_help )
@@ -125,6 +133,11 @@ if ( defined $opt_version )
     $opt_version = 1;
     &showVersion();
     exit;
+}
+
+my $cutoff = 0; 
+if(defined $opt_cutoff) {
+    $cutoff = $opt_cutoff;
 }
 
 
@@ -167,7 +180,7 @@ if (-e $matrix_file)
     exit 0 if ($reply ne "Y");
 }
 open(MATX, ">$matrix_file") 
-        or die("Error: cannot open file '$matrix_file' for output index.\n");
+    or die("Error: cannot open file '$matrix_file' for output index.\n");
 
 
 $bigrams_file = $ARGV[2];
@@ -189,6 +202,15 @@ while (my $line = <BIGM>)
 {
     chomp($line);
     my @terms = split('<>', $line);
+    
+    my @nums = split/\s+/, $terms[2]; 
+    
+    my $score = shift @nums; 
+    if(defined $opt_stat) { 
+	$score = shift @nums; 
+    }
+    
+    if($score < $cutoff) { next; }
     
     # index every term of the bigram list
     if(!defined $index{$terms[0]})
@@ -227,6 +249,13 @@ while (my $line = <BIGM>)
     my @terms = split('<>', $line);
     my @freqs = split (' ', $terms[2]);	
     
+    my $score = $freqs[0]; 
+    if(defined $opt_stat) { 
+	$score = $freqs[1]; 
+    }
+    
+    if($score < $cutoff) { next; }
+
     # if it is still the same term. 	
     # print out the vector to the matrix file 
     if( $word eq $terms[0] )
@@ -239,8 +268,6 @@ while (my $line = <BIGM>)
     {
 	# the first term of the bigrams changes, record 
 	# the vector position and length of the term
-	
-	
         if ($word ne "")
         {
 	    $bigrams .= "\n";
@@ -253,8 +280,14 @@ while (my $line = <BIGM>)
 	
 	# for a new term, print the term and its first bigrams frequency
 	$word = $terms[0];
-	$bigrams .= "$index{$word}: $index{$terms[1]} $freqs[0] ";
-	printf MATX "$index{$word}: $index{$terms[1]} $freqs[0] ";
+	if(defined $opt_stat) { 
+	    $bigrams .= "$index{$word}: $index{$terms[1]} $freqs[1] ";
+	    printf MATX "$index{$word}: $index{$terms[1]} $freqs[1] ";
+	}
+	else { 
+	    $bigrams .= "$index{$word}: $index{$terms[1]} $freqs[0] ";
+	    printf MATX "$index{$word}: $index{$terms[1]} $freqs[0] ";
+	}
     }
     # reach the end of the bigrams file, record the 
     # vector position and length of the last term.	
@@ -309,6 +342,10 @@ sub showHelp
     
     print "OPTIONS:\n\n";
     
+    print "  --stat             Bigram file is from statistics.pl\n\n";
+
+    print "  --cutoff SCORE     Only include ngrams greater than SCORE\n\n";
+
     print "  --version          Prints the version number.\n\n";
     
     print "  --help             Prints this help message.\n\n";

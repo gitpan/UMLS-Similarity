@@ -24,4 +24,4 @@ requires:
   Text::NSP: 1.17
   Text::OverlapFinder: 0.02
   UMLS::Interface: 1.35
-version: 1.35
+version: 1.37

@@ -1,9 +1,14 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 1.35 to 1.37
+    1. updated umls-similarity.pl to include the upath measure
+
+    2. add the upath.pm module
+
   Changes from version 1.33 to 1.35
-1. updated test case config files for the SNOMEDCT name 
-    change
+    1. updated test case config files for the SNOMEDCT name change
+
     2. updated the web documents to account for the name change as well
 
   Changes from version 1.31 to 1.33
@@ -21,9 +26,11 @@ NAME
     based IC.
 
   Changes from version 1.25 to 1.27
-1. updated documentation
+    1. updated documentation
+
   Changes from version 1.23 to 1.25
-1. updated documentation
+    1. updated documentation
+
     2. modified umls-similarity.pl to return an error if the icfrequency
     information does not match the configuration file -- similar to what we
     do with the icpropagation option

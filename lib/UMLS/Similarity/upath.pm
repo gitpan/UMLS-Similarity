@@ -1,15 +1,12 @@
-# UMLS::Similarity::wup.pm
+# UMLS::Similarity::upath.pm
 #
-# Module implementing the semantic relatedness measure described 
-# by Wu and Palmer (1994)
+# Module implementing the simple edge counting measure of 
+# semantic relatedness.
 #
 # Copyright (c) 2004-2011,
 #
 # Bridget T McInnes, University of Minnesota, Twin Cities
 # bthomson at cs.umn.edu
-#
-# Siddharth Patwardhan, University of Utah, Salt Lake City
-# sidd at cs.utah.edu
 #
 # Serguei Pakhomov, University of Minnesota, Twin Cities
 # pakh002 at umn.edu
@@ -38,7 +35,7 @@
 # Boston, MA  02111-1307, USA.
 
 
-package UMLS::Similarity::closeness;
+package UMLS::Similarity::upath;
 
 use strict;
 use warnings;
@@ -53,27 +50,29 @@ my $debug = 0;
 sub new
 {
     my $className = shift;
+    my $interface    = shift;
+    
     return undef if(ref $className);
-
-    if($debug) { print STDERR "In UMLS::Similarity::wup->new()\n"; }
-
-    my $interface = shift;
-
+  
     my $self = {};
-     
+        
     # Bless the object.
     bless($self, $className);
-    
+        
     # The backend interface object.
     $self->{'interface'} = $interface;
-    
+
     #  check the configuration file if defined
-    my $errorhandler = UMLS::Similarity::ErrorHandler->new("wup",  $interface);
+    my $errorhandler = UMLS::Similarity::ErrorHandler->new("upath",  $interface);
     if(!$errorhandler) {
 	print STDERR "The UMLS::Similarity::ErrorHandler did not load properly\n";
 	exit;
     }
-    
+
+    #  set the undirected and realtime options
+    $interface->setRealtimeOption(1); 
+    $interface->setUndirectedOption(1); 
+
     return $self;
 }
 
@@ -82,89 +81,45 @@ sub getRelatedness
 {
     my $self = shift;
     return undef if(!defined $self || !ref $self);
-
     my $concept1 = shift;
     my $concept2 = shift;
-
+    
     #  if concept 1 and 2 are the same just return 1
     if($concept1 eq $concept2) { return 1; }
 
     #  get the interface
     my $interface = $self->{'interface'};
     
-    #  find the lcses of the two concepts
-    my $lcses = $interface->findLeastCommonSubsumer($concept1, $concept2);
+    #  find the shortest paths
+    my $length = $interface->findShortestPathLength($concept1, $concept2);
     
-    #  if there aren't any return zero
-    if($#{$lcses} < 0) { return -1; }
-    
-    #  get the depth of the lowest lcs
-    my $lcs_depth = 0; my $lcs = "";
-    foreach my $l (@{$lcses}) {
-	my $depth  = $interface->findMaximumDepth($l);
-	if(defined $depth and $lcs_depth < $depth) { 
-	    $lcs_depth = $depth; $lcs = $l;
-	}
-    }
-    
-    #  find the shortestpath between the concept and the lcses
-    #my $c1_length = $interface->findShortestPathLength($lcs, $concept1);
-    #my $c2_length = $interface->findShortestPathLength($lcs, $concept2);
-    
-    my $lcs_close = $interface->findClosenessCentrality($lcs); 
-    my $c1_close  = $interface->findClosenessCentrality($concept1);
-    my $c2_close  = $interface->findClosenessCentrality($concept2);
+    #  if length is less than zero (this shouldn't happen) 
+    #  return a score of zero
+    if($length <= 0) { return $length; }
 
-    #print STDERR "lcs $lcs $lcs_close\n";
-    #print STDERR "cui $concept1 $c1_close\n";
-    #print STDERR "cui $concept2 $c2_close\n";
-
-    #  get the depth of the concepts taking that path
-    #my $c1_depth = $lcs_depth + $c1_length;
-    #my $c2_depth = $lcs_depth + $c2_length;
-    
-    #  if the depth of one of them is less than zero return zero
-    #if($c1_depth < 0 or $c2_depth < 0) { return -1; }
-    
-    #  otherwise calculate wup
-    #my $score = (2 * $lcs_depth) / ($c1_depth + $c2_depth);   
-    my $score = (2 * $lcs_close) / ($c1_close + $c2_close); 
-
-    return $score;
+    #  otherwise return the reciprocal of the length
+    return (1/$length);
 }
+
 
 1;
 __END__
 
 =head1 NAME
 
-UMLS::Similarity::wup - Perl module for computing semantic relatedness
-of concepts in the Unified Medical Language System (UMLS) using the 
-method described by Wu and Palmer (1994).
-
-=head1 CITATION
-
- @article{WuP94,
-  title={{Verbs semantics and lexical selection}},
-  author={Wu, Z. and Palmer, M.},
-  journal={Proceedings of the 32nd conference on Association 
-           for Computational Linguistics},
-  pages={133--138},
-  year={1994},
-  publisher={Association for Computational Linguistics 
-             Morristown, NJ, USA}
- }
-
+UMLS::Similarity::upath - Perl module for computing semantic similarity 
+of concepts in the UMLS by simple edge counting regardless of the direction
+ 
 =head1 SYNOPSIS
 
   use UMLS::Interface;
-  use UMLS::Similarity::wup;
+  use UMLS::Similarity::upath;
 
   my $umls = UMLS::Interface->new(); 
   die "Unable to create UMLS::Interface object.\n" if(!$umls);
 
-  my $wup = UMLS::Similarity::wup->new($umls);
-  die "Unable to create measure object.\n" if(!$wup);
+  my $upath = UMLS::Similarity::upath->new($umls);
+  die "Unable to create measure object.\n" if(!$upath);
 
   my $cui1 = "C0005767";
   my $cui2 = "C0007634";
@@ -175,40 +130,69 @@ method described by Wu and Palmer (1994).
   $ts2 = $umls->getTermList($cui2);
   my $term2 = pop @{$ts2};
 
-  my $value = $wup->getRelatedness($cui1, $cui2);
+  my $value = $upath->getRelatedness($cui1, $cui2);
 
   print "The similarity between $cui1 ($term1) and $cui2 ($term2) is $value\n";
 
 =head1 DESCRIPTION
 
-The Wu & Palmer measure calculates relatedness by considering the 
-depths of the two concepts in the UMLS, along with the depth of the 
-LCS.  The formula is S<score = 2*depth(lcs) / (depth(s1) + depth(s2))>.
-This means that S<0 < score <= 1>.  The score can never be zero because 
-the depth of the LCS is never zero (the depth of the root of a taxonomy 
-is one). The score is one if the two input concepts are the same.
+If the concepts being compared are the same, then the resulting 
+similarity score will be 1.  For example, the score for C0005767 
+and C0005767 is 1.
+
+The relatedness value returned by C<getRelatedness()> is the 
+multiplicative inverse of the path length between the two synsets 
+(1/path_length).  This has a slightly subtle effect: it shifts 
+the relative magnitude of scores. For example, if we have the 
+following pairs of synsets with the given path lengths:
+
+  concept1 concept2: 3
+  concept3 concept4: 4
+  concept5 concept6: 5
+
+We observe that the difference in the score for concept1-concept2 
+and concept3-concept4 is the same as for concept3-concept4 and 
+concept5-concept6. When we take the multiplicative inverse of them, 
+we get:
+
+  concept1 concept2: .333
+  concept3 concept4: .25
+  concept5 concept6: .2
+
+Now the difference between the scores for concept3-concept4 is less 
+than the difference for concept1-concept2 and concept3-concept4. This 
+can have negative consequences when computing correlation coefficients.
+It might be useful to compute relatedness as S<max_distance - 
+path_length>, where max_distance is the longest possible shortest 
+path between two conceps.  The original path length can be easily 
+determined by taking the multiplicative inverse of the returned 
+relatedness score: S<1/score = 1/(1/path_length) = path_length>. 
+
+If two different terms are given as input to getRelatedness, but 
+both terms belong to the same concept, then 1 is returned (e.g.,
+car and auto both belong to the same concept).
 
 =head1 USAGE
 
-The semantic relatedness modules in this distribution are built as classes
-that expose the following methods:
+The semantic relatedness modules in this distribution are built as 
+classes that expose the following methods:
   new()
   getRelatedness()
 
 =head1 TYPICAL USAGE EXAMPLES
 
-To create an object of the wup measure, we would have the following
+To create an object of the upath measure, we would have the following
 lines of code in the perl program. 
 
-   use UMLS::Similarity::wup;
-   $measure = UMLS::Similarity::wup->new($interface);
+   use UMLS::Similarity::upath;
+   $measure = UMLS::Similarity::upath->new($interface);
 
 The reference of the initialized object is stored in the scalar
 variable '$measure'. '$interface' contains an interface object that
-should have been created earlier in the program (UMLS-Interface). 
+should have been created earlier in the program (UMLS-Interface).
 
 If the 'new' method is unable to create the object, '$measure' would 
-be undefined. 
+be undefined.
 
 To find the semantic relatedness of the concept 'blood' (C0005767) and
 the concept 'cell' (C0007634) using the measure, we would write

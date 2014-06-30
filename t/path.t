@@ -5,7 +5,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 25;
+use Test::More tests => 29;
 
 use UMLS::Interface;
 use File::Spec;
@@ -48,7 +48,7 @@ my @testfiles = grep { $_ ne '.' and $_ ne '..' and $_ ne "CVS"} readdir DIR;
 my $perl     = $^X;
 my $util_prg = File::Spec->catfile('utils', 'umls-similarity.pl');
 
-my @measures = qw/path wup lch nam cdist zhong/;
+my @measures = qw/path wup lch nam cdist zhong upath/;
 
 foreach my $measure (@measures) {
 

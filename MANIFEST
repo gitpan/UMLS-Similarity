@@ -12,11 +12,11 @@ lib/UMLS/Similarity/lesk.pm
 lib/UMLS/Similarity/lin.pm
 lib/UMLS/Similarity/nam.pm
 lib/UMLS/Similarity/path.pm
+lib/UMLS/Similarity/upath.pm
 lib/UMLS/Similarity/random.pm
 lib/UMLS/Similarity/res.pm
 lib/UMLS/Similarity/vector.pm
 lib/UMLS/Similarity/wup.pm
-lib/UMLS/Similarity/closeness.pm
 lib/UMLS/Similarity/zhong.pm
 lib/UMLS/vector-index.dat
 lib/UMLS/vector-matrix.dat

@@ -331,7 +331,10 @@ sub getRelatedness
 		    $i++;
 		}
 		$def=~/(C[0-9]+) ([A-Za-z]+) ([A-Za-z0-9]+) ([A-Za-z0-9\.]+) \s*\:\s*(.*?)$/;
-		$d2 .= $5 . " ";
+		my $yrmp = $5; 
+		if(defined $yrmp) { 
+		    $d2 .= $yrmp . " ";
+		}
 	    }
 	    
 	    #if the definition is empty, return -1
