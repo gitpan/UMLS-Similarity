@@ -38,7 +38,7 @@
 
 package UMLS::Similarity;
 
-$VERSION = '1.37';
+$VERSION = '1.41';
 
 
 sub new

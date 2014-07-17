@@ -46,16 +46,22 @@ use vars qw($VERSION);
 $VERSION = '0.07';
 
 my $debug = 0;
+my $weighted = 0; 
 
 sub new
 {
     my $className = shift;
-    my $interface    = shift;
-    
+    my $interface = shift;
+    my $params    = shift; 
+
     return undef if(ref $className);
   
     my $self = {};
-        
+
+    #  get options
+    $params = {} if(!defined $params);
+    $weighted = $params->{'weighted'}; 
+
     # Bless the object.
     bless($self, $className);
         
@@ -81,15 +87,31 @@ sub getRelatedness
 {
     my $self = shift;
     return undef if(!defined $self || !ref $self);
+    
     my $concept1 = shift;
     my $concept2 = shift;
     
     #  if concept 1 and 2 are the same just return 1
     if($concept1 eq $concept2) { return 1; }
 
+    if($weighted) { 
+	return _getWeightedRelatedness($self, $concept1, $concept2); 
+    }
+    else { 
+	return _getUnweightedRelatedness($self, $concept1, $concept2); 
+    }
+}
+
+sub _getUnweightedRelatedness { 
+
+    my $self = shift;
+    return undef if(!defined $self || !ref $self);
+    
+    my $concept1 = shift;
+    my $concept2 = shift;
+    
     #  get the interface
     my $interface = $self->{'interface'};
-    
     #  find the shortest paths
     my $length = $interface->findShortestPathLength($concept1, $concept2);
     
@@ -101,6 +123,53 @@ sub getRelatedness
     return (1/$length);
 }
 
+sub _getWeightedRelatedness 
+{
+    my $self = shift;
+    return undef if(!defined $self || !ref $self);
+    
+    my $concept1 = shift;
+    my $concept2 = shift;
+    
+    #  get the interface
+    my $interface = $self->{'interface'};
+    
+    my $shortestpaths = $interface->findShortestPath($concept1, $concept2); 
+    
+    my $minturn = 0; my $length = 0; 
+    foreach my $path (@{$shortestpaths}) {
+	
+	my @shortestpath = split/\s+/, $path;
+	
+	$length = $#shortestpath + 1; 
+
+	my $turn = -1; my $prevrel = "";
+	foreach my $i (0..$#shortestpath) {
+	    #  get the concept                                          
+	    my $concept = $shortestpath[$i];
+	    
+	    if( $i < $#shortestpath) {
+		my $second = $shortestpath[$i+1];
+		my $relations = $interface->getRelationsBetweenCuis($concept, $second);
+		my $relsab = shift @{$relations};
+		$relsab=~/([A-Z]+) \([A-Z\_]+\)/;
+		my $rel = $1;
+		if($rel ne $prevrel) { $turn++; }
+		$prevrel = $rel;
+	    }
+	}
+	if($turn < $minturn || $minturn == 0) { $minturn = $turn; }
+    }
+  
+    #print STDERR "$concept1 : $concept2 : $length : $minturn : \n";  
+    if($length <= 0) { return -1; }
+
+    my $score = 1 / ( $length - ( $minturn + .5) ); 
+    my $temp = 1 / $length; 
+    #print STDERR "$score : $temp\n";
+
+    return (1 / ($minturn + 1)); 
+}
 
 1;
 __END__
@@ -140,7 +209,7 @@ If the concepts being compared are the same, then the resulting
 similarity score will be 1.  For example, the score for C0005767 
 and C0005767 is 1.
 
-The relatedness value returned by C<getRelatedness()> is the 
+The relatedness value return by C<getRelatedness()> is the 
 multiplicative inverse of the path length between the two synsets 
 (1/path_length).  This has a slightly subtle effect: it shifts 
 the relative magnitude of scores. For example, if we have the 

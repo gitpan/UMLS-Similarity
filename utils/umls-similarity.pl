@@ -474,7 +474,7 @@ this program; if not, write to:
 use UMLS::Interface;
 use Getopt::Long;
 
-eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "freqfile=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "original", "forcerun", "debug", "verbose", "icfrequency=s", "smooth", "st", "intrinsic=s", "icpropagation=s", "undirected", "realtime", "stoplist=s", "stem", "debugfile=s", "vectormatrix=s", "vectorindex=s", "defraw", "dictfile=s", "doubledef=s", "compoundfile=s", "t", "loadcache=s", "getcache=s")) or die ("Please check the above mentioned option(s).\n");
+eval(GetOptions( "version", "help", "username=s", "password=s", "hostname=s", "database=s", "freqfile=s", "socket=s", "measure=s", "config=s", "infile=s", "matrix", "dbfile=s", "precision=s", "info", "allsenses", "original", "forcerun", "debug", "verbose", "icfrequency=s", "smooth", "st", "intrinsic=s", "icpropagation=s", "undirected", "realtime", "stoplist=s", "stem", "debugfile=s", "vectormatrix=s", "vectorindex=s", "defraw", "dictfile=s", "doubledef=s", "compoundfile=s", "t", "loadcache=s", "getcache=s", "weighted")) or die ("Please check the above mentioned option(s).\n");
 
 
 my $debug = 0;
@@ -830,7 +830,13 @@ sub loadMeasures {
     my %icoptions = ();
     my %pathoptions = ();
 
-
+    #  set the path options if defined
+    if($measure=~/upath/) { 
+	if(defined $opt_weighted) { 
+	    $pathoptions{"weighted"} = $opt_weighted; 
+	}
+    }
+    
     #  set the information content options if defined
     if($measure=~/res|jcn|lin/) { 
 	if(defined $opt_st) {
@@ -923,10 +929,10 @@ sub loadMeasures {
     }    
     #  loading the module implementing closeness
     #  modification of wup
-    if($measure eq "closeness") {
-	use UMLS::Similarity::closeness;	
-	$meas = UMLS::Similarity::closeness->new($umls);
-    }    
+    #if($measure eq "closeness") {
+    #use UMLS::Similarity::closeness;	
+    #$meas = UMLS::Similarity::closeness->new($umls);
+    #}    
     #  loading the module implementing the Zhong
     #  et al (2002) measure
     if($measure eq "zhong") {
@@ -943,7 +949,7 @@ sub loadMeasures {
     #  measure of semantic relatedness.
     if($measure eq "upath") {
 	use UMLS::Similarity::upath;
-	$meas = UMLS::Similarity::upath->new($umls);
+	$meas = UMLS::Similarity::upath->new($umls, \%pathoptions);
     }
 
     #  load the module implementing the Rada, et. al.
@@ -1019,7 +1025,7 @@ sub loadMeasures {
     }
 
     if($measure eq "o1vector") {
-	use UMLS::Similarity::o1vector;
+	#use UMLS::Similarity::o1vector;
 	my %o1vectoroptions = ();
 	
 	if(defined $opt_compoundfile) {
@@ -1051,7 +1057,7 @@ sub loadMeasures {
 	    $o1vectoroptions{"doubledef"} = $opt_doubledef;
 	}
 	
-        $meas = UMLS::Similarity::o1vector->new($umls,\%o1vectoroptions);  
+        #$meas = UMLS::Similarity::o1vector->new($umls,\%o1vectoroptions);  
     }
 
     die "Unable to create measure object.\n" if(!$meas);
@@ -1662,7 +1668,7 @@ sub showHelp() {
 #  function to output the version number
 ##############################################################################
 sub showVersion {
-    print '$Id: umls-similarity.pl,v 1.108 2014/06/27 13:32:07 btmcinnes Exp $';
+    print '$Id: umls-similarity.pl,v 1.109 2014/07/07 14:54:56 btmcinnes Exp $';
     print "\nCopyright (c) 2008-2011, Ted Pedersen & Bridget McInnes\n";
 }
 

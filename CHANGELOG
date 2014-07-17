@@ -1,6 +1,12 @@
 NAME
     UMLS::Similarity CHANGES
 
+  Changes from version 1.39 to 1.41
+    1. revision to include Makefile.PL
+
+  Changes from version 1.37 to 1.39
+    1. modified an umls-similarity for the closeness error
+
   Changes from version 1.35 to 1.37
     1. updated umls-similarity.pl to include the upath measure
 
